@@ -20,6 +20,7 @@ import java.net.URI;
 import java.security.Principal;
 
 import javax.annotation.Priority;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -50,6 +51,16 @@ public class RateLimitFilter implements ContainerRequestFilter, ContainerRespons
      */
     public RateLimitFilter() throws SystemConfigException {
         rateLimiter = new RateLimiter();
+    }
+
+    /**
+     * Load RateLimiter for this filter.
+     *
+     * @throws SystemConfigException  If any critical configuration fails to load for the RateLimiter
+     */
+    @Inject
+    public RateLimitFilter(RateLimiter rateLimiter) throws SystemConfigException {
+        rateLimiter = rateLimiter;
     }
 
     @Override
