@@ -7,7 +7,7 @@ import com.yahoo.bard.webservice.table.LogicalTable;
 import com.yahoo.bard.webservice.web.endpoints.DimensionsServlet;
 import com.yahoo.bard.webservice.web.endpoints.MetricsServlet;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;

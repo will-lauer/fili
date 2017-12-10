@@ -5,9 +5,14 @@ package com.yahoo.bard.webservice.config;
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.CONFIGURATION_LOAD_ERROR;
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.RESOURCE_LOAD_MESSAGE;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.ImmutableConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -88,14 +93,26 @@ public class ConfigResourceLoader {
      * @return a Configuration object containing a properties configuration
      */
     public Configuration loadConfigFromResource(Resource resource) {
-        PropertiesConfiguration result = new PropertiesConfiguration();
+        BasicConfigurationBuilder builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
+                .configure(new Parameters().properties()
+                        .setFileName(resource.getFilename())
+                        .setListDelimiterHandler(new DefaultListDelimiterHandler(','))
+                );
         try {
-            result.load(resource.getInputStream());
-            return result;
-        } catch (ConfigurationException | IOException e) {
+            builder.resetParameters();
+            builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class).configure(
+                    new Parameters().properties()
+                            .setFileName(resource.getFilename())
+                            .setListDelimiterHandler(new DefaultListDelimiterHandler(','))
+            );
+            ImmutableConfiguration configuration = builder.getConfiguration();
+            return (Configuration) configuration;
+        } catch (ConfigurationException e) {
             String message = CONFIGURATION_LOAD_ERROR.format(resource.getFilename());
             LOG.error(message, e);
             throw new SystemConfigException(message, e);
+        } finally {
+            builder.reset();
         }
     }
 

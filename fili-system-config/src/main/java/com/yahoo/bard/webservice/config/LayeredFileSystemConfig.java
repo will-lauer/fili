@@ -5,11 +5,11 @@ package com.yahoo.bard.webservice.config;
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.TOO_MANY_APPLICATION_CONFIGS;
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.TOO_MANY_USER_CONFIGS;
 
-import org.apache.commons.configuration.CompositeConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.SystemConfiguration;
+import org.apache.commons.configuration2.CompositeConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.MapConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.SystemConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;

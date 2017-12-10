@@ -23,7 +23,7 @@ import static com.yahoo.bard.webservice.config.ConfigurationTestUtils.namedConfi
 import static com.yahoo.bard.webservice.config.ModuleLoader.ILLEGAL_CHARACTER_IN_MODULE_NAME
 import static com.yahoo.bard.webservice.config.ModuleLoader.MODULE_NAME_IS_TOO_SHORT
 
-import org.apache.commons.configuration.Configuration
+import org.apache.commons.configuration2.Configuration
 import org.springframework.core.io.Resource
 
 import spock.lang.Specification

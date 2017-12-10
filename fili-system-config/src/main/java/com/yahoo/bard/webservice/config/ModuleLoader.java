@@ -6,7 +6,7 @@ import static com.yahoo.bard.webservice.config.ConfigMessageFormat.INVALID_MODUL
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.INVALID_MODULE_NAME;
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.MODULE_IO_EXCEPTION;
 
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;

@@ -26,7 +26,7 @@ import static com.yahoo.bard.webservice.config.ConfigurationTestUtils.MODULE_NOT
 import static com.yahoo.bard.webservice.config.ConfigurationTestUtils.buildModule
 import static com.yahoo.bard.webservice.config.ConfigurationTestUtils.namedConfigurations
 
-import org.apache.commons.configuration.Configuration
+import org.apache.commons.configuration2.Configuration
 
 import spock.lang.Specification
 import spock.lang.Unroll

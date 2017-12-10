@@ -5,8 +5,8 @@ package com.yahoo.bard.webservice.config
 import static com.yahoo.bard.webservice.config.ConfigurationGraph.DEPENDENT_MODULE_KEY
 import static com.yahoo.bard.webservice.config.ConfigurationGraph.MODULE_NAME_KEY
 
-import org.apache.commons.configuration.Configuration
-import org.apache.commons.configuration.MapConfiguration
+import org.apache.commons.configuration2.Configuration
+import org.apache.commons.configuration2.MapConfiguration
 
 /**
  * Constants usable for testing in system configuration specifications

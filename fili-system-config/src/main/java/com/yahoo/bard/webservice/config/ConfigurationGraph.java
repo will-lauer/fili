@@ -10,7 +10,7 @@ import static com.yahoo.bard.webservice.config.ConfigMessageFormat.MODULE_NAME_D
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.MODULE_NAME_MISSING;
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.NO_SUCH_MODULE;
 
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
