@@ -25,10 +25,6 @@ class SimplifiedIntervalListSpec extends Specification {
         largeEvenInterval = [[4, 42]]
     }
 
-    List buildIntervalList(Collection<String> intervals) {
-        intervals.collect { new Interval(it) }
-    }
-
     List buildIntervalListNum(List<List<Long>> times) {
         times.collect { new Interval(it[0], it[1]) }
     }
@@ -36,8 +32,8 @@ class SimplifiedIntervalListSpec extends Specification {
     @Unroll
     def "SimplfyIntervals returns #expected with input #input"() {
         given:
-        List<Interval> raw = buildIntervalList(input)
-        List<Interval> expectedIntervals = buildIntervalList(expected)
+        List<Interval> raw = IntervalTestingUtilsSpec.buildIntervalList(input)
+        List<Interval> expectedIntervals = IntervalTestingUtilsSpec.buildIntervalList(expected)
 
         expect:
         SimplifiedIntervalList.simplifyIntervals(raw) == expectedIntervals
@@ -50,8 +46,8 @@ class SimplifiedIntervalListSpec extends Specification {
     @Unroll
     def "appendWithMerge produces #expected starting from #original with interval #addend"() {
         given:
-        List<Interval> workingList = new SimplifiedIntervalList(buildIntervalList(original))
-        List<Interval> expectedList = new SimplifiedIntervalList(buildIntervalList(expected))
+        List<Interval> workingList = new SimplifiedIntervalList(IntervalTestingUtilsSpec.buildIntervalList(original))
+        List<Interval> expectedList = new SimplifiedIntervalList(IntervalTestingUtilsSpec.buildIntervalList(expected))
         Interval interval = new Interval(addend)
 
         when:

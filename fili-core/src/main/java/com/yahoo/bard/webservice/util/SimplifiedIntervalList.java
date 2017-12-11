@@ -155,7 +155,7 @@ public class SimplifiedIntervalList extends LinkedList<Interval> {
             previous = peekLast();
         }
         appendWithMerge(interval);
-        buffer.stream().forEach(this::appendWithMerge);
+        buffer.forEach(this::appendWithMerge);
     }
 
     /**

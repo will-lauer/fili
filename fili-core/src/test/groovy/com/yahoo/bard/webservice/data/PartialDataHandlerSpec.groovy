@@ -6,7 +6,6 @@ import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.DAY
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.MONTH
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.WEEK
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.YEAR
-import static com.yahoo.bard.webservice.util.IntervalUtilsSpec.buildIntervalList
 import static com.yahoo.bard.webservice.util.IntervalUtilsSpec.complementExpectedSets
 import static org.joda.time.DateTimeZone.UTC
 
@@ -21,6 +20,7 @@ import com.yahoo.bard.webservice.metadata.TestDataSourceMetadataService
 import com.yahoo.bard.webservice.table.Column
 import com.yahoo.bard.webservice.table.StrictPhysicalTable
 import com.yahoo.bard.webservice.table.resolver.QueryPlanningConstraint
+import com.yahoo.bard.webservice.util.IntervalTestingUtilsSpec
 import com.yahoo.bard.webservice.util.SimplifiedIntervalList
 
 import org.joda.time.DateTimeZone
@@ -128,10 +128,10 @@ class PartialDataHandlerSpec extends Specification {
     @Unroll
     def "Complement of #supply yields #expected with fixed request and grain"() {
         setup:
-        SimplifiedIntervalList supplyIntervals = buildIntervalList(supply)
-        SimplifiedIntervalList requestedIntervals = buildIntervalList(['2014/2015'])
+        SimplifiedIntervalList supplyIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(supply)
+        SimplifiedIntervalList requestedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(['2014/2015'])
         Granularity granularity = MONTH
-        SimplifiedIntervalList expectedIntervals = buildIntervalList(expected)
+        SimplifiedIntervalList expectedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(expected)
 
         expect:
         PartialDataHandler.collectBucketedIntervalsNotInIntervalList(
@@ -153,9 +153,9 @@ class PartialDataHandlerSpec extends Specification {
     @Unroll
     def "Collect of #requestedIntervals by #grain yields #expected when fixed supply is removed"() {
         setup:
-        SimplifiedIntervalList supply = buildIntervalList(['2012-05-04/2017-02-03'])
-        SimplifiedIntervalList expectedIntervals = buildIntervalList(expected)
-        SimplifiedIntervalList requestedIntervals = buildIntervalList(requested)
+        SimplifiedIntervalList supply = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(['2012-05-04/2017-02-03'])
+        SimplifiedIntervalList expectedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(expected)
+        SimplifiedIntervalList requestedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(requested)
         Granularity granularity = grain
 
         expect:
@@ -185,9 +185,9 @@ class PartialDataHandlerSpec extends Specification {
             List<String> expectedAsStrings
     ) {
         given:
-        SimplifiedIntervalList from = buildIntervalList(fromAsStrings)
-        SimplifiedIntervalList remove = buildIntervalList(removeAsStrings)
-        SimplifiedIntervalList expected = buildIntervalList(expectedAsStrings)
+        SimplifiedIntervalList from = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(fromAsStrings)
+        SimplifiedIntervalList remove = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(removeAsStrings)
+        SimplifiedIntervalList expected = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(expectedAsStrings)
 
         expect:
         PartialDataHandler.collectBucketedIntervalsNotInIntervalList(remove, from, granularity) == expected

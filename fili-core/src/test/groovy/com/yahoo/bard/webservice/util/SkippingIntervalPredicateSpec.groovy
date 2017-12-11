@@ -12,16 +12,12 @@ import spock.lang.Unroll
 
 class SkippingIntervalPredicateSpec extends Specification {
 
-    SimplifiedIntervalList buildIntervalList(Collection<String> intervals) {
-        intervals.collect { new Interval(it) } as SimplifiedIntervalList
-    }
-
     @Unroll
     def "skipAhead #comment with #target "() {
         given:
         SimplifiedIntervalList.SkippingIntervalPredicate subinterval =
                 new SimplifiedIntervalList.SkippingIntervalPredicate(
-                        buildIntervalList(["2015/2017", "2018/2020"]),
+                        IntervalTestingUtilsSpec.buildSimplifiedIntervalList(["2015/2017", "2018/2020"]),
                         SimplifiedIntervalList.IsSubinterval.IS_SUBINTERVAL,
                         false
                 )
@@ -48,7 +44,9 @@ class SkippingIntervalPredicateSpec extends Specification {
     def "Subinterval test returns value is #result for #testInterval"() {
         given:
         IsSubinterval subinterval = new IsSubinterval(
-                buildIntervalList(["2015/2017", "2018/2020", "2011-01-01T14:00:00/2012-02-01"])
+                IntervalTestingUtilsSpec.buildSimplifiedIntervalList(
+                        ["2015/2017", "2018/2020", "2011-01-01T14:00:00/2012-02-01"]
+                )
         )
         Interval test = new Interval(testInterval)
 

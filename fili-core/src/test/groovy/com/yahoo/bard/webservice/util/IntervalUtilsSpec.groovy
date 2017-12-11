@@ -28,23 +28,16 @@ class IntervalUtilsSpec extends Specification {
         DateTimeZone.setDefault(DateTimeZone.UTC)
     }
 
-    static SimplifiedIntervalList buildIntervalList(Collection<String> intervals) {
-        intervals.collect { new Interval(it) } as SimplifiedIntervalList
-    }
-
     Map buildIntervalMap(Collection<String> intervals) {
         int i = 0;
         intervals.collectEntries { [(new Interval(it)): i++] }
     }
 
-    // 2013 is the most recent common (non leap) year that started on a Monday. This date is aligned with every period.
-    static final DateTime EPOCH = new DateTime(2013, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC);
-
     def "Validate #intervalName overlaps with #intervalsToMatch"() {
         given:
         Interval interval = new Interval(intervalName)
-        List<Interval> match = buildIntervalList(intervalsToMatch)
-        List<Interval> expected = buildIntervalList(expectedMatch)
+        List<Interval> match = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(intervalsToMatch)
+        List<Interval> expected = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(expectedMatch)
 
         expect:
         IntervalUtils.getIntervalOverlaps(interval, match).collect(Collectors.toList()) == expected
@@ -63,9 +56,9 @@ class IntervalUtilsSpec extends Specification {
     @Unroll
     def "getOverlappingIntervals returns #expectedMatch with intervals #listOne and #listTwo"() {
         given:
-        List<Interval> list1 = buildIntervalList(listOne)
-        List<Interval> list2 = buildIntervalList(listTwo)
-        Set<Interval> expected = buildIntervalList(expectedMatch) as Set
+        List<Interval> list1 = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(listOne)
+        List<Interval> list2 = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(listTwo)
+        Set<Interval> expected = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(expectedMatch) as Set
 
         expect:
         IntervalUtils.getOverlappingSubintervals(list1, list2) == expected
@@ -91,7 +84,7 @@ class IntervalUtilsSpec extends Specification {
             List<String> expected
     ) {
         given:
-        List<Interval> baseIntervalList = buildIntervalList(baseIntervals)
+        List<Interval> baseIntervalList = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(baseIntervals)
         Map<Interval, AtomicInteger> expectedSet = buildIntervalMap(expected)
 
         expect:
@@ -217,10 +210,10 @@ class IntervalUtilsSpec extends Specification {
     @Unroll
     def "Intersection of #supply yields #expected with fixed request and grain"() {
         setup:
-        SimplifiedIntervalList requestedIntervals = buildIntervalList(['2014/2015'])
+        SimplifiedIntervalList requestedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(['2014/2015'])
         Granularity granularity = MONTH
-        SimplifiedIntervalList supplyIntervals = buildIntervalList(supply)
-        SimplifiedIntervalList expectedIntervals = buildIntervalList(expected)
+        SimplifiedIntervalList supplyIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(supply)
+        SimplifiedIntervalList expectedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(expected)
 
         expect:
         IntervalUtils.collectBucketedIntervalsIntersectingIntervalList(
@@ -242,10 +235,10 @@ class IntervalUtilsSpec extends Specification {
     @Unroll
     def "Intersect of #requestedIntervals by #grain yields #expected intersected with fixed supply"() {
         setup:
-        SimplifiedIntervalList supply = buildIntervalList(['2012-05-04/2017-02-03'])
+        SimplifiedIntervalList supply = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(['2012-05-04/2017-02-03'])
         Granularity granularity = grain
-        SimplifiedIntervalList requestedIntervals = buildIntervalList(requested)
-        SimplifiedIntervalList expectedIntervals = buildIntervalList(expected)
+        SimplifiedIntervalList requestedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(requested)
+        SimplifiedIntervalList expectedIntervals = IntervalTestingUtilsSpec.buildSimplifiedIntervalList(expected)
 
         expect:
         IntervalUtils.collectBucketedIntervalsIntersectingIntervalList(
