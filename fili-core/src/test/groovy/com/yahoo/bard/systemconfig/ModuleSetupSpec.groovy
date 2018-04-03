@@ -7,7 +7,7 @@ import static com.yahoo.bard.webservice.config.ModuleLoader.MODULE_CONFIG_FILE_N
 import com.yahoo.bard.webservice.config.ConfigResourceLoader
 import com.yahoo.bard.webservice.config.SystemConfigProvider
 
-import org.apache.commons.configuration.Configuration
+import org.apache.commons.configuration2.Configuration
 
 import spock.lang.Specification
 import spock.lang.Unroll

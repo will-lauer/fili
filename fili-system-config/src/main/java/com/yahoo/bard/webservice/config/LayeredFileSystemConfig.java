@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * A class to hold and fetch configuration values from the environment, the system, user, application, module and
@@ -129,6 +132,8 @@ public class LayeredFileSystemConfig implements SystemConfig {
                     Collections.<String>emptyList()
             ).stream()
                     .map(Object::toString)
+                    .map(string -> Arrays.stream(string.split(",")).map(String::trim).collect(Collectors.toList()))
+                    .flatMap(List::stream)
                     .collect(Collectors.toList());
 
             // Add module dependencies to the master configuration
@@ -138,6 +143,24 @@ public class LayeredFileSystemConfig implements SystemConfig {
         } catch (IOException e) {
             throw new SystemConfigException(e);
         }
+    }
+
+    @Override
+    public List<String> getListProperty(@NotNull String key) {
+        return getMasterConfiguration().getList(key).stream()
+                .map(Object::toString)
+                .map(string -> Arrays.stream(string.split(",")).map(String::trim).collect(Collectors.toList()))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public <T> List<T> getListProperty(@NotNull String key, List<T> defaultValue) {
+        return (List<T>) getMasterConfiguration().getList(key, defaultValue).stream()
+                .map(Object::toString)
+                .map(string -> Arrays.stream(string.split(",")).map(String::trim).collect(Collectors.toList()))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

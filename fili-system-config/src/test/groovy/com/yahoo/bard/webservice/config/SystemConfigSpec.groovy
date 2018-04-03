@@ -99,7 +99,8 @@ abstract class SystemConfigSpec extends Specification {
     @Unroll
     def "Reading a #propertyType property with a default gives the property value"() {
         expect: "We read a property that doesn't exist with a default, we get the default"
-        value == systemConfig."get${propertyType}Property"(property, defaultValue)
+        //value == systemConfig."get${propertyType}Property"(property, defaultValue)
+        systemConfig."get${propertyType}Property"(property, defaultValue) == value
 
         where:
         [propertyType, property, _, value, defaultValue] << getTestIterationData()
