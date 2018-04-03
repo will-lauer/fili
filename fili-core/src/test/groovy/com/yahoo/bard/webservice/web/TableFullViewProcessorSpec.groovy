@@ -9,7 +9,7 @@ import com.yahoo.bard.webservice.web.apirequest.TablesApiRequestImpl
 import com.yahoo.bard.webservice.web.endpoints.MetricsServlet
 import com.yahoo.bard.webservice.web.endpoints.TablesServlet
 
-import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang3.StringUtils
 
 import spock.lang.Shared
 import spock.lang.Specification
