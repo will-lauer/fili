@@ -6,12 +6,7 @@ import static com.yahoo.bard.webservice.config.ConfigMessageFormat.CONFIGURATION
 import static com.yahoo.bard.webservice.config.ConfigMessageFormat.RESOURCE_LOAD_MESSAGE;
 
 import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.ImmutableConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.BasicConfigurationBuilder;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,26 +88,12 @@ public class ConfigResourceLoader {
      * @return a Configuration object containing a properties configuration
      */
     public Configuration loadConfigFromResource(Resource resource) {
-        BasicConfigurationBuilder builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
-                .configure(new Parameters().properties()
-                        .setFileName(resource.getFilename())
-                        .setListDelimiterHandler(new DefaultListDelimiterHandler(','))
-                );
         try {
-            builder.resetParameters();
-            builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class).configure(
-                    new Parameters().properties()
-                            .setFileName(resource.getFilename())
-                            .setListDelimiterHandler(new DefaultListDelimiterHandler(','))
-            );
-            ImmutableConfiguration configuration = builder.getConfiguration();
-            return (Configuration) configuration;
-        } catch (ConfigurationException e) {
+            return new Configurations().properties(resource.getURL());
+        } catch (ConfigurationException | IOException exception) {
             String message = CONFIGURATION_LOAD_ERROR.format(resource.getFilename());
-            LOG.error(message, e);
-            throw new SystemConfigException(message, e);
-        } finally {
-            builder.reset();
+            LOG.error(message, exception);
+            throw new SystemConfigException(message, exception);
         }
     }
 

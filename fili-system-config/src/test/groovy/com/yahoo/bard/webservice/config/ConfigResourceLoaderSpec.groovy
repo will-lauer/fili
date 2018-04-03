@@ -73,7 +73,7 @@ class ConfigResourceLoaderSpec extends Specification {
         List<Configuration> configurations = configResourceLoader.loadConfigurations(MODULE_RESOURCE_NAME)
 
         expect:
-        configurations.collect { it.getString(MODULE_NAME_KEY)} as Set == expectedModuleNames
+        configurations.collect { it.getString(MODULE_NAME_KEY) } as Set == expectedModuleNames
     }
 
     @Unroll
@@ -86,7 +86,7 @@ class ConfigResourceLoaderSpec extends Specification {
 
         where:
         configName                              | moduleName
-        //"jar1-contents/moduleConfig.properties" | "fili-system-configuration-test1"
+        "jar1-contents/moduleConfig.properties" | "fili-system-configuration-test1"
         "jar2-contents/moduleConfig.properties" | "fili-system-configuration-test2"
     }
 
