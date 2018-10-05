@@ -66,7 +66,9 @@ import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -86,6 +88,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -375,6 +379,12 @@ public class DataServlet extends CORSPreflightServlet implements BardConfigResou
             @Suspended final AsyncResponse asyncResponse
     ) {
         DataApiRequest apiRequest = null;
+        Map<String, MultivaluedMap<String, String>> clientRequestMap = new HashMap<>();
+        clientRequestMap.put("path", uriInfo.getPathParameters());
+        clientRequestMap.put("query", uriInfo.getQueryParameters());
+        clientRequestMap.put("headers", containerRequestContext.getHeaders());
+        clientRequestMap.put("etc", new MultivaluedHashMap<>());
+
         try {
             try (TimedPhase timer = RequestLog.startTiming("DataApiRequest")) {
                 apiRequest = dataApiRequestFactory.buildApiRequest(
