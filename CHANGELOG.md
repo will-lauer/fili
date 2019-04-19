@@ -10,39 +10,42 @@ Current
 
 ### Added:
 
+- [Add additional availability views](https://github.com/yahoo/fili/issues/892)
+    * `LeftPureUnion` attaches data from another table to a representative table (resembles left join)
+    * `PureUnion` combines all data from multiple tables, merging away missing data
+    * `TimeFiltered' shows only data within a filtered window of time as available
+
 - [Add Partial Data Feature Flags to separate query planning and data protection](https://github.com/yahoo/fili/issues/879)
-  * BardFeatureFlag.PARTIAL_DATA_PROTECTION activates removal of time buckets based on availability
-  * BardFeatureFlag.PARTIAL_DATA_QUERY_OPTIMIZATION activates the use of PartialData when query planning.
-  * BardFeatureFlag.PARTIAL_DATA still activates both capabilities.
-  * If any of these flags are active partial data answers are included in responses. 
+    * BardFeatureFlag.PARTIAL_DATA_PROTECTION activates removal of time buckets based on availability
+    * BardFeatureFlag.PARTIAL_DATA_QUERY_OPTIMIZATION activates the use of PartialData when query planning.
+    * BardFeatureFlag.PARTIAL_DATA still activates both capabilities.
+    * If any of these flags are active partial data answers are included in responses. 
 
 - [Add system config to disable requiring metrics in Api queries](https://github.com/yahoo/fili/issues/862)
-  * Added the system config `require_metrics_in_query` which toggles whether or not metrics should be required in
+    * Added the system config `require_metrics_in_query` which toggles whether or not metrics should be required in
   queries
-    - this setting is turned ON by default
-  * This property is controlled through the feature flag BardFeatureFlag.REQUIRE_METRICS_QUERY
+        - this setting is turned ON by default
+    * This property is controlled through the feature flag BardFeatureFlag.REQUIRE_METRICS_QUERY
 
 - [Add more BoundFilterBuilding validation and hooks](https://github.com/yahoo/fili/issues/850)
-  * Added minimum and maximum arguments to FilterOperation
-  * Added validation on number of arguments to the bound filter builder
-  * Added hook for normalizing BoundFilterBuilder arguments
+    * Added minimum and maximum arguments to FilterOperation
+    * Added validation on number of arguments to the bound filter builder
+    * Added hook for normalizing BoundFilterBuilder arguments
 
 - [Force update of cardinality to SearchIndexes](https://github.com/yahoo/fili/issues/846)
-  * `SearchProvider` now has method `int getDimensionCardinality(boolean refresh)`, where refresh indicates the cardinality count should be refreshed before being returned.
-    - default implementation just defers to existing method `int getDimensionCardinality()`
-    - `LuceneSearchProvider` overrides the default and refreshes the cardinality count if `refresh` is true
+    * `SearchProvider` now has method `int getDimensionCardinality(boolean refresh)`, where refresh indicates the cardinality count should be refreshed before being returned.
+        - default implementation just defers to existing method `int getDimensionCardinality()`
+        - `LuceneSearchProvider` overrides the default and refreshes the cardinality count if `refresh` is true
 
 - [Added aliases to api filter operations](https://github.com/yahoo/fili/issues/843)
-  * Filter ops now have aliases that match the relevant ops and aliases for havings.
+    * Filter ops now have aliases that match the relevant ops and aliases for havings.
 
 - [Added filename parameter to api query](https://github.com/yahoo/fili/issues/709)
-  * If the filename parameter is present in the request the response is assumed to be downloaded with the provided 
-  filename. The download format depends on the format provided to the format parameter. 
-  * Filename parameter is currently only available to data queries.
+    * If the filename parameter is present in the request the response is assumed to be downloaded with the provided filename. The download format depends on the format provided to the format parameter. 
+    * Filename parameter is currently only available to data queries.
   
 - [Ability to add Dimension objects to DimensionSpecs as a nonserialized config object](https://github.com/yahoo/fili/issues/841)
-    * DimensionSpec and relevant subclasses have had a constructor added that takes a Dimension and a getter for
-    the Dimension
+    * DimensionSpec and relevant subclasses have had a constructor added that takes a Dimension and a getter for the Dimension
 
 - [Added expected start and end dates to PhysicalTableDefiniton](https://github.com/yahoo/fili/issues/822)
     * New constructors on `PhysicalTableDefinition` and `ConcretePhysicalTableDefinition` that take expected start and end date
@@ -88,6 +91,14 @@ Current
     * Changed default retention for `LogicalTable` to null rather that P1Y
 
 ### Changed:
+
+- [Refactored packaging on physical table implementations](https://github.com/yahoo/fili/issues/892)
+    * Put implementations of physical table into their own package.
+
+- [Resolved some test problems](https://github.com/yahoo/fili/pull/891)
+    * Added Retry to flaky tests
+    * Tweaked jacoco variable substitution to unbreak intellij unit testing
+    * Pegged DateTimeZone used in test dates to avoid interactions between tests
 
 - [Fix security alerts & Dependency version bump](https://github.com/yahoo/fili/pull/882)
     * Checkstyle prior to 8.18 loads external DTDs by default, which can potentially lead to denial of service attacks
