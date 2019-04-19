@@ -230,6 +230,9 @@ Current
 
 ### Fixed:
 
+- [Fixed missing data source name constraint filtering on MetricsUnionAvailability](https://github.com/yahoo/fili/issues/892)
+    * Added implementation of getDataSourceNames(Constraint)
+
 - [Filtered partial time comparison to requested intervals in `PartialTimeComprator`](https://github.com/yahoo/fili/issues/884)
 
 
