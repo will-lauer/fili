@@ -8,6 +8,7 @@ import com.yahoo.bard.webservice.util.SimplifiedIntervalList;
 import com.yahoo.bard.webservice.web.ApiFilter;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.util.Map;
 import java.util.Optional;
@@ -19,9 +20,9 @@ import java.util.Set;
 public interface Availability {
 
     // 9999-12-31 23:59
-    DateTime FAR_FUTURE = new DateTime(9999, 12, 31, 23, 59);
+    DateTime FAR_FUTURE = new DateTime(9999, 12, 31, 23, 59, DateTimeZone.UTC);
     // 0000-01-01 00:00
-    DateTime DISTANT_PAST = new DateTime(-9999, 1, 1, 0, 0);
+    DateTime DISTANT_PAST = new DateTime(-9999, 1, 1, 0, 0, DateTimeZone.UTC);
 
     /**
      * The names of the data sources backing this availability.

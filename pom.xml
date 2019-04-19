@@ -147,7 +147,6 @@
         <maven-surefire-report-plugin-version>${maven-surefire-plugin-version}</maven-surefire-report-plugin-version>
         
         <!-- empty property used as placeholder for args injected by jacoco coverage plugin -->
-        <jacoco.args></jacoco.args>
     </properties>
 
     <dependencyManagement>
@@ -646,7 +645,7 @@
                     <configuration>
                         <forkCount>1</forkCount>
                         <reuseForks>true</reuseForks>
-                        <argLine>@{jacoco.args} -Xmx3G</argLine>
+                        <argLine>${jacoco.args} -Xmx3G</argLine>
                         <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <includes>
                             <include>%regex[.*Spec.*]</include>
@@ -966,6 +965,15 @@
     </reporting>
     
     <profiles>
+        <profile>
+            <id>coverage.off</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <jacoco.args></jacoco.args>
+            </properties>
+        </profile>
         <profile>
             <id>coverage.build</id>
             <activation>
