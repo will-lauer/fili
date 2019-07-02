@@ -15,8 +15,8 @@ import com.yahoo.bard.webservice.data.dimension.impl.NoOpSearchProvider;
  */
 public class NoOpSearchProviderFactory implements Factory<SearchProvider> {
 
-    public static final String SEARCH_PROVIDER = "SearchProvider";
-
+    public static final String ENTITY_TYPE = "SearchProvider";
+    
     /**
      * Build a SearchProvider instance.
      *
@@ -31,7 +31,7 @@ public class NoOpSearchProviderFactory implements Factory<SearchProvider> {
 
         LuthierValidationUtils.validateField(
                 configTable.get("queryWeightLimit"),
-                SEARCH_PROVIDER,
+                ENTITY_TYPE,
                 name,
                 "queryWeightLimit"
         );

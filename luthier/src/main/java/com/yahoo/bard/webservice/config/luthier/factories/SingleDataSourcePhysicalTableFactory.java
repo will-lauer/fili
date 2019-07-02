@@ -29,9 +29,7 @@ import java.util.Set;
  * A factory that is used by default to support Simple (non-Composite) Physical Table.
  */
 abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhysicalTable> {
-    // public static final String DEFAULT_FIELD_NAME_ERROR =
-    //         "Base physical table '%s': defaultField name '%s' not found in fields '%s'";
-    private static final String PHYSICAL_TABLE = "single data source physical table";
+    private static final String ENTITY_TYPE = "single data source physical table";
 
     static class SingleDataSourceParams {
         TableName tableName;
@@ -40,7 +38,6 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
         Map<String, String> logicalToPhysicalColumnNames;
         DataSourceMetadataService metadataService;
     }
-
 
     /**
      * Build the parameter for the subclass of SingleDataSourceParams to use.
@@ -59,8 +56,8 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
         SingleDataSourceParams params = new SingleDataSourceParams();
         params.tableName = new LuthierTableName(name);
         // TODO: Time grain not tested yet
-        LuthierValidationUtils.validateField(configTable.get("granularity"), PHYSICAL_TABLE, name, "granularity");
-        LuthierValidationUtils.validateField(configTable.get("dateTimeZone"), PHYSICAL_TABLE, name, "dateTimeZone");
+        LuthierValidationUtils.validateField(configTable.get("granularity"), ENTITY_TYPE, name, "granularity");
+        LuthierValidationUtils.validateField(configTable.get("dateTimeZone"), ENTITY_TYPE, name, "dateTimeZone");
         params.timeGrain = DefaultTimeGrain.valueOf(
                 configTable.get("granularity").textValue().toUpperCase(Locale.US)
         ).buildZonedTimeGrain(DateTimeZone.forID(configTable.get("dateTimeZone").textValue()));
@@ -68,7 +65,7 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
         params.columns = new LinkedHashSet<>();
         LuthierValidationUtils.validateField(
                 configTable.get("dimensions"),
-                PHYSICAL_TABLE,
+                ENTITY_TYPE,
                 name,
                 "dimensions"
         );
@@ -85,7 +82,7 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
         params.logicalToPhysicalColumnNames = new LinkedHashMap<>();
         LuthierValidationUtils.validateField(
                 configTable.get("logicalToPhysicalColumnNames"),
-                PHYSICAL_TABLE,
+                ENTITY_TYPE,
                 name,
                 "searchProvider"
         );

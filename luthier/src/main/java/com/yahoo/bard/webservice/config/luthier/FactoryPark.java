@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class FactoryPark<T> {
 
-    static final String FACTORY_PARK = "factory park";
+    static final String ENTITY_TYPE = "factory park";
 
     private static final String FACTORY_KEY = "type";
 
@@ -54,9 +54,9 @@ public class FactoryPark<T> {
      * @return  An instance of T corresponding to this name.
      */
     T buildEntity(String entityName, LuthierIndustrialPark industrialPark) {
-        LuthierValidationUtils.validateField(fetchConfig().get(entityName), FACTORY_PARK, entityName, entityName);
+        LuthierValidationUtils.validateField(fetchConfig().get(entityName), ENTITY_TYPE, entityName, entityName);
         ObjectNode entityConfig = (ObjectNode) fetchConfig().get(entityName);
-        LuthierValidationUtils.validateField(entityConfig.get(FACTORY_KEY), FACTORY_PARK, entityName, FACTORY_KEY);
+        LuthierValidationUtils.validateField(entityConfig.get(FACTORY_KEY), ENTITY_TYPE, entityName, FACTORY_KEY);
         String factoryName = entityConfig.get(FACTORY_KEY).textValue();
         if (! factoryMap.containsKey(factoryName)) {
             throw new LuthierFactoryException(String.format(UNKNOWN_FACTORY_NAME, factoryName));
