@@ -16,11 +16,9 @@ import com.yahoo.bard.webservice.data.time.ZonedTimeGrain;
 import com.yahoo.bard.webservice.metadata.DataSourceMetadataService;
 import com.yahoo.bard.webservice.table.Column;
 import com.yahoo.bard.webservice.table.ConfigPhysicalTable;
-import com.yahoo.bard.webservice.table.SingleDataSourcePhysicalTable;
 
 import org.joda.time.DateTimeZone;
 
-import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
@@ -30,12 +28,12 @@ import java.util.Set;
 /**
  * A factory that is used by default to support Simple (non-Composite) Physical Table.
  */
-public abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhysicalTable> {
+abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhysicalTable> {
     // public static final String DEFAULT_FIELD_NAME_ERROR =
     //         "Base physical table '%s': defaultField name '%s' not found in fields '%s'";
     private static final String PHYSICAL_TABLE = "single data source physical table";
 
-    public static class SingleDataSourceParams {
+    static class SingleDataSourceParams {
         TableName tableName;
         ZonedTimeGrain timeGrain;
         Set<Column> columns;
@@ -44,6 +42,15 @@ public abstract class SingleDataSourcePhysicalTableFactory implements Factory<Co
     }
 
 
+    /**
+     * Build the parameter for the subclass of SingleDataSourceParams to use.
+     *
+     * @param name  name of the LuthierTable as a String
+     * @param configTable  ObjectNode that points to the value of corresponding table entry in config file
+     * @param resourceFactories  should be the industrial park that needs to be paseed along to the builders
+     *
+     * @return  a param bean that contains information need to build the PhysicalTable
+     */
     protected SingleDataSourceParams buildParams(
             String name,
             ObjectNode configTable,
@@ -92,5 +99,4 @@ public abstract class SingleDataSourcePhysicalTableFactory implements Factory<Co
         params.metadataService = resourceFactories.getMetadataService();
         return params;
     }
-
 }
