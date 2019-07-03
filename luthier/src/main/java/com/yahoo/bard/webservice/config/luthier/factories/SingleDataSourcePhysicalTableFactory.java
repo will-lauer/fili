@@ -31,6 +31,9 @@ import java.util.Set;
 abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhysicalTable> {
     private static final String ENTITY_TYPE = "single data source physical table";
 
+    /**
+     * A simple bean that holds all information to construct a physical table of this type.
+     */
     static class SingleDataSourceParams {
         TableName tableName;
         ZonedTimeGrain timeGrain;
@@ -86,8 +89,7 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
                 name,
                 "searchProvider"
         );
-        JsonNode columnNameMapNode = configTable.get("logicalToPhysicalColumnNames");
-        columnNameMapNode.forEach(
+        configTable.get("logicalToPhysicalColumnNames").forEach(
                 node -> params.logicalToPhysicalColumnNames.put(
                         node.get("logicalName").textValue(),
                         node.get("physicalName").textValue()

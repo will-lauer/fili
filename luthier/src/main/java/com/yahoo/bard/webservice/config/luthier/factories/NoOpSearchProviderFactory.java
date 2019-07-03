@@ -16,7 +16,7 @@ import com.yahoo.bard.webservice.data.dimension.impl.NoOpSearchProvider;
 public class NoOpSearchProviderFactory implements Factory<SearchProvider> {
 
     public static final String ENTITY_TYPE = "SearchProvider";
-    
+
     /**
      * Build a SearchProvider instance.
      *
