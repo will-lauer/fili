@@ -58,13 +58,11 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
     ) {
         SingleDataSourceParams params = new SingleDataSourceParams();
         params.tableName = new LuthierTableName(name);
-        // TODO: Time grain not tested yet
         LuthierValidationUtils.validateField(configTable.get("granularity"), ENTITY_TYPE, name, "granularity");
         LuthierValidationUtils.validateField(configTable.get("dateTimeZone"), ENTITY_TYPE, name, "dateTimeZone");
         params.timeGrain = DefaultTimeGrain.valueOf(
                 configTable.get("granularity").textValue().toUpperCase(Locale.US)
         ).buildZonedTimeGrain(DateTimeZone.forID(configTable.get("dateTimeZone").textValue()));
-        // TODO: columns not tested yet
         params.columns = new LinkedHashSet<>();
         LuthierValidationUtils.validateField(
                 configTable.get("dimensions"),
@@ -76,12 +74,10 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
         dimensionsNode.forEach(
                 node -> params.columns.add(new DimensionColumn(resourceFactories.getDimension(node.textValue())))
         );
-        // TODO: think about using LogicalMetricColumn
         JsonNode metricsNode = configTable.get("metrics");
         metricsNode.forEach(
                 node -> params.columns.add(new MetricColumn(node.textValue()))
         );
-        // TODO: logicalToPhysicalColumnNames not tested yet
         params.logicalToPhysicalColumnNames = new LinkedHashMap<>();
         LuthierValidationUtils.validateField(
                 configTable.get("logicalToPhysicalColumnNames"),

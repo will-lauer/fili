@@ -5,6 +5,7 @@ package com.yahoo.bard.webservice.config.luthier.factories
 import com.yahoo.bard.webservice.config.luthier.LuthierIndustrialPark
 import com.yahoo.bard.webservice.data.config.LuthierResourceDictionaries
 import com.yahoo.bard.webservice.data.dimension.Dimension
+import com.yahoo.bard.webservice.data.time.ZonedTimeGrain
 import com.yahoo.bard.webservice.table.PhysicalTable
 import spock.lang.Specification
 
@@ -39,5 +40,15 @@ class StrictPhysicalTableFactorSpec extends Specification {
             ! airTable.getDimensions().contains(expectedTestDimension)
             wikitickerTable.getPhysicalColumnName("testDimension") == "testDimensionPhysicalName"
             wikitickerTable.getPhysicalColumnName("testDimension") != "wrongPhysicalName"
+            ! wikitickerTable.getSchema().getLogicalColumnNames("testDimensionPhysicalName").contains("wrongLogicalName")
+            wikitickerTable.getSchema().getLogicalColumnNames("testDimensionPhysicalName").contains("testDimension")
+    }
+
+    def "general information is correct in the wikiticker table"() {
+        when:
+            wikitickerTable = park.getPhysicalTable("wikiticker")
+        then:
+            wikitickerTable.getSchema().getTimeGrain().getTimeZoneName() == "UTC"
+            wikitickerTable.getSchema().getTimeGrain().getName() == "hour"
     }
 }
