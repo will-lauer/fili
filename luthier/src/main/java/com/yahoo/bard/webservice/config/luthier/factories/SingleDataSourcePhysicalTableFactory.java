@@ -7,14 +7,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yahoo.bard.webservice.config.luthier.Factory;
 import com.yahoo.bard.webservice.config.luthier.LuthierIndustrialPark;
 import com.yahoo.bard.webservice.config.luthier.LuthierValidationUtils;
+import com.yahoo.bard.webservice.data.config.LuthierPhysicalTableParam;
 import com.yahoo.bard.webservice.data.config.LuthierTableName;
-import com.yahoo.bard.webservice.data.config.names.TableName;
 import com.yahoo.bard.webservice.data.dimension.DimensionColumn;
 import com.yahoo.bard.webservice.data.metric.MetricColumn;
 import com.yahoo.bard.webservice.data.time.DefaultTimeGrain;
-import com.yahoo.bard.webservice.data.time.ZonedTimeGrain;
-import com.yahoo.bard.webservice.metadata.DataSourceMetadataService;
-import com.yahoo.bard.webservice.table.Column;
 import com.yahoo.bard.webservice.table.ConfigPhysicalTable;
 
 import org.joda.time.DateTimeZone;
@@ -22,25 +19,12 @@ import org.joda.time.DateTimeZone;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * A factory that is used by default to support Simple (non-Composite) Physical Table.
  */
 abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhysicalTable> {
     private static final String ENTITY_TYPE = "single data source physical table";
-
-    /**
-     * A simple bean that holds all information to construct a physical table of this type.
-     */
-    static class SingleDataSourceParams {
-        TableName tableName;
-        ZonedTimeGrain timeGrain;
-        Set<Column> columns;
-        Map<String, String> logicalToPhysicalColumnNames;
-        DataSourceMetadataService metadataService;
-    }
 
     /**
      * Build the parameter for the subclass of SingleDataSourceParams to use.
@@ -51,12 +35,12 @@ abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhy
      *
      * @return  a param bean that contains information need to build the PhysicalTable
      */
-    protected SingleDataSourceParams buildParams(
+    LuthierPhysicalTableParam buildParams(
             String name,
             ObjectNode configTable,
             LuthierIndustrialPark resourceFactories
     ) {
-        SingleDataSourceParams params = new SingleDataSourceParams();
+        LuthierPhysicalTableParam params = new LuthierPhysicalTableParam();
         params.tableName = new LuthierTableName(name);
         LuthierValidationUtils.validateField(configTable.get("granularity"), ENTITY_TYPE, name, "granularity");
         LuthierValidationUtils.validateField(configTable.get("dateTimeZone"), ENTITY_TYPE, name, "dateTimeZone");

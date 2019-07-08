@@ -4,6 +4,7 @@ package com.yahoo.bard.webservice.config.luthier.factories;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yahoo.bard.webservice.config.luthier.LuthierIndustrialPark;
+import com.yahoo.bard.webservice.data.config.LuthierPhysicalTableParam;
 import com.yahoo.bard.webservice.table.ConfigPhysicalTable;
 import com.yahoo.bard.webservice.table.PermissivePhysicalTable;
 
@@ -23,7 +24,7 @@ public class PermissivePhysicalTableFactory extends SingleDataSourcePhysicalTabl
      */
     @Override
     public ConfigPhysicalTable build(String name, ObjectNode configTable, LuthierIndustrialPark resourceFactories) {
-        SingleDataSourceParams params = buildParams(name, configTable, resourceFactories);
+        LuthierPhysicalTableParam params = buildParams(name, configTable, resourceFactories);
         return new PermissivePhysicalTable(
                 params.tableName,
                 params.timeGrain,
