@@ -12,9 +12,53 @@ local misc = require 'utils./misc'
 -- Build Config
 -------------------------------------------------------------------------------
 
+--- Build a specific physical table into a json object.
+--
+-- for each of the pair in logicalToPhysicalColumnNames, e.g.
+--
+-- logicalToPhysicalColumnNames = {
+--     ...
+--     testDimension = "testDimensionPhysicalName",
+--     ...
+-- }
+--
+-- the corresponding Json will be
+--
+-- "logicalToPhysicalColumnNames": [
+--   ...
+--   {
+--     "logicalName": "testDimension"
+--     "physicalName": "testDimensionPhysicalName",
+--   },
+--   ...
+-- ]
+--
+-- this reformatting is done to avoid a gotcha since we don't want the Json
+-- object to stay as an ArrayNode. If we instead naively translate this, then it
+-- will be an ObjectNode, i.e. { "logiName": "physiName" }, when it is non-empty,
+-- but an ArrayNode, i.e. [], when it is empty.
+local physical_table_build = function(name, physical_table)
+    local copy = misc.shallow_copy(physical_table)
+    copy.type = copy.type or "strict"
+    copy.description = copy.description or name
+    copy.physicalTables = copy.physicalTables or {}
+    copy.dateTimeZone = copy.dateTimeZone or "UTC"
+    local intermediate_map = copy.logicalToPhysicalColumnNames or {}
+    -- rebuilds the logicalToPhysicalColumnNames map with nicer format
+    copy.logicalToPhysicalColumnNames = {}
+    for logical_name, physical_name in pairs(intermediate_map) do
+        local name_pair = {
+            logicalName = logical_name,
+            physicalName = physical_name
+        }
+        table.insert(copy.logicalToPhysicalColumnNames, name_pair)
+    end
+    return copy
+end
+
 --- Add physical table configs and logical table configs into a configuration.
 --
--- @param tables A table containing two keys: 
+-- @param tables A table containing two keys:
 --  physical - A table of physical table configuration, keyed on name
 --  logical - A table of logical table configuration, keyed on name
 -- @return The table for storing table configs and ready be parsed into json
@@ -24,23 +68,7 @@ function M.build_table_config(tables)
     local logical = {}
 
     for name, physical_table in pairs(tables.physical) do
-        local copy = misc.shallow_copy(physical_table)
-        -- hywical table name pull up
-        copy.type = copy.type or "strict"
-        copy.description = copy.description or name
-        copy.physicalTables = copy.physicalTables or {}
-        copy.dateTimeZone = copy.dateTimeZone or "UTC"
-        local intermediate_map = copy.logicalToPhysicalColumnNames or {}
-        -- rebuilds the logicalToPhysicalColumnNames map with nicer format
-        copy.logicalToPhysicalColumnNames = {}
-        for logical_name, physical_name in pairs(intermediate_map) do
-            local name_pair = {
-                logicalName = logical_name,
-                physicalName = physical_name
-            }
-            table.insert(copy.logicalToPhysicalColumnNames, name_pair)
-        end
-        physical[copy.name or name] = copy
+        physical[name] = physical_table_build(name, physical_table)
     end
 
     for name, logical_table in pairs(tables.logical) do
