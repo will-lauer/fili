@@ -18,10 +18,25 @@ local M = {}
     Physical tables are defined in table M.physical that map physical table's
     name (should be the same as the dataset names defined in druid's config
     file) to a dictionary of physical table configuration:
-    * name - The name of the physical table
-        Defaults to the configuration's table key
+    * The table is keyed on the name of the physical table
     * description - Brief documentation about the physical table.
         Defaults to the configuration's table key
+    * type - [Mandatory] The nature of this physical table, used to build the table internally.
+        Currently supports
+            * strict - strict single data source physical table
+            * permissive - permissive single data source physical table
+    * dateTimeZone - A case sensitive name according to joda's dateTimeZone to indicate the
+        which zone this physical table belongs in. See further:
+        https://www.joda.org/joda-time/timezones.html
+        Defaults to "UTC"
+    * granularity - the case-insensitive name for the physical table's granularity.
+        Including:
+            * year
+            * month
+            * day
+            * hour
+            * all
+        Defaults to "day"
     * metrics - A list of names of metrics for this physical table, the name of
         a metric should be the same as is defined in druid's config file.
     * dimensions - A list of names of  dimensions for this physical table, the

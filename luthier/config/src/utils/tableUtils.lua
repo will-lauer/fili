@@ -43,6 +43,7 @@ local physical_table_build = function(name, physical_table)
     copy.description = copy.description or name
     copy.physicalTables = copy.physicalTables or {}
     copy.dateTimeZone = copy.dateTimeZone or "UTC"
+    copy.granularity = copy.granularity or "day"
     local intermediate_map = copy.logicalToPhysicalColumnNames or {}
     -- rebuilds the logicalToPhysicalColumnNames map with nicer format
     copy.logicalToPhysicalColumnNames = {}
