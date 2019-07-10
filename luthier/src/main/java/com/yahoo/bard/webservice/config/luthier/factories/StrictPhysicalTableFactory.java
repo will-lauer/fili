@@ -4,21 +4,21 @@ package com.yahoo.bard.webservice.config.luthier.factories;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yahoo.bard.webservice.config.luthier.LuthierIndustrialPark;
-import com.yahoo.bard.webservice.data.config.LuthierPhysicalTableParam;
+import com.yahoo.bard.webservice.data.config.LuthierPhysicalTableParams;
 import com.yahoo.bard.webservice.table.ConfigPhysicalTable;
 import com.yahoo.bard.webservice.table.StrictPhysicalTable;
 
 /**
  * A factory that is used by default to support Simple (non-Composite) Physical Table.
+ *
+ * A strictPhysicalTable is available if and only if all of the columns
+ * are available. This contrasts with the PermissivePhysicalTable where only
+ * one column's availability has to be met.
  */
 public class StrictPhysicalTableFactory extends SingleDataSourcePhysicalTableFactory {
 
     /**
      * Build a StrictPhysicalTable instance.
-     * A PhysicalTable is "strict" if an aggregation matches its availability
-     * if and only if all of the dimensions' availabilities are met. This contrasts
-     * with the PermissivePhysicalTable where only one dimension's availability
-     * has to be met.
      *
      * @param name  the config dictionary name (normally the apiName)
      * @param configTable  the json tree describing this config entity
@@ -28,7 +28,7 @@ public class StrictPhysicalTableFactory extends SingleDataSourcePhysicalTableFac
      */
     @Override
     public ConfigPhysicalTable build(String name, ObjectNode configTable, LuthierIndustrialPark resourceFactories) {
-        LuthierPhysicalTableParam params = buildParams(name, configTable, resourceFactories);
+        LuthierPhysicalTableParams params = buildParams(name, configTable, resourceFactories);
         return new StrictPhysicalTable(
                 params.tableName,
                 params.timeGrain,

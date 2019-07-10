@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * A simple bean that holds all information to construct a physical table of this type.
  */
-public class LuthierPhysicalTableParam {
+public class LuthierPhysicalTableParams {
     public TableName tableName;
     public ZonedTimeGrain timeGrain;
     public Set<Column> columns;

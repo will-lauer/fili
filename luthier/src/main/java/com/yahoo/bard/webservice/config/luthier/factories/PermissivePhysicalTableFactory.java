@@ -4,21 +4,21 @@ package com.yahoo.bard.webservice.config.luthier.factories;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.yahoo.bard.webservice.config.luthier.LuthierIndustrialPark;
-import com.yahoo.bard.webservice.data.config.LuthierPhysicalTableParam;
+import com.yahoo.bard.webservice.data.config.LuthierPhysicalTableParams;
 import com.yahoo.bard.webservice.table.ConfigPhysicalTable;
 import com.yahoo.bard.webservice.table.PermissivePhysicalTable;
 
 /**
  * A factory that is used by default to support Simple (non-Composite) Physical Table.
+ *
+ * A permissivePhysicalTable is available as long as one column's availability
+ * is met. This contrasts with the PermissivePhysicalTable where all of
+ * the columns' availabilities need to be met.
  */
 public class PermissivePhysicalTableFactory extends SingleDataSourcePhysicalTableFactory {
 
     /**
      * Build a PermissivePhysicalTable instance.
-     * A PhysicalTable is "permissive" if an aggregation matches its availability
-     * as long as one dimension's availability is met. This contrasts with
-     * the PermissivePhysicalTable where all of the dimensions' availabilities
-     * need to be met.
      *
      * @param name  the config dictionary name (normally the apiName)
      * @param configTable  the json tree describing this config entity
@@ -28,7 +28,7 @@ public class PermissivePhysicalTableFactory extends SingleDataSourcePhysicalTabl
      */
     @Override
     public ConfigPhysicalTable build(String name, ObjectNode configTable, LuthierIndustrialPark resourceFactories) {
-        LuthierPhysicalTableParam params = buildParams(name, configTable, resourceFactories);
+        LuthierPhysicalTableParams params = buildParams(name, configTable, resourceFactories);
         return new PermissivePhysicalTable(
                 params.tableName,
                 params.timeGrain,
