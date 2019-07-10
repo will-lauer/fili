@@ -50,6 +50,13 @@ local M = {}
         if the Druid table is at the hourly grain. Naturally, you'll get weird
         results if you configure a physical table for a more precise granularity
         than is supported by the backing dataset.
+    * logicalToPhysicalColumnNames - used internally to supply a translation
+        for Druid look up. In the example:
+            * logiName = physiName
+        logiName should refer to a name in this table's dimensions field;
+        while physiName is the name used in Druid.
+        Note: for more information how this config is prepared, please see
+        the documentation in utils/tableUtils.lua
     * physicalTables - A list of the names of the physical tables that this
         logical table depends on
 ]]

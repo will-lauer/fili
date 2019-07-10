@@ -12,8 +12,10 @@ local misc = require 'utils./misc'
 -- Build Config
 -------------------------------------------------------------------------------
 
---- Build a specific physical table into a json object.
+--- Prepare a specific physical table for Fili to consume.
 --
+-- In this function, defaulting and some reformatting are applied.
+-- Most notably:
 -- for each of the pair in logicalToPhysicalColumnNames, e.g.
 --
 -- logicalToPhysicalColumnNames = {
@@ -33,7 +35,7 @@ local misc = require 'utils./misc'
 --   ...
 -- ]
 --
--- this reformatting is done to avoid a gotcha since we don't want the Json
+-- this "weird" reformatting is done to avoid a gotcha since we don't want the Json
 -- object to stay as an ArrayNode. If we instead naively translate this, then it
 -- will be an ObjectNode, i.e. { "logiName": "physiName" }, when it is non-empty,
 -- but an ArrayNode, i.e. [], when it is empty.

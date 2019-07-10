@@ -94,7 +94,9 @@ public class LuthierIndustrialPark implements ConfigurationLoader {
     /**
      * Retrieve or build a SearchProvider for a specific domain.
      *
-     * @param domain  a string that is associated with the type o
+     * @param domain  a string that is associated with the space this provider
+     * searches for. It will typically be the dimension name unless more than
+     * one dimension shares the same SearchProvider.
      *
      * @return  an instance of the SearchProvider that correspond to the domain
      */
@@ -130,7 +132,7 @@ public class LuthierIndustrialPark implements ConfigurationLoader {
      *
      * @param tableName the name for the PhysicalTable to be retrieved or built.
      *
-     * @return the dimension instance corresponding to this name.
+     * @return the PhysicalTable instance corresponding to this name.
      */
     public ConfigPhysicalTable getPhysicalTable(String tableName) {
         PhysicalTableDictionary physicalTableDictionary = resourceDictionaries.getPhysicalDictionary();
