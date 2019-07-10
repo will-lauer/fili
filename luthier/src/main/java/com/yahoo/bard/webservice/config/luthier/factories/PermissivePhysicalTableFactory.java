@@ -15,6 +15,10 @@ public class PermissivePhysicalTableFactory extends SingleDataSourcePhysicalTabl
 
     /**
      * Build a PermissivePhysicalTable instance.
+     * A PhysicalTable is "permissive" if an aggregation matches its availability
+     * as long as one dimension's availability is met. This contrasts with
+     * the PermissivePhysicalTable where all of the dimensions' availabilities
+     * need to be met.
      *
      * @param name  the config dictionary name (normally the apiName)
      * @param configTable  the json tree describing this config entity

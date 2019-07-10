@@ -22,6 +22,9 @@ import java.util.Locale;
 
 /**
  * A factory that is used by default to support Simple (non-Composite) Physical Table.
+ * Classes that extend this abstract class:
+ * PermissivePhysicalTableFactory
+ * StrictPhysicalTableFactory
  */
 abstract class SingleDataSourcePhysicalTableFactory implements Factory<ConfigPhysicalTable> {
     private static final String ENTITY_TYPE = "single data source physical table";

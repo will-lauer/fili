@@ -15,6 +15,10 @@ public class StrictPhysicalTableFactory extends SingleDataSourcePhysicalTableFac
 
     /**
      * Build a StrictPhysicalTable instance.
+     * A PhysicalTable is "strict" if an aggregation matches its availability
+     * if and only if all of the dimensions' availabilities are met. This contrasts
+     * with the PermissivePhysicalTable where only one dimension's availability
+     * has to be met.
      *
      * @param name  the config dictionary name (normally the apiName)
      * @param configTable  the json tree describing this config entity
