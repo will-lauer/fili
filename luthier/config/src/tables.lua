@@ -23,8 +23,12 @@ local M = {}
         Defaults to the configuration's table key
     * type - [Mandatory] The nature of this physical table, used to build the table internally.
         Currently supports
-            * strict - strict single data source physical table
-            * permissive - permissive single data source physical table
+            * strict - strict single data source physical table:
+                A physical table backed up by one druid table, which is available
+                only when all of its Columns are available.
+            * permissive - permissive single data source physical table:
+                A physical table backed up by one druid table, which is available
+                as long as one Column is available.
     * dateTimeZone - A case sensitive name according to joda's dateTimeZone to indicate the
         which zone this physical table belongs in. See further:
         https://www.joda.org/joda-time/timezones.html
