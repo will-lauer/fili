@@ -24,11 +24,13 @@ local M = {}
     * type - [Mandatory] The nature of this physical table, used to build the table internally.
         Currently supports
             * strict - strict single data source physical table:
-                A physical table backed up by one druid table, which is available
-                only when all of its Columns are available.
+                A physical table backed up by one druid table. When querying a strict table with
+                partial data turned on, the data is considered "complete" if and only if there
+                is no missing data in any of the queried columns. 
             * permissive - permissive single data source physical table:
-                A physical table backed up by one druid table, which is available
-                as long as one Column is available.
+                A physical table backed up by one druid table. When querying a permissive table 
+                with partial data turned on, the data is considered "complete" if at least one
+                of the queried columns has no missing data.
     * dateTimeZone - A case sensitive name according to joda's dateTimeZone to indicate the
         which zone this physical table belongs in. See further:
         https://www.joda.org/joda-time/timezones.html
