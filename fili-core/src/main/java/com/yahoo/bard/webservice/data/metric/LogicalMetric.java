@@ -71,6 +71,13 @@ public interface LogicalMetric {
     String getType();
 
     /**
+     * The collected metadata of this metric.
+     *
+     * @return A collection of metric identity metadata.
+     */
+    LogicalMetricInfo getLogicalMetricInfo();
+
+    /**
      * Does this metric support being rebuilt.
      *
      * @return true if this metric supports a regeneration contract.

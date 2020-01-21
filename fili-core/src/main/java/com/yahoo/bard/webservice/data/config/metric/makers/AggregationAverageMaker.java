@@ -6,10 +6,12 @@ import static com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPo
 import static com.yahoo.bard.webservice.druid.util.FieldConverterSupplier.getSketchConverter;
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
-import com.yahoo.bard.webservice.data.metric.LogicalMetricImpl;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
+import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
+import com.yahoo.bard.webservice.data.metric.signal.SignalMetric;
+import com.yahoo.bard.webservice.data.metric.signal.SignalMetricImpl;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 import com.yahoo.bard.webservice.druid.model.MetricField;
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation;
@@ -49,9 +51,10 @@ import javax.validation.constraints.NotNull;
  *    <li>finally, a post aggregation in the outer query dividing the sum by the count</li>
  * </ul>
  */
-public class AggregationAverageMaker extends MetricMaker {
+public class AggregationAverageMaker extends MetricMaker implements MakeFromMetrics {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 1;
+    public static final String AGG_FUNCTION_SIGNAL = "aggType";
 
     public static final PostAggregation COUNT_INNER = new ConstantPostAggregation("one", 1);
     public static final @NotNull Aggregation COUNT_OUTER = new LongSumAggregation("count", "one");
@@ -73,19 +76,7 @@ public class AggregationAverageMaker extends MetricMaker {
 
     @Override
     protected LogicalMetric makeInner(LogicalMetricInfo logicalMetricInfo, List<String> dependentMetrics) {
-        // Get the Metric that is being averaged over
-        LogicalMetric dependentMetric = metrics.get(dependentMetrics.get(0));
-        if (dependentMetric.supportsRegeneration()) {
-            //dependentMetric =
-        }
-        // Get the field being subtotalled in the inner query
-        MetricField sourceMetric = convertToSketchEstimateIfNeeded(dependentMetric.getMetricField());
-
-        // Build the TemplateDruidQuery for the metric
-        TemplateDruidQuery innerQuery = buildInnerQuery(sourceMetric, dependentMetric.getTemplateDruidQuery());
-        TemplateDruidQuery outerQuery = buildOuterQuery(logicalMetricInfo.getName(), sourceMetric, innerQuery);
-
-        return new LogicalMetricImpl(outerQuery, NO_OP_MAPPER, logicalMetricInfo);
+        return makeInnerWithResolvedDependencies(logicalMetricInfo, resolveDependencies(dependentMetrics));
     }
 
     /**
@@ -209,5 +200,32 @@ public class AggregationAverageMaker extends MetricMaker {
      */
     private TemplateDruidQuery buildTimeGrainCounterQuery() {
         return new TemplateDruidQuery(Collections.emptySet(), Collections.singleton(COUNT_INNER), innerGrain);
+    }
+
+    @Override
+    public LogicalMetric makeInnerWithResolvedDependencies(
+            LogicalMetricInfo logicalMetricInfo,
+            List<LogicalMetric> dependentMetrics
+    ) {
+        // Get the Metric that is being averaged over
+        LogicalMetric dependentMetric = dependentMetrics.get(0);
+
+        // Get the field being subtotalled in the inner query
+        MetricField sourceMetric = convertToSketchEstimateIfNeeded(dependentMetric.getMetricField());
+
+        // Build the TemplateDruidQuery for the metric
+        TemplateDruidQuery innerQuery = buildInnerQuery(sourceMetric, dependentMetric.getTemplateDruidQuery());
+        TemplateDruidQuery outerQuery = buildOuterQuery(logicalMetricInfo.getName(), sourceMetric, innerQuery);
+
+        SignalHandler handler = (dependentMetric instanceof SignalMetric) ?
+                ((SignalMetric) dependentMetric).getSignalHandler()
+                : SignalHandler.DEFAULT_SIGNAL_HANDLER;
+
+        return new SignalMetricImpl(
+                logicalMetricInfo,
+                outerQuery,
+                NO_OP_MAPPER,
+                handler.withoutSignal(AGG_FUNCTION_SIGNAL)
+        );
     }
 }

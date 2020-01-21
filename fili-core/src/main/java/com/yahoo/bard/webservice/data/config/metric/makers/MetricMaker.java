@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Metric maker produces new metrics from existing metrics or raw configuration.
@@ -186,6 +187,17 @@ public abstract class MetricMaker {
      * @return the number of dependent metrics the maker requires for making the metric
      */
     protected abstract int getDependentMetricsRequired();
+
+    /**
+     * A naive implementation for resolving dependencies.
+     *
+     * @param logicalMetricNames  The names for metrics to retrieve from the dictionary.
+     *
+     * @return the resolved metrics.
+     */
+    protected List<LogicalMetric> resolveDependencies(List<String> logicalMetricNames) {
+        return logicalMetricNames.stream().map(metrics::get).collect(Collectors.toList());
+    }
 
     /**
      * A helper function returning the resulting aggregation set from merging one or more template druid queries.

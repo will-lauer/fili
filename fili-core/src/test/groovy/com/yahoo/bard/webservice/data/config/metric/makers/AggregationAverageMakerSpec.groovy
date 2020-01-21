@@ -6,9 +6,12 @@ import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.DAY
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric
 import com.yahoo.bard.webservice.data.metric.LogicalMetricImpl
+import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
 import com.yahoo.bard.webservice.data.metric.mappers.NoOpResultSetMapper
+import com.yahoo.bard.webservice.data.metric.signal.SignalHandler
+import com.yahoo.bard.webservice.data.metric.signal.SignalMetricImpl
 import com.yahoo.bard.webservice.data.time.TimeGrain
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation
 import com.yahoo.bard.webservice.druid.model.aggregation.DoubleSumAggregation
@@ -174,6 +177,11 @@ class AggregationAverageMakerSpec extends Specification{
                 innerQueryTemplate
         )
 
-        return new LogicalMetricImpl(outerQuery, new NoOpResultSetMapper(), NAME, DESCRIPTION)
+        return new SignalMetricImpl(
+                new LogicalMetricInfo(NAME, DESCRIPTION),
+                outerQuery,
+                new NoOpResultSetMapper(),
+                SignalHandler.DEFAULT_SIGNAL_HANDLER
+        )
     }
 }
