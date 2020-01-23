@@ -4,8 +4,10 @@ package com.yahoo.bard.webservice.data.config.metric.makers;
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
+import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Interface to indicate a metric make supports building from resolved metrics without use of a metric dictionary.
@@ -24,4 +26,16 @@ public interface MakeFromMetrics {
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     );
+
+    /**
+     * A naive implementation for resolving dependencies.
+     *
+     * @param logicalNames  The names for metrics to retrieve from the dictionary.
+     *
+     * @return the resolved metrics.
+     */
+    default List<LogicalMetric> resolveDependencies(MetricDictionary metricDictionary, List<String> logicalNames) {
+        return logicalNames.stream().map(metricDictionary::get).collect(Collectors.toList());
+    }
+
 }

@@ -8,6 +8,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
+import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation.ArithmeticPostAggregationFunction;
 import com.yahoo.bard.webservice.druid.model.postaggregation.PostAggregation;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Metric maker for performing binary arithmetic operations on metrics.
  */
-public class ArithmeticMaker extends MetricMaker {
+public class ArithmeticMaker extends BaseSignalMetricMaker {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 2;
 
@@ -67,10 +68,18 @@ public class ArithmeticMaker extends MetricMaker {
     }
 
     @Override
-    protected LogicalMetric makeInner(LogicalMetricInfo logicalMetricInfo, List<String> dependentMetrics) {
-        // Get the ArithmeticPostAggregation operands from the dependent metrics
+    public ResultSetMapper makeCalculation(
+            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
+    ) {
+        return resultSetMapperSupplier.apply(logicalMetricInfo.getName());
+    }
+
+    @Override
+    public TemplateDruidQuery makePartialQuery(
+            LogicalMetricInfo logicalMetricInfo,
+            List<LogicalMetric> dependentMetrics
+    ) {
         List<PostAggregation> operands = dependentMetrics.stream()
-                .map(metrics::get)
                 .map(LogicalMetric::getMetricField)
                 .map(MetricMaker::getNumericField)
                 .collect(Collectors.toList());
@@ -81,13 +90,14 @@ public class ArithmeticMaker extends MetricMaker {
                 function,
                 operands
         ));
+        return getMergedQuery(dependentMetrics).withPostAggregations(postAggregations);;
+    }
 
-        TemplateDruidQuery query = getMergedQuery(dependentMetrics).withPostAggregations(postAggregations);
-        return new LogicalMetricImpl(
-                query,
-                resultSetMapperSupplier.apply(logicalMetricInfo.getName()),
-                logicalMetricInfo
-        );
+    @Override
+    public SignalHandler makeSignalHandler(
+            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
+    ) {
+        return null;
     }
 
     @Override

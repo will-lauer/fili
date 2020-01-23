@@ -9,9 +9,10 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
+import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
+import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals;
 import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
 import com.yahoo.bard.webservice.data.metric.signal.SignalMetric;
-import com.yahoo.bard.webservice.data.metric.signal.SignalMetricImpl;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 import com.yahoo.bard.webservice.druid.model.MetricField;
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation;
@@ -51,10 +52,10 @@ import javax.validation.constraints.NotNull;
  *    <li>finally, a post aggregation in the outer query dividing the sum by the count</li>
  * </ul>
  */
-public class AggregationAverageMaker extends MetricMaker implements MakeFromMetrics {
+public class AggregationAverageMaker extends BaseSignalMetricMaker {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 1;
-    public static final String AGG_FUNCTION_SIGNAL = "aggType";
+    public static final String AGG_FUNCTION_SIGNAL = DefaultSignals.REAGGREGATION;
 
     public static final PostAggregation COUNT_INNER = new ConstantPostAggregation("one", 1);
     public static final @NotNull Aggregation COUNT_OUTER = new LongSumAggregation("count", "one");
@@ -72,11 +73,6 @@ public class AggregationAverageMaker extends MetricMaker implements MakeFromMetr
     public AggregationAverageMaker(MetricDictionary metrics, ZonelessTimeGrain innerGrain) {
         super(metrics);
         this.innerGrain = innerGrain;
-    }
-
-    @Override
-    protected LogicalMetric makeInner(LogicalMetricInfo logicalMetricInfo, List<String> dependentMetrics) {
-        return makeInnerWithResolvedDependencies(logicalMetricInfo, resolveDependencies(dependentMetrics));
     }
 
     /**
@@ -118,7 +114,7 @@ public class AggregationAverageMaker extends MetricMaker implements MakeFromMetr
      *
      * @return A template query representing the inner aggregation
      */
-    private TemplateDruidQuery buildInnerQuery(MetricField sourceMetric, TemplateDruidQuery innerDependentQuery) {
+    protected TemplateDruidQuery buildInnerQuery(MetricField sourceMetric, TemplateDruidQuery innerDependentQuery) {
         Set<PostAggregation> newInnerPostAggregations = (sourceMetric instanceof PostAggregation) ?
                 ImmutableSet.of((PostAggregation) sourceMetric) :
                 Collections.emptySet();
@@ -137,7 +133,7 @@ public class AggregationAverageMaker extends MetricMaker implements MakeFromMetr
      *
      * @return Either the original MetricField, or a new SketchEstimate post aggregation
      */
-    private MetricField convertToSketchEstimateIfNeeded(MetricField originalSourceMetric) {
+    protected MetricField convertToSketchEstimateIfNeeded(MetricField originalSourceMetric) {
         return originalSourceMetric instanceof SketchAggregation ?
                 getSketchConverter().asSketchEstimate((SketchAggregation) originalSourceMetric) :
                 originalSourceMetric;
@@ -155,7 +151,7 @@ public class AggregationAverageMaker extends MetricMaker implements MakeFromMetr
      * @deprecated This will become unnecessary when the old sketch library is removed
      */
     @Deprecated
-    private Set<Aggregation> convertSketchesToSketchMerges(Set<Aggregation> originalAggregations) {
+    protected Set<Aggregation> convertSketchesToSketchMerges(Set<Aggregation> originalAggregations) {
         return originalAggregations.stream()
                 .map(agg -> agg.isSketch() ? getSketchConverter().asInnerSketch((SketchAggregation) agg) : agg)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -175,7 +171,7 @@ public class AggregationAverageMaker extends MetricMaker implements MakeFromMetr
      *
      * @return The aggregator that sums across the inner query quantity
      */
-    private @NotNull Aggregation createSummingAggregator(MetricField innerMetric) {
+    protected @NotNull Aggregation createSummingAggregator(MetricField innerMetric) {
         // Pick a name for the outer (summing) aggregation name
         String outerSummingName = (!innerMetric.isSketch() && innerMetric instanceof Aggregation) ?
                 innerMetric.getName() :
@@ -198,34 +194,36 @@ public class AggregationAverageMaker extends MetricMaker implements MakeFromMetr
      *
      * @return The created query
      */
-    private TemplateDruidQuery buildTimeGrainCounterQuery() {
+    protected TemplateDruidQuery buildTimeGrainCounterQuery() {
         return new TemplateDruidQuery(Collections.emptySet(), Collections.singleton(COUNT_INNER), innerGrain);
     }
 
     @Override
-    public LogicalMetric makeInnerWithResolvedDependencies(
-            LogicalMetricInfo logicalMetricInfo,
-            List<LogicalMetric> dependentMetrics
+    public ResultSetMapper makeCalculation(
+            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
     ) {
-        // Get the Metric that is being averaged over
-        LogicalMetric dependentMetric = dependentMetrics.get(0);
+        return NO_OP_MAPPER;
+    }
 
-        // Get the field being subtotalled in the inner query
+    @Override
+    public TemplateDruidQuery makePartialQuery(
+            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
+    ) {
+        LogicalMetric dependentMetric = dependentMetrics.get(0);
         MetricField sourceMetric = convertToSketchEstimateIfNeeded(dependentMetric.getMetricField());
 
-        // Build the TemplateDruidQuery for the metric
         TemplateDruidQuery innerQuery = buildInnerQuery(sourceMetric, dependentMetric.getTemplateDruidQuery());
         TemplateDruidQuery outerQuery = buildOuterQuery(logicalMetricInfo.getName(), sourceMetric, innerQuery);
+        return outerQuery;
+    }
 
-        SignalHandler handler = (dependentMetric instanceof SignalMetric) ?
+    @Override
+    public SignalHandler makeSignalHandler(
+            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
+    ) {
+        LogicalMetric dependentMetric = dependentMetrics.get(0);
+        return (dependentMetric instanceof SignalMetric) ?
                 ((SignalMetric) dependentMetric).getSignalHandler()
                 : SignalHandler.DEFAULT_SIGNAL_HANDLER;
-
-        return new SignalMetricImpl(
-                logicalMetricInfo,
-                outerQuery,
-                NO_OP_MAPPER,
-                handler.withoutSignal(AGG_FUNCTION_SIGNAL)
-        );
     }
 }

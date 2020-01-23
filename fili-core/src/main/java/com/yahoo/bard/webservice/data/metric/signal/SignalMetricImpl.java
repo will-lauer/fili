@@ -39,12 +39,12 @@ public class SignalMetricImpl extends LogicalMetricImpl implements SignalMetric 
 
     @Override
     public boolean accepts(final String signalName) {
-        return signalHandler.accepts(this, signalName);
+        return signalHandler.accepts(signalName);
     }
 
     @Override
     public LogicalMetric accept(String signalName, Map<String, String> signalData) {
-        return null;
+        return signalHandler.;
     }
 
     @Override

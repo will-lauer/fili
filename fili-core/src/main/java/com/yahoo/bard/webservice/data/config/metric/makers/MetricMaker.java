@@ -202,14 +202,13 @@ public abstract class MetricMaker {
     /**
      * A helper function returning the resulting aggregation set from merging one or more template druid queries.
      *
-     * @param names  Names of the metrics to fetch and merge the aggregation clauses from
+     * @param dependentMetrics The metrics to fetch and merge the aggregation clauses from
      *
      * @return The merged query
      */
-    protected TemplateDruidQuery getMergedQuery(List<String> names) {
+    protected TemplateDruidQuery getMergedQuery(List<LogicalMetric> dependentMetrics) {
         // Merge in any additional queries
-        return names.stream()
-                .map(metrics::get)
+        return dependentMetrics.stream()
                 .map(LogicalMetric::getTemplateDruidQuery)
                 .reduce(TemplateDruidQuery::merge)
                 .orElseThrow(() -> {
