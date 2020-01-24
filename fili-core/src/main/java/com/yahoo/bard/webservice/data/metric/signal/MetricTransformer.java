@@ -18,14 +18,14 @@ public interface MetricTransformer {
      * @param signalName The name of the signal being applied.
      * @param signalData  The data associated with that signal.
      *
-     * @throws UnknownSignalValueException if this transformer doesn't know how to accept this signal
      * @return A new metric based on the signal;
+     * @throws UnknownSignalValueException if this transformer doesn't know how to accept this signal
      */
     LogicalMetric apply(LogicalMetric logicalMetric, String signalName, Map<String, String> signalData)
             throws UnknownSignalValueException;
 
     MetricTransformer EMPTY_TRANSFORM = (metric, name, map) -> {
-        throw new UnknownSignalValueException(name, map.toString());
+        throw new UnknownSignalValueException(name, map);
     };
 
     MetricTransformer IDENTITY_TRANSFORM = (metric, name, map) -> {

@@ -12,7 +12,6 @@ import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
 import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals;
 import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
-import com.yahoo.bard.webservice.data.metric.signal.SignalMetric;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 import com.yahoo.bard.webservice.druid.model.MetricField;
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation;
@@ -63,6 +62,13 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
 
     private final ZonelessTimeGrain innerGrain;
 
+    protected int getDependentMetricsRequired() {
+        return DEPENDENT_METRICS_REQUIRED;
+    }
+
+    private final SignalHandler signalHandler =
+            DefaultSignals.DEFAULT_SIGNAL_HANDLER.withoutSignal(AGG_FUNCTION_SIGNAL);
+
     /**
      * Constructor.
      *
@@ -73,6 +79,19 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
     public AggregationAverageMaker(MetricDictionary metrics, ZonelessTimeGrain innerGrain) {
         super(metrics);
         this.innerGrain = innerGrain;
+    }
+
+    @Override
+    protected TemplateDruidQuery makePartialQuery(
+            final LogicalMetricInfo logicalMetricInfo,
+            final List<LogicalMetric> dependentMetrics
+    ) {
+        LogicalMetric dependentMetric = dependentMetrics.get(0);
+        MetricField sourceMetric = convertToSketchEstimateIfNeeded(dependentMetric.getMetricField());
+
+        TemplateDruidQuery innerQuery = buildInnerQuery(sourceMetric, dependentMetric.getTemplateDruidQuery());
+        TemplateDruidQuery outerQuery = buildOuterQuery(logicalMetricInfo.getName(), sourceMetric, innerQuery);
+        return outerQuery;
     }
 
     /**
@@ -114,7 +133,7 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
      *
      * @return A template query representing the inner aggregation
      */
-    protected TemplateDruidQuery buildInnerQuery(MetricField sourceMetric, TemplateDruidQuery innerDependentQuery) {
+    private TemplateDruidQuery buildInnerQuery(MetricField sourceMetric, TemplateDruidQuery innerDependentQuery) {
         Set<PostAggregation> newInnerPostAggregations = (sourceMetric instanceof PostAggregation) ?
                 ImmutableSet.of((PostAggregation) sourceMetric) :
                 Collections.emptySet();
@@ -126,17 +145,53 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
     }
 
     /**
-     * If the aggregation being averaged is a sketch, the inner query must convert it to a numerical type so that it
-     * can be summed.
+     * Create an Aggregation for summing on a metric from an inner query.
+     * <p>
+     * If the original metric that is being averaged is used together in a query with the averaging metric, then both
+     * the original aggregator name and the summing aggregator used by the average metric may appear together in the
+     * outer query. If they share the same name but different definitions, there would be a conflict.  This can arise
+     * if the original metric used a post aggregation or if it contained a non numeric (e.g. sketch) aggregation.
+     * <p>
+     * We use the convention of changing the name for the average summing aggregation by adding the suffix '_sum'.
      *
-     * @param originalSourceMetric  The metric being target for sums
+     * @param innerMetric  The metric on the inner query being summed
      *
-     * @return Either the original MetricField, or a new SketchEstimate post aggregation
+     * @return The aggregator that sums across the inner query quantity
      */
-    protected MetricField convertToSketchEstimateIfNeeded(MetricField originalSourceMetric) {
-        return originalSourceMetric instanceof SketchAggregation ?
-                getSketchConverter().asSketchEstimate((SketchAggregation) originalSourceMetric) :
-                originalSourceMetric;
+    private @NotNull Aggregation createSummingAggregator(MetricField innerMetric) {
+        // Pick a name for the outer (summing) aggregation name
+        String outerSummingName = (!innerMetric.isSketch() && innerMetric instanceof Aggregation) ?
+                innerMetric.getName() :
+                innerMetric.getName() + "_sum";
+
+        // Make sure we don't drop precision
+        return innerMetric.isFloatingPoint() ?
+                new DoubleSumAggregation(outerSummingName, innerMetric.getName()) :
+                new LongSumAggregation(outerSummingName, innerMetric.getName());
+    }
+
+    /**
+     * Create a query with a counter field and a grain.
+     *
+     * @return The created query
+     */
+    protected TemplateDruidQuery buildTimeGrainCounterQuery() {
+        return new TemplateDruidQuery(Collections.emptySet(), Collections.singleton(COUNT_INNER), innerGrain);
+    }
+
+    @Override
+    protected SignalHandler makeSignalHandler(
+            LogicalMetricInfo logicalMetricInfo,
+            List<LogicalMetric> dependentMetrics
+    ) {
+        return signalHandler;
+    }
+
+    @Override
+    protected ResultSetMapper makeCalculation(
+            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
+    ) {
+        return NO_OP_MAPPER;
     }
 
     /**
@@ -158,72 +213,16 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
     }
 
     /**
-     * Create an Aggregation for summing on a metric from an inner query.
-     * <p>
-     * If the original metric that is being averaged is used together in a query with the averaging metric, then both
-     * the original aggregator name and the summing aggregator used by the average metric may appear together in the
-     * outer query. If they share the same name but different definitions, there would be a conflict.  This can arise
-     * if the original metric used a post aggregation or if it contained a non numeric (e.g. sketch) aggregation.
-     * <p>
-     * We use the convention of changing the name for the average summing aggregation by adding the suffix '_sum'.
+     * If the aggregation being averaged is a sketch, the inner query must convert it to a numerical type so that it
+     * can be summed.
      *
-     * @param innerMetric  The metric on the inner query being summed
+     * @param originalSourceMetric  The metric being target for sums
      *
-     * @return The aggregator that sums across the inner query quantity
+     * @return Either the original MetricField, or a new SketchEstimate post aggregation
      */
-    protected @NotNull Aggregation createSummingAggregator(MetricField innerMetric) {
-        // Pick a name for the outer (summing) aggregation name
-        String outerSummingName = (!innerMetric.isSketch() && innerMetric instanceof Aggregation) ?
-                innerMetric.getName() :
-                innerMetric.getName() + "_sum";
-
-        // Make sure we don't drop precision
-        return innerMetric.isFloatingPoint() ?
-                new DoubleSumAggregation(outerSummingName, innerMetric.getName()) :
-                new LongSumAggregation(outerSummingName, innerMetric.getName());
-
-    }
-
-    @Override
-    protected int getDependentMetricsRequired() {
-        return DEPENDENT_METRICS_REQUIRED;
-    }
-
-    /**
-     * Create a query with a counter field and a grain.
-     *
-     * @return The created query
-     */
-    protected TemplateDruidQuery buildTimeGrainCounterQuery() {
-        return new TemplateDruidQuery(Collections.emptySet(), Collections.singleton(COUNT_INNER), innerGrain);
-    }
-
-    @Override
-    public ResultSetMapper makeCalculation(
-            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
-    ) {
-        return NO_OP_MAPPER;
-    }
-
-    @Override
-    public TemplateDruidQuery makePartialQuery(
-            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
-    ) {
-        LogicalMetric dependentMetric = dependentMetrics.get(0);
-        MetricField sourceMetric = convertToSketchEstimateIfNeeded(dependentMetric.getMetricField());
-
-        TemplateDruidQuery innerQuery = buildInnerQuery(sourceMetric, dependentMetric.getTemplateDruidQuery());
-        TemplateDruidQuery outerQuery = buildOuterQuery(logicalMetricInfo.getName(), sourceMetric, innerQuery);
-        return outerQuery;
-    }
-
-    @Override
-    public SignalHandler makeSignalHandler(
-            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
-    ) {
-        LogicalMetric dependentMetric = dependentMetrics.get(0);
-        return (dependentMetric instanceof SignalMetric) ?
-                ((SignalMetric) dependentMetric).getSignalHandler()
-                : SignalHandler.DEFAULT_SIGNAL_HANDLER;
+    protected MetricField convertToSketchEstimateIfNeeded(MetricField originalSourceMetric) {
+        return originalSourceMetric instanceof SketchAggregation ?
+                getSketchConverter().asSketchEstimate((SketchAggregation) originalSourceMetric) :
+                originalSourceMetric;
     }
 }

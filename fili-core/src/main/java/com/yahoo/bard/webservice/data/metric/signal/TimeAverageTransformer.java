@@ -2,12 +2,15 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.metric.signal;
 
+import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.DAY;
+import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.MONTH;
+import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.WEEK;
+
 import com.yahoo.bard.webservice.data.config.metric.makers.AggregationAverageMaker;
 import com.yahoo.bard.webservice.data.config.metric.makers.MakeFromMetrics;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
-import com.yahoo.bard.webservice.data.time.DefaultTimeGrain;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,9 +38,9 @@ public class TimeAverageTransformer implements MetricTransformer {
     private static final String MONTHLY_AVERAGE = "monthAvg";
     private static final String MONTHLY_AVERAGE_LONG = "Monthly Average";
 
-    private AggregationAverageMaker dayMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, DefaultTimeGrain.DAY);
-    private AggregationAverageMaker weekMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, DefaultTimeGrain.WEEK);
-    private AggregationAverageMaker monthMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, DefaultTimeGrain.MONTH);
+    private AggregationAverageMaker dayMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, DAY);
+    private AggregationAverageMaker weekMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, WEEK);
+    private AggregationAverageMaker monthMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, MONTH);
 
     private Map<String, MakeFromMetrics> metricMakerMap = new HashMap<>();
     private Map<String, String> formatLongName = new HashMap<>();
@@ -59,8 +62,8 @@ public class TimeAverageTransformer implements MetricTransformer {
     public LogicalMetric apply(LogicalMetric logicalMetric, String signalName, Map<String, String> signalData)
             throws UnknownSignalValueException {
         String makerValue = signalData.get(BASE_SIGNAL);
-        if (! metricMakerMap.containsKey(makerValue) ) {
-            throw new UnknownSignalValueException(BASE_SIGNAL, makerValue);
+        if (!metricMakerMap.containsKey(makerValue)) {
+            throw new UnknownSignalValueException(BASE_SIGNAL, signalData);
         }
         MakeFromMetrics maker = metricMakerMap.get(makerValue);
 
@@ -78,10 +81,7 @@ public class TimeAverageTransformer implements MetricTransformer {
      *
      * @return  A metric info for a time-ly logical metric.
      */
-    protected LogicalMetricInfo makeNewLogicalMetricInfo(
-            LogicalMetricInfo info,
-            final String makerValue
-    ) {
+    protected LogicalMetricInfo makeNewLogicalMetricInfo(LogicalMetricInfo info, String makerValue) {
         String makeValueName = formatLongName.get(makerValue);
         String name = String.format(nameFormat, makerValue, info.getName());
         String longName = String.format(longNameFormat, info.getLongName(), makeValueName);

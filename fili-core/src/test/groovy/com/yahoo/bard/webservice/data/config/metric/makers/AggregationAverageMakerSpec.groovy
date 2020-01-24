@@ -10,7 +10,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
 import com.yahoo.bard.webservice.data.metric.mappers.NoOpResultSetMapper
-import com.yahoo.bard.webservice.data.metric.signal.SignalHandler
+import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals
 import com.yahoo.bard.webservice.data.metric.signal.SignalMetricImpl
 import com.yahoo.bard.webservice.data.time.TimeGrain
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation
@@ -181,7 +181,7 @@ class AggregationAverageMakerSpec extends Specification{
                 new LogicalMetricInfo(NAME, DESCRIPTION),
                 outerQuery,
                 new NoOpResultSetMapper(),
-                SignalHandler.DEFAULT_SIGNAL_HANDLER
+                DefaultSignals.DEFAULT_SIGNAL_HANDLER
         )
     }
 }

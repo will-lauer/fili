@@ -30,8 +30,9 @@ public interface SignalMetric extends LogicalMetric {
      * @param signalData  A map of keys and values representing the signal.
      *
      * @return A metric that has accepted this signal.
+     * @throws UnknownSignalValueException if the signal value cannot be processed correctly
      */
-    LogicalMetric accept(String signalName, Map<String, String> signalData);
+    LogicalMetric accept(String signalName, Map<String, String> signalData) throws UnknownSignalValueException;
 
     /**
      * Get the underlying signal handler for this metric.

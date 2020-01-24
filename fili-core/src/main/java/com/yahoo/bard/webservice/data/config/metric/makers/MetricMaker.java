@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Metric maker produces new metrics from existing metrics or raw configuration.
@@ -189,26 +188,36 @@ public abstract class MetricMaker {
     protected abstract int getDependentMetricsRequired();
 
     /**
-     * A naive implementation for resolving dependencies.
+     * A helper function returning the resulting aggregation set from merging one or more template druid queries.
      *
-     * @param logicalMetricNames  The names for metrics to retrieve from the dictionary.
+     * @param dictionary  The dictionary used to resolve these named
+     * @param names The names of metrics to fetch and merge the aggregation clauses from
      *
-     * @return the resolved metrics.
+     * @return The merged query
      */
-    protected List<LogicalMetric> resolveDependencies(List<String> logicalMetricNames) {
-        return logicalMetricNames.stream().map(metrics::get).collect(Collectors.toList());
+    protected static TemplateDruidQuery getMergedQuery(MetricDictionary dictionary, List<String> names) {
+        // Merge in any additional queries
+        return names.stream()
+                .map(dictionary::get)
+                .map(LogicalMetric::getTemplateDruidQuery)
+                .reduce(TemplateDruidQuery::merge)
+                .orElseThrow(() -> {
+                    String message = "At least 1 name is needed to merge aggregations";
+                    LOG.error(message);
+                    return new IllegalArgumentException(message);
+                });
     }
 
     /**
      * A helper function returning the resulting aggregation set from merging one or more template druid queries.
      *
-     * @param dependentMetrics The metrics to fetch and merge the aggregation clauses from
+     * @param logicalMetrics The names of metrics to fetch and merge the aggregation clauses from
      *
      * @return The merged query
      */
-    protected TemplateDruidQuery getMergedQuery(List<LogicalMetric> dependentMetrics) {
+    protected TemplateDruidQuery getMergedQuery(List<LogicalMetric> logicalMetrics) {
         // Merge in any additional queries
-        return dependentMetrics.stream()
+        return logicalMetrics.stream()
                 .map(LogicalMetric::getTemplateDruidQuery)
                 .reduce(TemplateDruidQuery::merge)
                 .orElseThrow(() -> {

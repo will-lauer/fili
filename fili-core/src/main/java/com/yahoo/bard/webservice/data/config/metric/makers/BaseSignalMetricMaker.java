@@ -2,8 +2,6 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.config.metric.makers;
 
-import com.yahoo.bard.webservice.data.config.metric.makers.MakeFromMetrics;
-import com.yahoo.bard.webservice.data.config.metric.makers.MetricMaker;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
@@ -53,7 +51,7 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
      *
      * @return  A mapping function to apply to the result set containing this metric
      */
-    abstract public ResultSetMapper makeCalculation(
+    abstract protected ResultSetMapper makeCalculation(
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     );
@@ -66,7 +64,7 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
      *
      * @return  A model describing the query formula for this metric
      */
-    abstract public TemplateDruidQuery makePartialQuery(
+    abstract protected TemplateDruidQuery makePartialQuery(
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     );
@@ -80,15 +78,8 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
      * @return  A signal handler defining which signals this metric does and does not support
      */
 
-    abstract public SignalHandler makeSignalHandler(
+    abstract protected SignalHandler makeSignalHandler(
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     );
-
-    public static SignalHandler makeDefaultSignalHandler(
-            LogicalMetricInfo logicalMetricInfo,
-            List<LogicalMetric> dependentMetrics
-    ) {
-        SignalHandler signalHandler = new SignalHandler();
-    }
 }

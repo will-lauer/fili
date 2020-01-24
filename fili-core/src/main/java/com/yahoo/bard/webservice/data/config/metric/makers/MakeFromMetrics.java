@@ -30,6 +30,7 @@ public interface MakeFromMetrics {
     /**
      * A naive implementation for resolving dependencies.
      *
+     * @param metricDictionary  The metric dictionary to resolve logical names against
      * @param logicalNames  The names for metrics to retrieve from the dictionary.
      *
      * @return the resolved metrics.
@@ -37,5 +38,4 @@ public interface MakeFromMetrics {
     default List<LogicalMetric> resolveDependencies(MetricDictionary metricDictionary, List<String> logicalNames) {
         return logicalNames.stream().map(metricDictionary::get).collect(Collectors.toList());
     }
-
 }

@@ -3,11 +3,11 @@
 package com.yahoo.bard.webservice.data.config.metric.makers;
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
-import com.yahoo.bard.webservice.data.metric.LogicalMetricImpl;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
+import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals;
 import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation.ArithmeticPostAggregationFunction;
@@ -35,6 +35,7 @@ public class ArithmeticMaker extends BaseSignalMetricMaker {
 
     private final Function<String, ResultSetMapper> resultSetMapperSupplier;
 
+    private SignalHandler signalHandler = DefaultSignals.DEFAULT_SIGNAL_HANDLER;
     /**
      * Constructor.
      *
@@ -90,14 +91,15 @@ public class ArithmeticMaker extends BaseSignalMetricMaker {
                 function,
                 operands
         ));
-        return getMergedQuery(dependentMetrics).withPostAggregations(postAggregations);;
+        return getMergedQuery(dependentMetrics).withPostAggregations(postAggregations);
     }
 
     @Override
     public SignalHandler makeSignalHandler(
-            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
+            final LogicalMetricInfo logicalMetricInfo,
+            final List<LogicalMetric> dependentMetrics
     ) {
-        return null;
+        return signalHandler;
     }
 
     @Override

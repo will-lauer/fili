@@ -5,10 +5,8 @@ package com.yahoo.bard.webservice.data.metric.signal;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,16 +17,17 @@ import java.util.stream.Stream;
  */
 public class SignalHandler {
 
-    public static SignalHandler DEFAULT_SIGNAL_HANDLER = new SignalHandler(
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            DefaultSignals.simpleMetricTransformFunction
-    );
+    /**
+     * A substitute for Boolean to indicate Yes, No or Uknown in the case where delegates might service a signal.
+     */
+    public enum ACCEPTS {
+        TRUE,
+        FALSE,
+        MAYBE
+    }
 
-    private final List<String> blacklist;
     private final List<String> whitelist;
-    List<SignalHandler> delegates;
+    private final List<String> blacklist;
     private final Function<String, MetricTransformer> transformers;
 
     /**
@@ -36,18 +35,15 @@ public class SignalHandler {
      *
      * @param whitelist  Signals that this handler directly supports.
      * @param blacklist  Signals that this handler will neither support nor delegate.
-     * @param delegates  Dependent signal handlers that can be delegated to.
      * @param transformers  A function mapping signal values to transform functions
      */
     public SignalHandler(
             List<String> whitelist,
             List<String> blacklist,
-            List<SignalHandler> delegates,
             Function<String, MetricTransformer> transformers
     ) {
         this.blacklist = blacklist;
         this.whitelist = whitelist;
-        this.delegates = delegates;
         this.transformers = transformers;
     }
 
@@ -56,16 +52,14 @@ public class SignalHandler {
      *
      * @param signalName The name of the signal.
      *
-     * @return true if this metric directly or indirectly supports this signal.
+     * @return TRUE if this metric directly or indirectly supports this signal, FALSE if it refuses, MAYBE if it
+     * doesn't assert authority.
      */
-    public boolean accepts(String signalName) {
-        if (whitelist.contains(signalName)) {
-            return true;
-        }
-        if (blacklist.contains(signalName)) {
-            return false;
-        }
-        return delegates.stream().anyMatch(it -> it.accepts(signalName));
+    public ACCEPTS accepts(String signalName) {
+        return whitelist.contains(signalName) ? ACCEPTS.TRUE :
+                blacklist.contains(signalName) ?
+                        ACCEPTS.FALSE :
+                        ACCEPTS.MAYBE;
     }
 
     /**
@@ -94,7 +88,7 @@ public class SignalHandler {
                 signals.stream(),
                 blacklist.stream()
         ).collect(Collectors.toList());
-        return new SignalHandler(newWhiteList, newBlackList, delegates, transformers);
+        return new SignalHandler(newWhiteList, newBlackList, transformers);
     }
 
     /**
@@ -112,19 +106,21 @@ public class SignalHandler {
         List<String> newBlackList = blacklist.stream()
                 .filter(signal -> !signals.contains(signal))
                 .collect(Collectors.toList());
-        return new SignalHandler(newWhiteList, newBlackList, delegates, transformers);
+        return new SignalHandler(newWhiteList, newBlackList, transformers);
     }
 
     /**
      * Return the metric transformer for a given signal and values.
      *
-     * @param signalValues
+     * @param logicalMetric The metric which should be transformed by this signal handler.
+     * @param signalName  The name of the signal to be processed.
+     * @param signalValues The map of values used to transform this metric.
      *
      * @return A LogicalMetric transformed by this signal.
+     * @throws UnknownSignalValueException if the signal value is unacceptable by the transformer.
      */
-    public LogicalMetric acceptSignal(LogicalMetric logicalMetric, String signalName, Map<String,String> signalValues)
+    public LogicalMetric acceptSignal(LogicalMetric logicalMetric, String signalName, Map<String, String> signalValues)
             throws UnknownSignalValueException {
-        transformers.apply(signalName).apply(logicalMetric, signalName, signalValues);
+        return transformers.apply(signalName).apply(logicalMetric, signalName, signalValues);
     }
-
 }
