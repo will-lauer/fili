@@ -20,7 +20,7 @@ public class SignalHandler {
     /**
      * A substitute for Boolean to indicate Yes, No or Uknown in the case where delegates might service a signal.
      */
-    public enum ACCEPTS {
+    public enum Accepts {
         TRUE,
         FALSE,
         MAYBE
@@ -55,11 +55,11 @@ public class SignalHandler {
      * @return TRUE if this metric directly or indirectly supports this signal, FALSE if it refuses, MAYBE if it
      * doesn't assert authority.
      */
-    public ACCEPTS accepts(String signalName) {
-        return whitelist.contains(signalName) ? ACCEPTS.TRUE :
+    public Accepts accepts(String signalName) {
+        return whitelist.contains(signalName) ? Accepts.TRUE :
                 blacklist.contains(signalName) ?
-                        ACCEPTS.FALSE :
-                        ACCEPTS.MAYBE;
+                        Accepts.FALSE :
+                        Accepts.MAYBE;
     }
 
     /**

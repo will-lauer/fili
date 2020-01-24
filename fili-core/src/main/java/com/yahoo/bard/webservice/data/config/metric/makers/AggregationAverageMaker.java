@@ -97,14 +97,14 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
     /**
      * Build the outer query for the average. It will have a sum, a count, and a post agg to divide them.
      *
-     * @param metricDictionary  The metric dictionary name for the metric being created (usually an api name)
+     * @param metricName  The metric dictionary name for the metric being created (usually an api name)
      * @param sourceMetric  The metric in the inner query being averaged
      * @param innerQuery  The inner template query being summed over
      *
      * @return The query for creating a logical metric
      */
     private TemplateDruidQuery buildOuterQuery(
-            String metricDictionary,
+            String metricName,
             MetricField sourceMetric,
             TemplateDruidQuery innerQuery
     ) {
@@ -115,7 +115,7 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
         // Build the average post aggregation
         FieldAccessorPostAggregation sumPost = new FieldAccessorPostAggregation(sum);
         PostAggregation average = new ArithmeticPostAggregation(
-                metricDictionary,
+                metricName,
                 DIVIDE,
                 Arrays.asList(sumPost, COUNT_FIELD_OUTER)
         );

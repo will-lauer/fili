@@ -19,13 +19,13 @@ import java.util.Map;
 /**
  * An interface for transforming metrics into other metrics.
  */
-public class TimeAverageTransformer implements MetricTransformer {
+public class TimeAverageMetricTransformer implements MetricTransformer {
 
     private static final MetricDictionary EMPTY_METRIC_DICTIONARY = new MetricDictionary();
 
     public static final String BASE_SIGNAL = DefaultSignals.REAGGREGATION;
 
-    public static final TimeAverageTransformer INSTANCE = new TimeAverageTransformer();
+    public static final TimeAverageMetricTransformer INSTANCE = new TimeAverageMetricTransformer();
 
     public String nameFormat = "%s%s";
     public String longNameFormat = "%s (%s)";
@@ -48,7 +48,7 @@ public class TimeAverageTransformer implements MetricTransformer {
     /**
      * Constructor.
      */
-    public TimeAverageTransformer() {
+    public TimeAverageMetricTransformer() {
         metricMakerMap.put(DAILY_AVERAGE, dayMaker);
         metricMakerMap.put(WEEKLY_AVERAGE, weekMaker);
         metricMakerMap.put(MONTHLY_AVERAGE, monthMaker);
@@ -85,7 +85,7 @@ public class TimeAverageTransformer implements MetricTransformer {
         String makeValueName = formatLongName.get(makerValue);
         String name = String.format(nameFormat, makerValue, info.getName());
         String longName = String.format(longNameFormat, info.getLongName(), makeValueName);
-        String description = String.format(descriptionFormat, info.getDescription(), makeValueName);
+        String description = String.format(descriptionFormat, makeValueName, info.getDescription());
         return new LogicalMetricInfo(name, longName, info.getCategory(), description, info.getType());
     }
 }

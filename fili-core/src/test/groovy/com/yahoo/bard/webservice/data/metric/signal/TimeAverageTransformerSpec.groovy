@@ -2,13 +2,12 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.metric.signal
 
-import static com.yahoo.bard.webservice.data.metric.signal.TimeAverageTransformer.BASE_SIGNAL
+import static TimeAverageMetricTransformer.BASE_SIGNAL
 
 import com.yahoo.bard.webservice.data.config.metric.makers.LongSumMaker
 import com.yahoo.bard.webservice.data.config.metric.makers.MetricMaker
 import com.yahoo.bard.webservice.data.config.metric.makers.ThetaSketchMaker
 import com.yahoo.bard.webservice.data.metric.LogicalMetric
-import com.yahoo.bard.webservice.data.metric.LogicalMetricImpl
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
@@ -16,7 +15,6 @@ import com.yahoo.bard.webservice.data.time.DefaultTimeGrain
 import com.yahoo.bard.webservice.druid.model.aggregation.DoubleSumAggregation
 import com.yahoo.bard.webservice.druid.model.aggregation.LongSumAggregation
 import com.yahoo.bard.webservice.druid.model.postaggregation.ConstantPostAggregation
-import com.yahoo.bard.webservice.druid.model.postaggregation.PostAggregation
 import com.yahoo.bard.webservice.druid.util.FieldConverterSupplier
 import com.yahoo.bard.webservice.druid.util.ThetaSketchFieldConverter
 
@@ -29,7 +27,7 @@ class TimeAverageTransformerSpec extends Specification {
     def "Create a time average for #grain"() {
         setup:
         FieldConverterSupplier.sketchConverter = new ThetaSketchFieldConverter()
-        TimeAverageTransformer timeAverageTransformer = new TimeAverageTransformer()
+        TimeAverageMetricTransformer timeAverageTransformer = new TimeAverageMetricTransformer()
 
         MetricDictionary metricDictionary = new MetricDictionary();
         MetricMaker maker = new LongSumMaker(metricDictionary)
@@ -66,7 +64,7 @@ class TimeAverageTransformerSpec extends Specification {
     @Unroll
     def "LogicalName transformer"() {
         setup:
-        TimeAverageTransformer timeAverageTransformer = new TimeAverageTransformer()
+        TimeAverageMetricTransformer timeAverageTransformer = new TimeAverageMetricTransformer()
         MetricDictionary metricDictionary = new MetricDictionary();
 
         FieldConverterSupplier.sketchConverter = new ThetaSketchFieldConverter()
