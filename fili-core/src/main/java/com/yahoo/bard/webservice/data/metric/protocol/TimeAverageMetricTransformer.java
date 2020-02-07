@@ -1,6 +1,6 @@
 // Copyright 2020 Oath Inc.
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
-package com.yahoo.bard.webservice.data.metric.signal;
+package com.yahoo.bard.webservice.data.metric.protocol;
 
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.DAY;
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.MONTH;
@@ -23,7 +23,7 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
 
     private static final MetricDictionary EMPTY_METRIC_DICTIONARY = new MetricDictionary();
 
-    public static final String BASE_SIGNAL = DefaultSignals.REAGGREGATION;
+    public static final String BASE_SIGNAL = BuiltInProtocols.REAGGREGATION;
 
     public static final TimeAverageMetricTransformer INSTANCE = new TimeAverageMetricTransformer();
 
@@ -59,11 +59,11 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
     }
 
     @Override
-    public LogicalMetric apply(LogicalMetric logicalMetric, String signalName, Map<String, String> signalData)
-            throws UnknownSignalValueException {
+    public LogicalMetric apply(LogicalMetric logicalMetric, String protocolName, Map<String, String> signalData)
+            throws UnknownProtocolValueException {
         String makerValue = signalData.get(BASE_SIGNAL);
         if (!metricMakerMap.containsKey(makerValue)) {
-            throw new UnknownSignalValueException(BASE_SIGNAL, signalData);
+            throw new UnknownProtocolValueException(BASE_SIGNAL, signalData);
         }
         MakeFromMetrics maker = metricMakerMap.get(makerValue);
 

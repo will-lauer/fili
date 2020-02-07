@@ -7,8 +7,8 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
-import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
-import com.yahoo.bard.webservice.data.metric.signal.SignalMetricImpl;
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetricImpl;
 
 import java.util.List;
 
@@ -39,8 +39,8 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
     ) {
         TemplateDruidQuery partialQuery = makePartialQuery(logicalMetricInfo, dependentMetrics);
         ResultSetMapper calculation = makeCalculation(logicalMetricInfo, dependentMetrics);
-        SignalHandler signalHandler = makeSignalHandler(logicalMetricInfo, dependentMetrics);
-        return new SignalMetricImpl(logicalMetricInfo, partialQuery, calculation, signalHandler);
+        ProtocolSupport protocolSupport = makeSignalHandler(logicalMetricInfo, dependentMetrics);
+        return new ProtocolMetricImpl(logicalMetricInfo, partialQuery, calculation, protocolSupport);
     }
 
     /**
@@ -78,7 +78,7 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
      * @return  A signal handler defining which signals this metric does and does not support
      */
 
-    abstract protected SignalHandler makeSignalHandler(
+    abstract protected ProtocolSupport makeSignalHandler(
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     );

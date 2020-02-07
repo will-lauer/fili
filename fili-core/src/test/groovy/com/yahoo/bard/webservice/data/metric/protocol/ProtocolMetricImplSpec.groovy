@@ -1,6 +1,6 @@
 // Copyright 2020 Oath Inc.
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
-package com.yahoo.bard.webservice.data.metric.signal
+package com.yahoo.bard.webservice.data.metric.protocol
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
@@ -10,18 +10,18 @@ import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper
 
 import spock.lang.Specification
 
-class SignalMetricImplSpec extends Specification {
+class ProtocolMetricImplSpec extends Specification {
 
     LogicalMetricInfo logicalMetricInfo = new LogicalMetricInfo("name")
     TemplateDruidQuery templateDruidQuery = Mock(TemplateDruidQuery)
     ResultSetMapper resultSetMapper = new NoOpResultSetMapper()
-    SignalHandler signalHandler = Mock(SignalHandler)
-    SignalMetricImpl signalMetric;
+    ProtocolSupport signalHandler = Mock(ProtocolSupport)
+    ProtocolMetricImpl signalMetric;
 
     String signalName = "foo"
 
     def setup() {
-        signalMetric = new SignalMetricImpl(logicalMetricInfo, templateDruidQuery, resultSetMapper, signalHandler)
+        signalMetric = new ProtocolMetricImpl(logicalMetricInfo, templateDruidQuery, resultSetMapper, signalHandler)
     }
 
     def "Accepts is true if the underlying signal handlers is true only"() {
@@ -29,21 +29,21 @@ class SignalMetricImplSpec extends Specification {
         boolean accepts = signalMetric.accepts(signalName)
 
         then:
-        1 * signalHandler.accepts(signalName) >> SignalHandler.Accepts.MAYBE
+        1 * signalHandler.accepts(signalName) >> ProtocolSupport.Accepts.MAYBE
         ! accepts
 
         when:
         accepts = signalMetric.accepts(signalName)
 
         then:
-        1 * signalHandler.accepts(signalName) >> SignalHandler.Accepts.FALSE
+        1 * signalHandler.accepts(signalName) >> ProtocolSupport.Accepts.FALSE
         ! accepts
 
         when:
         accepts = signalMetric.accepts(signalName)
 
         then:
-        1 * signalHandler.accepts(signalName) >> SignalHandler.Accepts.TRUE
+        1 * signalHandler.accepts(signalName) >> ProtocolSupport.Accepts.TRUE
         accepts
     }
 

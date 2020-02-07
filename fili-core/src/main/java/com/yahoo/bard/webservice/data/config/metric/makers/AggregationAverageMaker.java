@@ -10,8 +10,8 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
-import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals;
-import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 import com.yahoo.bard.webservice.druid.model.MetricField;
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation;
@@ -54,7 +54,7 @@ import javax.validation.constraints.NotNull;
 public class AggregationAverageMaker extends BaseSignalMetricMaker {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 1;
-    public static final String AGG_FUNCTION_SIGNAL = DefaultSignals.REAGGREGATION;
+    public static final String AGG_FUNCTION_SIGNAL = BuiltInProtocols.REAGGREGATION_;
 
     public static final PostAggregation COUNT_INNER = new ConstantPostAggregation("one", 1);
     public static final @NotNull Aggregation COUNT_OUTER = new LongSumAggregation("count", "one");
@@ -66,8 +66,8 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
         return DEPENDENT_METRICS_REQUIRED;
     }
 
-    private final SignalHandler signalHandler =
-            DefaultSignals.DEFAULT_SIGNAL_HANDLER.withoutSignal(AGG_FUNCTION_SIGNAL);
+    private final ProtocolSupport protocolSupport =
+            BuiltInProtocols.DEFAULT_SIGNAL_HANDLER.withoutProtocol(AGG_FUNCTION_SIGNAL);
 
     /**
      * Constructor.
@@ -180,11 +180,11 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
     }
 
     @Override
-    protected SignalHandler makeSignalHandler(
+    protected ProtocolSupport makeSignalHandler(
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     ) {
-        return signalHandler;
+        return protocolSupport;
     }
 
     @Override

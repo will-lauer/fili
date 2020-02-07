@@ -7,8 +7,8 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
-import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals;
-import com.yahoo.bard.webservice.data.metric.signal.SignalHandler;
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation.ArithmeticPostAggregationFunction;
 import com.yahoo.bard.webservice.druid.model.postaggregation.PostAggregation;
@@ -35,7 +35,7 @@ public class ArithmeticMaker extends BaseSignalMetricMaker {
 
     private final Function<String, ResultSetMapper> resultSetMapperSupplier;
 
-    private SignalHandler signalHandler = DefaultSignals.DEFAULT_SIGNAL_HANDLER;
+    private ProtocolSupport protocolSupport = BuiltInProtocols.DEFAULT_SIGNAL_HANDLER;
     /**
      * Constructor.
      *
@@ -95,11 +95,11 @@ public class ArithmeticMaker extends BaseSignalMetricMaker {
     }
 
     @Override
-    public SignalHandler makeSignalHandler(
+    public ProtocolSupport makeSignalHandler(
             final LogicalMetricInfo logicalMetricInfo,
             final List<LogicalMetric> dependentMetrics
     ) {
-        return signalHandler;
+        return protocolSupport;
     }
 
     @Override
