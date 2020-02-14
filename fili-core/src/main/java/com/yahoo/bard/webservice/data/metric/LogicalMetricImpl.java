@@ -171,11 +171,6 @@ public class LogicalMetricImpl implements LogicalMetric {
     }
 
     @Override
-    public boolean supportsRegeneration() {
-        return false;
-    }
-
-    @Override
     public String toString() {
         return "LogicalMetric{\n" +
                 "name=" + logicalMetricInfo.getName() + ",\n" +

@@ -76,22 +76,4 @@ public interface LogicalMetric {
      * @return A collection of metric identity metadata.
      */
     LogicalMetricInfo getLogicalMetricInfo();
-
-    /**
-     * Does this metric support being rebuilt.
-     *
-     * @return true if this metric supports a regeneration contract.
-     */
-    boolean supportsRegeneration();
-
-    /**
-     * Does this metric accept these parameters.
-     *
-     * @param parameters  The names of parameters that this metric will accept.
-     *
-     * @return true if some of these parameters are accepted by the underlying metric
-     */
-    default boolean acceptsParameters(Collection<String> parameters) {
-        return false;
-    }
 }

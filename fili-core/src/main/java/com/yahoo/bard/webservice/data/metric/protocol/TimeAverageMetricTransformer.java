@@ -65,8 +65,6 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
         if (!metricMakerMap.containsKey(makerValue)) {
             throw new UnknownProtocolValueException(protocol, signalData);
         }
-        MakeFromMetrics maker = metricMakerMap.get(makerValue);
-
         LogicalMetricInfo info = makeNewLogicalMetricInfo(logicalMetric.getLogicalMetricInfo(), makerValue);
 
         return metricMakerMap.get(makerValue)

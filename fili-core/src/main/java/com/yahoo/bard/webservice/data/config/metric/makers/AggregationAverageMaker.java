@@ -114,6 +114,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
         PostAggregation average = new ArithmeticPostAggregation(
                 metricName,
                 DIVIDE,
+
                 Arrays.asList(sumPost, COUNT_FIELD_OUTER)
         );
         Set<PostAggregation> outerPostAggs = Collections.singleton(average);

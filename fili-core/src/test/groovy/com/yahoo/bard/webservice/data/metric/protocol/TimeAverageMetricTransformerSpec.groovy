@@ -48,6 +48,7 @@ class TimeAverageMetricTransformerSpec extends Specification {
         ((ConstantPostAggregation) innerQuery.getMetricField("one")).value == 1
         TemplateDruidQuery outerQuery = averageMetric.templateDruidQuery
         outerQuery.getMetricField("foo") instanceof LongSumAggregation
+        grain.satisfies(innerQuery.getTimeGrain())
 
         sketchAverage.templateDruidQuery.getMetricField("foo_estimate_sum") instanceof DoubleSumAggregation
         ((DoubleSumAggregation) sketchAverage.
