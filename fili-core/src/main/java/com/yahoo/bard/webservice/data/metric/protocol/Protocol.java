@@ -2,14 +2,12 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.metric.protocol;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.function.Function;
-
 /**
- * Protocol describes a supported transformation on for some group of metrics.
+ * Protocol describes a named type transformation on a group of metrics.
  *
- * The protocol should have implicit parameter(s) which are read for metric transformation.
+ * The protocol should have implicit parameter(s) which are applied along with the MetricTransformer and values
+ * to produce a new metric.  This typically results in a metric for which that protocol is 'bound' or cannot be
+ * reapplied.
  */
 public class Protocol {
 
@@ -23,6 +21,7 @@ public class Protocol {
      * Use the protocol name as the default parameter name.
      *
      * @param name  The name of the protocol.
+     * @param metricTransformer  The metric transformer implementing this protocol's transform
      */
     public Protocol(String name, MetricTransformer metricTransformer) {
         this(name, name, metricTransformer);

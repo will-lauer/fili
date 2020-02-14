@@ -10,9 +10,8 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
 import com.yahoo.bard.webservice.data.metric.mappers.NoOpResultSetMapper
-import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals
-import com.yahoo.bard.webservice.data.metric.signal.SignalMetricImpl
-import com.yahoo.bard.webservice.data.time.TimeGrain
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetricImpl
+import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation
 import com.yahoo.bard.webservice.druid.model.aggregation.DoubleSumAggregation
 import com.yahoo.bard.webservice.druid.model.aggregation.ThetaSketchAggregation
@@ -34,7 +33,7 @@ class AggregationAverageMakerSpec extends Specification{
     static final String ESTIMATE_NAME = "users_estimate"
     static final String ESTIMATE_SUM_NAME = "users_estimate_sum"
     static final int SKETCH_SIZE = 16000
-    static final TimeGrain INNER_GRAIN = DAY
+    static final ZonelessTimeGrain INNER_GRAIN = DAY
 
     @Shared
     FieldConverters converter = FieldConverterSupplier.sketchConverter
@@ -177,11 +176,11 @@ class AggregationAverageMakerSpec extends Specification{
                 innerQueryTemplate
         )
 
-        return new SignalMetricImpl(
+        return new ProtocolMetricImpl(
                 new LogicalMetricInfo(NAME, DESCRIPTION),
                 outerQuery,
                 new NoOpResultSetMapper(),
-                DefaultSignals.DEFAULT_SIGNAL_HANDLER
+                AggregationAverageMaker.defaultProtocolSupport()
         )
     }
 }

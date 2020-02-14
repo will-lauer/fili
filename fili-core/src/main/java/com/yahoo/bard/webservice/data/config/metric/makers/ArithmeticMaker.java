@@ -8,6 +8,7 @@ import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
 import com.yahoo.bard.webservice.data.metric.protocol.BuiltInProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetric;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation.ArithmeticPostAggregationFunction;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * Metric maker for performing binary arithmetic operations on metrics.
  */
-public class ArithmeticMaker extends BaseSignalMetricMaker {
+public class ArithmeticMaker extends BaseProtocolMetricMaker {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 2;
 
@@ -35,7 +36,8 @@ public class ArithmeticMaker extends BaseSignalMetricMaker {
 
     private final Function<String, ResultSetMapper> resultSetMapperSupplier;
 
-    private ProtocolSupport protocolSupport = BuiltInProtocols.DEFAULT_SIGNAL_HANDLER;
+    private static final ProtocolSupport DEFAULT_PROTOCOL_SUPPORT = BuiltInProtocols.getDefaultProtocolSupport();
+
     /**
      * Constructor.
      *
@@ -95,11 +97,20 @@ public class ArithmeticMaker extends BaseSignalMetricMaker {
     }
 
     @Override
-    public ProtocolSupport makeSignalHandler(
+    public ProtocolSupport makeProtocolSupport(
             final LogicalMetricInfo logicalMetricInfo,
             final List<LogicalMetric> dependentMetrics
     ) {
-        return protocolSupport;
+        List<ProtocolSupport> dependentSupports =
+                dependentMetrics.stream()
+                        .filter(metric -> metric instanceof ProtocolMetric)
+                        .map(metric -> (ProtocolMetric) metric)
+                        .map(ProtocolMetric::getProtocolSupport)
+                        .collect(Collectors.toList());
+
+        return dependentMetrics.isEmpty() ?
+                DEFAULT_PROTOCOL_SUPPORT
+                : DEFAULT_PROTOCOL_SUPPORT.withoutProtocolSupport(dependentSupports);
     }
 
     @Override

@@ -13,9 +13,11 @@ import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetricImpl;
 import java.util.List;
 
 /**
- * Signal Metrics can be transformed based on the signals they accept.
+ * Protocol Metrics can be transformed by accepting parameters for a protocol they support.
+ *
+ * A protocol in this case is a category of contract of transformation.
  */
-public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeFromMetrics {
+public abstract class BaseProtocolMetricMaker extends MetricMaker implements MakeFromMetrics {
 
     /**
      * Construct a fully specified MetricMaker.
@@ -23,7 +25,7 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
      * @param metrics  A mapping of metric names to the corresponding LogicalMetrics. Used to resolve metric names
      * when making the logical metric.
      */
-    public BaseSignalMetricMaker(MetricDictionary metrics) {
+    public BaseProtocolMetricMaker(MetricDictionary metrics) {
         super(metrics);
     }
 
@@ -39,7 +41,7 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
     ) {
         TemplateDruidQuery partialQuery = makePartialQuery(logicalMetricInfo, dependentMetrics);
         ResultSetMapper calculation = makeCalculation(logicalMetricInfo, dependentMetrics);
-        ProtocolSupport protocolSupport = makeSignalHandler(logicalMetricInfo, dependentMetrics);
+        ProtocolSupport protocolSupport = makeProtocolSupport(logicalMetricInfo, dependentMetrics);
         return new ProtocolMetricImpl(logicalMetricInfo, partialQuery, calculation, protocolSupport);
     }
 
@@ -70,15 +72,15 @@ public abstract class BaseSignalMetricMaker extends MetricMaker implements MakeF
     );
 
     /**
-     * Create the signal handler for this LogicalMetric.
+     * Create the protocol support for this LogicalMetric.
      *
      * @param logicalMetricInfo  The identity metadata for the metric
      * @param dependentMetrics  The metrics this metric depends on
      *
-     * @return  A signal handler defining which signals this metric does and does not support
+     * @return  A protocol support instance defining and implementing protocols for Metrics from this maker
      */
 
-    abstract protected ProtocolSupport makeSignalHandler(
+    abstract protected ProtocolSupport makeProtocolSupport(
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     );

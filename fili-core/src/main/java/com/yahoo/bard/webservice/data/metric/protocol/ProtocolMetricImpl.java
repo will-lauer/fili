@@ -25,6 +25,21 @@ public class ProtocolMetricImpl extends LogicalMetricImpl implements ProtocolMet
      * @param logicalMetricInfo  The metadata for the metric
      * @param templateDruidQuery  Query the metric needs
      * @param calculation  Mapper for the metric
+     */
+    public ProtocolMetricImpl(
+            @NotNull LogicalMetricInfo logicalMetricInfo,
+            @NotNull TemplateDruidQuery templateDruidQuery,
+            ResultSetMapper calculation
+    ) {
+        this(logicalMetricInfo, templateDruidQuery, calculation, BuiltInProtocols.getDefaultProtocolSupport());
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param logicalMetricInfo  The metadata for the metric
+     * @param templateDruidQuery  Query the metric needs
+     * @param calculation  Mapper for the metric
      * @param protocolSupport  A identify and return protocols supported for this metric.
      */
     public ProtocolMetricImpl(
@@ -38,14 +53,15 @@ public class ProtocolMetricImpl extends LogicalMetricImpl implements ProtocolMet
     }
 
     @Override
-    public boolean accepts(final String signalName) {
-        return protocolSupport.accepts(signalName).equals(ProtocolSupport.Accepts.TRUE);
+    public boolean accepts(String protocolName) {
+        return protocolSupport.accepts(protocolName).equals(ProtocolSupport.Accepts.TRUE);
     }
 
     @Override
-    public LogicalMetric accept(String protocolName, Map<String, String> signalData) throws UnknownProtocolValueException {
+    public LogicalMetric accept(String protocolName, Map<String, String> parameters)
+            throws UnknownProtocolValueException {
         Protocol protocol = protocolSupport.getProtocol(protocolName);
-        return protocol.getMetricTransformer().apply(this, protocol, signalData);
+        return protocol.getMetricTransformer().apply(this, protocol, parameters);
     }
 
     @Override

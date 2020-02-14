@@ -23,7 +23,7 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
 
     private static final MetricDictionary EMPTY_METRIC_DICTIONARY = new MetricDictionary();
 
-    public static final String BASE_SIGNAL = BuiltInProtocols.REAGGREGATION;
+    public static final Protocol BASE_PROTOCOL = BuiltInProtocols.REAGGREGATION_PROTOCOL;
 
     public static final TimeAverageMetricTransformer INSTANCE = new TimeAverageMetricTransformer();
 
@@ -48,7 +48,7 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
     /**
      * Constructor.
      */
-    public TimeAverageMetricTransformer() {
+    private TimeAverageMetricTransformer() {
         metricMakerMap.put(DAILY_AVERAGE, dayMaker);
         metricMakerMap.put(WEEKLY_AVERAGE, weekMaker);
         metricMakerMap.put(MONTHLY_AVERAGE, monthMaker);
@@ -59,11 +59,11 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
     }
 
     @Override
-    public LogicalMetric apply(LogicalMetric logicalMetric, String protocolName, Map<String, String> signalData)
+    public LogicalMetric apply(LogicalMetric logicalMetric, Protocol protocol, Map<String, String> signalData)
             throws UnknownProtocolValueException {
-        String makerValue = signalData.get(BASE_SIGNAL);
+        String makerValue = signalData.get(BASE_PROTOCOL.getCoreParameter());
         if (!metricMakerMap.containsKey(makerValue)) {
-            throw new UnknownProtocolValueException(BASE_SIGNAL, signalData);
+            throw new UnknownProtocolValueException(protocol, signalData);
         }
         MakeFromMetrics maker = metricMakerMap.get(makerValue);
 

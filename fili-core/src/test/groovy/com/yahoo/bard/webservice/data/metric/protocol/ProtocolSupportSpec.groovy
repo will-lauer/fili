@@ -10,14 +10,25 @@ import java.util.function.Function
 
 class ProtocolSupportSpec extends Specification {
 
-    Function accepter = Mock(Function)
     MetricTransformer metricTransformer = Mock(MetricTransformer)
     LogicalMetric logicalMetric = Mock(LogicalMetric)
-    ProtocolSupport signalHandler = new ProtocolSupport(["foo"], ["bar"], accepter)
-    String signalName = "foo"
+
+    Protocol fooProtocol
+    Protocol barProtocol
+    Protocol bazProtocol
+
+    ProtocolSupport signalHandler
+
+    String protocolName1 = "foo"
+    String protocolName2 = "bar"
+    String protocolName3 = "baz"
 
 
     def setup() {
+        fooProtocol = new Protocol(protocolName1, metricTransformer)
+        barProtocol = new Protocol(protocolName2, metricTransformer)
+        bazProtocol = new Protocol(protocolName3, metricTransformer)
+        signalHandler = new ProtocolSupport([fooProtocol], [protocolName2])
     }
 
     def "Accepts is true for whitelists false for blacklists or maybe for neither"() {
@@ -27,7 +38,7 @@ class ProtocolSupportSpec extends Specification {
         signalHandler.accepts("baz")  == ProtocolSupport.Accepts.MAYBE
     }
 
-    def "Without signal supresses both previously unknown and known signals"() {
+    def "Without protocol supresses both previously unknown and known protocols"() {
         setup:
         ProtocolSupport test1 = signalHandler.withoutProtocol("foo")
         ProtocolSupport test2 = signalHandler.withoutProtocol("baz")
@@ -43,7 +54,26 @@ class ProtocolSupportSpec extends Specification {
 
     }
 
-    def "Without signals supresses both previously unknown and known signals"() {
+    def "Without protocol support supresses both previously unknown and known protocols"() {
+        setup:
+        ProtocolSupport subtractFooAndBaz = new ProtocolSupport([barProtocol], ["foo", "baz"])
+        ProtocolSupport noToAll = signalHandler.withoutProtocolSupport([subtractFooAndBaz])
+
+        ProtocolSupport subtractBaz = new ProtocolSupport([barProtocol], ["baz"])
+        ProtocolSupport fooNoBarBaz = signalHandler.withoutProtocolSupport([subtractBaz])
+
+        expect:
+        noToAll.accepts("foo")  == ProtocolSupport.Accepts.FALSE
+        noToAll.accepts("bar")  == ProtocolSupport.Accepts.FALSE
+        noToAll.accepts("baz")  == ProtocolSupport.Accepts.FALSE
+
+        fooNoBarBaz.accepts("foo")  == ProtocolSupport.Accepts.TRUE
+        fooNoBarBaz.accepts("bar")  == ProtocolSupport.Accepts.FALSE
+        fooNoBarBaz.accepts("baz")  == ProtocolSupport.Accepts.FALSE
+    }
+
+
+    def "Without protocols supresses both previously unknown and known protocols"() {
         setup:
         ProtocolSupport test1 = signalHandler.withoutProtocols(["foo", "baz"])
 
@@ -53,37 +83,13 @@ class ProtocolSupportSpec extends Specification {
         test1.accepts("baz")  == ProtocolSupport.Accepts.FALSE
     }
 
-    def "With signals approves both previously unknown and known signals"() {
+    def "With protocols approves both previously unknown and known protocols"() {
         setup:
-        ProtocolSupport test1 = signalHandler.withSignals(["foo", "bar", "baz"])
+        ProtocolSupport test1 = signalHandler.withProtocols([fooProtocol, barProtocol, bazProtocol])
 
         expect:
         test1.accepts("foo")  == ProtocolSupport.Accepts.TRUE
         test1.accepts("bar")  == ProtocolSupport.Accepts.TRUE
         test1.accepts("baz")  == ProtocolSupport.Accepts.TRUE
-    }
-
-    def "AcceptSignal returns a transformed logical metric"() {
-        setup:
-        accepter.apply(signalName) >> metricTransformer
-        metricTransformer.apply(logicalMetric, signalName, _ as Map) >> logicalMetric
-
-        expect:
-        signalHandler.acceptSignal(logicalMetric, signalName, [:]) == logicalMetric
-    }
-
-    def "Accept Signal throws exception"() {
-        setup:
-        Map signalValues = [:]
-        accepter.apply(signalName) >> metricTransformer
-        metricTransformer.apply(logicalMetric, signalName, _ as Map) >> {
-            throw new UnknownProtocolValueException(signalName, signalValues)
-        }
-
-        when:
-        signalHandler.acceptSignal(logicalMetric, signalName, [:])
-
-        then:
-        thrown(UnknownProtocolValueException)
     }
 }

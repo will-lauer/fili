@@ -6,16 +6,14 @@ import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.DAY
 
 import com.yahoo.bard.webservice.data.config.metric.MetricInstance
 import com.yahoo.bard.webservice.data.metric.LogicalMetric
-import com.yahoo.bard.webservice.data.metric.LogicalMetric
-import com.yahoo.bard.webservice.data.metric.LogicalMetricImpl
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
 import com.yahoo.bard.webservice.data.metric.mappers.NoOpResultSetMapper
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper
 import com.yahoo.bard.webservice.data.metric.mappers.SketchRoundUpMapper
-import com.yahoo.bard.webservice.data.metric.signal.DefaultSignals
-import com.yahoo.bard.webservice.data.metric.signal.SignalMetricImpl
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInProtocols
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetricImpl
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation
 import com.yahoo.bard.webservice.druid.model.postaggregation.FieldAccessorPostAggregation
@@ -135,11 +133,11 @@ class ArithmeticMakerSpec extends Specification {
                 aggregations,
                 [sumPostAggregation] as Set
         )
-        LogicalMetric expectedMetric = new SignalMetricImpl(
+
+        LogicalMetric expectedMetric = new ProtocolMetricImpl(
                 new LogicalMetricInfo(metricName),
                 expectedQuery,
-                MetricMaker.NO_OP_MAPPER,
-                DefaultSignals.DEFAULT_SIGNAL_HANDLER
+                MetricMaker.NO_OP_MAPPER
         )
 
         and: "a populated metric dictionary for the maker"

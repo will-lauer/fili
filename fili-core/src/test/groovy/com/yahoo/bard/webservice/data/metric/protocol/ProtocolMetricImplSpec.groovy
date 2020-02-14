@@ -12,51 +12,78 @@ import spock.lang.Specification
 
 class ProtocolMetricImplSpec extends Specification {
 
-    LogicalMetricInfo logicalMetricInfo = new LogicalMetricInfo("name")
-    TemplateDruidQuery templateDruidQuery = Mock(TemplateDruidQuery)
-    ResultSetMapper resultSetMapper = new NoOpResultSetMapper()
-    ProtocolSupport signalHandler = Mock(ProtocolSupport)
-    ProtocolMetricImpl signalMetric;
+    ProtocolSupport protocolSupport = Mock(ProtocolSupport)
+    ProtocolMetricImpl protocolMetric;
+    Protocol protocol = Mock(Protocol)
 
-    String signalName = "foo"
+    String protocolName = "foo"
 
     def setup() {
-        signalMetric = new ProtocolMetricImpl(logicalMetricInfo, templateDruidQuery, resultSetMapper, signalHandler)
+        ResultSetMapper resultSetMapper = new NoOpResultSetMapper()
+        LogicalMetricInfo logicalMetricInfo = new LogicalMetricInfo("name")
+        TemplateDruidQuery templateDruidQuery = Mock(TemplateDruidQuery)
+        protocolMetric = new ProtocolMetricImpl(logicalMetricInfo, templateDruidQuery, resultSetMapper, protocolSupport)
     }
 
-    def "Accepts is true if the underlying signal handlers is true only"() {
+    def "Accepts returns true if and only if the underlying protocol support is TRUE for a given protocol name"() {
         when:
-        boolean accepts = signalMetric.accepts(signalName)
+        boolean accepts = protocolMetric.accepts(protocolName)
 
         then:
-        1 * signalHandler.accepts(signalName) >> ProtocolSupport.Accepts.MAYBE
+        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.MAYBE
         ! accepts
 
         when:
-        accepts = signalMetric.accepts(signalName)
+        accepts = protocolMetric.accepts(protocolName)
 
         then:
-        1 * signalHandler.accepts(signalName) >> ProtocolSupport.Accepts.FALSE
+        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.FALSE
         ! accepts
 
         when:
-        accepts = signalMetric.accepts(signalName)
+        accepts = protocolMetric.accepts(protocolName)
 
         then:
-        1 * signalHandler.accepts(signalName) >> ProtocolSupport.Accepts.TRUE
+        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.TRUE
         accepts
     }
 
-    def "Accept invokes the signal handler passing itself as an argument"() {
+    def "Accept invokes the protocol support and applies the attached transformer"() {
         setup:
-        LogicalMetric logicalMetric = Mock(LogicalMetric)
-        Map map = [:]
+        LogicalMetric expected = Mock(LogicalMetric)
+        MetricTransformer metricTransformer = Mock(MetricTransformer)
+        protocolSupport.getProtocol(protocolName) >> protocol
+        protocol.getMetricTransformer() >> metricTransformer
+
+        Map values = [:]
 
         when:
-        LogicalMetric result = signalMetric.accept(signalName, map)
+        LogicalMetric result = protocolMetric.accept(protocolName, values)
 
         then:
-        signalHandler.acceptSignal(signalMetric, signalName, map) >> logicalMetric
-        result == logicalMetric
+        1* metricTransformer.apply(protocolMetric, protocol, values) >> expected
+        result == expected
+    }
+
+    def "Accept throws an exception with a bad values"() {
+        setup:
+        LogicalMetric expected = Mock(LogicalMetric)
+        MetricTransformer metricTransformer = Mock(MetricTransformer)
+        protocolSupport.getProtocol(protocolName) >> protocol
+        protocol.getCoreParameter() >> protocolName
+        protocol.getMetricTransformer() >> metricTransformer
+
+        Map values = ["foo": "bar"]
+
+        when:
+        LogicalMetric result = protocolMetric.accept(protocolName, values)
+
+        then:
+        UnknownProtocolValueException exception = thrown(UnknownProtocolValueException)
+        1 * metricTransformer.apply(protocolMetric, protocol, values) >> {
+            throw new UnknownProtocolValueException(protocol, values)
+        }
+        exception.getParameterValues() == values
+        exception.getMessage().contains(protocolName)
     }
 }

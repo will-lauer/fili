@@ -101,6 +101,22 @@ public class ProtocolSupport {
     }
 
     /**
+     * Create a modified protocol handler which doesn't accepts protocols blacklisted in these other protocols.
+     *
+     * @param protocolSupport  The protocol supports whose blacklists should not be handled.
+     *
+     * @return A protocol handler with additional protocols not supported.
+     */
+    public ProtocolSupport withoutProtocolSupport(Collection<ProtocolSupport> protocolSupport) {
+
+        List<String> protocols =
+                protocolSupport.stream()
+                        .flatMap(support -> support.blacklist.stream())
+                        .collect(Collectors.toList());
+        return withoutProtocols(protocols);
+    }
+
+    /**
      * Create a modified protocol handler which accepts certain protocols.
      *
      * @param addedProtocols  The protocols to handle.
@@ -109,21 +125,24 @@ public class ProtocolSupport {
      */
     public ProtocolSupport withProtocols(Collection<Protocol> addedProtocols) {
 
-        List<Protocol> newProtocols = Stream.concat(addedProtocols.stream(), protocolMap.values().stream())
-                .collect(Collectors.toList());
+        Collection<Protocol> newProtocols = Stream.concat(addedProtocols.stream(), protocolMap.values().stream())
+                .collect(Collectors.toSet());
 
-        List<String> newBlackList = blacklist.stream()
+        Collection<String> newBlackList = blacklist.stream()
                 .filter(name -> !addedProtocols.contains(name))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         return new ProtocolSupport(newProtocols, newBlackList);
     }
 
     /**
      * Retrieve the Protocol for a given protocol name.
+     *
+     * @param protocolName a protocol name
+     *
+     * @return The Protocol for this protocol name
      */
     Protocol getProtocol(String protocolName) {
         return protocolMap.get(protocolName);
     }
-
 }

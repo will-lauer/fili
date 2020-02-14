@@ -51,10 +51,11 @@ import javax.validation.constraints.NotNull;
  *    <li>finally, a post aggregation in the outer query dividing the sum by the count</li>
  * </ul>
  */
-public class AggregationAverageMaker extends BaseSignalMetricMaker {
+public class AggregationAverageMaker extends BaseProtocolMetricMaker {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 1;
-    public static final String AGG_FUNCTION_SIGNAL = BuiltInProtocols.REAGGREGATION_;
+
+    public static final String PROTOCOL_NAME = BuiltInProtocols.REAGGREGATION;
 
     public static final PostAggregation COUNT_INNER = new ConstantPostAggregation("one", 1);
     public static final @NotNull Aggregation COUNT_OUTER = new LongSumAggregation("count", "one");
@@ -65,9 +66,6 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
     protected int getDependentMetricsRequired() {
         return DEPENDENT_METRICS_REQUIRED;
     }
-
-    private final ProtocolSupport protocolSupport =
-            BuiltInProtocols.DEFAULT_SIGNAL_HANDLER.withoutProtocol(AGG_FUNCTION_SIGNAL);
 
     /**
      * Constructor.
@@ -90,8 +88,7 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
         MetricField sourceMetric = convertToSketchEstimateIfNeeded(dependentMetric.getMetricField());
 
         TemplateDruidQuery innerQuery = buildInnerQuery(sourceMetric, dependentMetric.getTemplateDruidQuery());
-        TemplateDruidQuery outerQuery = buildOuterQuery(logicalMetricInfo.getName(), sourceMetric, innerQuery);
-        return outerQuery;
+        return buildOuterQuery(logicalMetricInfo.getName(), sourceMetric, innerQuery);
     }
 
     /**
@@ -175,16 +172,26 @@ public class AggregationAverageMaker extends BaseSignalMetricMaker {
      *
      * @return The created query
      */
-    protected TemplateDruidQuery buildTimeGrainCounterQuery() {
+    private TemplateDruidQuery buildTimeGrainCounterQuery() {
         return new TemplateDruidQuery(Collections.emptySet(), Collections.singleton(COUNT_INNER), innerGrain);
     }
 
     @Override
-    protected ProtocolSupport makeSignalHandler(
+    protected ProtocolSupport makeProtocolSupport(
             LogicalMetricInfo logicalMetricInfo,
             List<LogicalMetric> dependentMetrics
     ) {
-        return protocolSupport;
+        return defaultProtocolSupport();
+    }
+
+    /**
+     * Default ProtocolSupport instance for this maker.
+     *
+     * @return A default protocol support based on the BuiltInProtocols defaults.
+     */
+    protected static ProtocolSupport defaultProtocolSupport() {
+        return BuiltInProtocols.getDefaultProtocolSupport()
+                .withoutProtocol(PROTOCOL_NAME);
     }
 
     @Override

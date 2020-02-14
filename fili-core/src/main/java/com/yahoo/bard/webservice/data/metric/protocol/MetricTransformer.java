@@ -9,6 +9,7 @@ import java.util.Map;
 /**
  * An interface for transforming metrics into other metrics.
  */
+@FunctionalInterface
 public interface MetricTransformer {
 
     /**

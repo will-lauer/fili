@@ -7,7 +7,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import java.util.Map;
 
 /**
- * Signal metrics are capable of handling transforming signals from the client.
+ * Protocol metrics are capable of handling transforming signals from the client.
  * This is a key feature in reducing the number of persisted variations on base metrics.  A signal could indicate that
  * a metric should be directly transformed, should be composed into a new metric, or have it's entire expression tree
  * rebuilt after modifying some root dependency.
@@ -24,15 +24,15 @@ public interface ProtocolMetric extends LogicalMetric {
     boolean accepts(String signalName);
 
     /**
-     * Apply this signal to this metric and return a (potentially different) metric.
+     * Apply this protocol and parameters to this metric and return a (potentially different) metric.
      *
-     * @param signalName  The name of the signal
-     * @param signalData  A map of keys and values representing the signal.
+     * @param protocolName  The name of the protocol to apply
+     * @param parameters  A map of keys and values representing the transformation.
      *
-     * @return A metric that has accepted this signal.
-     * @throws UnknownProtocolValueException if the signal value cannot be processed correctly
+     * @return A metric that has accepted this protocol transformation.
+     * @throws UnknownProtocolValueException if the protocol cannot be processed correctly
      */
-    LogicalMetric accept(String signalName, Map<String, String> signalData) throws UnknownProtocolValueException;
+    LogicalMetric accept(String protocolName, Map<String, String> parameters) throws UnknownProtocolValueException;
 
     /**
      * Get the underlying signal handler for this metric.

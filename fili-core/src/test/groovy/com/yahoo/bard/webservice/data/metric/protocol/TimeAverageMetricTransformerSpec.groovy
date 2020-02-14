@@ -2,8 +2,6 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.metric.protocol
 
-import static TimeAverageMetricTransformer.BASE_SIGNAL
-
 import com.yahoo.bard.webservice.data.config.metric.makers.LongSumMaker
 import com.yahoo.bard.webservice.data.config.metric.makers.MetricMaker
 import com.yahoo.bard.webservice.data.config.metric.makers.ThetaSketchMaker
@@ -21,13 +19,15 @@ import com.yahoo.bard.webservice.druid.util.ThetaSketchFieldConverter
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class TimeAverageTransformerSpec extends Specification {
+class TimeAverageMetricTransformerSpec extends Specification {
+
+    Protocol protocol = TimeAverageMetricTransformer.BASE_PROTOCOL
 
     @Unroll
     def "Create a time average for #grain"() {
         setup:
         FieldConverterSupplier.sketchConverter = new ThetaSketchFieldConverter()
-        TimeAverageMetricTransformer timeAverageTransformer = new TimeAverageMetricTransformer()
+        TimeAverageMetricTransformer timeAverageTransformer = TimeAverageMetricTransformer.INSTANCE
 
         MetricDictionary metricDictionary = new MetricDictionary();
         MetricMaker maker = new LongSumMaker(metricDictionary)
@@ -35,10 +35,10 @@ class TimeAverageTransformerSpec extends Specification {
 
         LogicalMetric longSum = maker.make("foo", "bar")
         LogicalMetric sketchUnion = sketchMaker.make("foo", "bar")
-        Map params = [(BASE_SIGNAL): value]
+        Map params = [(protocol.coreParameter): value]
 
-        LogicalMetric averageMetric = timeAverageTransformer.apply(longSum, BASE_SIGNAL, params)
-        LogicalMetric sketchAverage = timeAverageTransformer.apply(sketchUnion, BASE_SIGNAL, params)
+        LogicalMetric averageMetric = timeAverageTransformer.apply(longSum, protocol, params)
+        LogicalMetric sketchAverage = timeAverageTransformer.apply(sketchUnion, protocol, params)
 
         expect:
         TemplateDruidQuery innerQuery = averageMetric.templateDruidQuery.getInnermostQuery()
@@ -64,7 +64,7 @@ class TimeAverageTransformerSpec extends Specification {
     @Unroll
     def "LogicalName transformer"() {
         setup:
-        TimeAverageMetricTransformer timeAverageTransformer = new TimeAverageMetricTransformer()
+        TimeAverageMetricTransformer timeAverageTransformer = TimeAverageMetricTransformer.INSTANCE
         MetricDictionary metricDictionary = new MetricDictionary();
 
         FieldConverterSupplier.sketchConverter = new ThetaSketchFieldConverter()
@@ -72,7 +72,7 @@ class TimeAverageTransformerSpec extends Specification {
 
         MetricMaker maker = new LongSumMaker(metricDictionary)
         LogicalMetric longSum = maker.make("foo", "bar")
-        Map params = [(BASE_SIGNAL): value]
+        Map params = [(protocol.coreParameter): value]
 
         LogicalMetricInfo info = timeAverageTransformer.makeNewLogicalMetricInfo(longSum.logicalMetricInfo, value)
 
