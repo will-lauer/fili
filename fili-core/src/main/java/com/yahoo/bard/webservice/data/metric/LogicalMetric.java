@@ -5,8 +5,6 @@ package com.yahoo.bard.webservice.data.metric;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
 import com.yahoo.bard.webservice.druid.model.MetricField;
 
-import java.util.Collection;
-
 /**
  * A LogicalMetric is a set of its TemplateQueries, Mapper, and its name.
  */
