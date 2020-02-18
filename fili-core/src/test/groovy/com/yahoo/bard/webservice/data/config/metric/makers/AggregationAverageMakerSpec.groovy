@@ -10,6 +10,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
 import com.yahoo.bard.webservice.data.metric.mappers.NoOpResultSetMapper
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetricImpl
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation
@@ -180,7 +181,7 @@ class AggregationAverageMakerSpec extends Specification{
                 new LogicalMetricInfo(NAME, DESCRIPTION),
                 outerQuery,
                 new NoOpResultSetMapper(),
-                AggregationAverageMaker.defaultProtocolSupport()
+                BuiltInMetricProtocols.getDefaultProtocolSupport()
         )
     }
 }

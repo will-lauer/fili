@@ -9,8 +9,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
-import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
-import com.yahoo.bard.webservice.data.metric.protocol.BuiltInProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 import com.yahoo.bard.webservice.druid.model.MetricField;
@@ -55,7 +54,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 1;
 
-    public static final String PROTOCOL_NAME = BuiltInProtocols.REAGGREGATION;
+    public static final String PROTOCOL_NAME = BuiltInMetricProtocols.REAGGREGATION_CONTRACT_NAME;
 
     public static final PostAggregation COUNT_INNER = new ConstantPostAggregation("one", 1);
     public static final @NotNull Aggregation COUNT_OUTER = new LongSumAggregation("count", "one");
@@ -75,7 +74,25 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
      * @param innerGrain  The time grain across which queries should aggregate.
      */
     public AggregationAverageMaker(MetricDictionary metrics, ZonelessTimeGrain innerGrain) {
-        super(metrics);
+        this(metrics, innerGrain, BuiltInMetricProtocols.getDefaultProtocolSupport());
+    }
+
+    /**
+     * Constructor.
+     *
+     * Any aggregation average maker will disable the protocol Aggregation.
+     *
+     * @param metrics  A mapping of metric names to the corresponding LogicalMetrics. Used to resolve metric names
+     * when making the logical metric.
+     * @param innerGrain  The time grain across which queries should aggregate.
+     * @param protocolSupport The base protocol support for this system
+     */
+    public AggregationAverageMaker(
+            MetricDictionary metrics,
+            ZonelessTimeGrain innerGrain,
+            ProtocolSupport protocolSupport
+    ) {
+        super(metrics, protocolSupport.withoutProtocol(PROTOCOL_NAME));
         this.innerGrain = innerGrain;
     }
 
@@ -177,31 +194,6 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
         return new TemplateDruidQuery(Collections.emptySet(), Collections.singleton(COUNT_INNER), innerGrain);
     }
 
-    @Override
-    protected ProtocolSupport makeProtocolSupport(
-            LogicalMetricInfo logicalMetricInfo,
-            List<LogicalMetric> dependentMetrics
-    ) {
-        return defaultProtocolSupport();
-    }
-
-    /**
-     * Default ProtocolSupport instance for this maker.
-     *
-     * @return A default protocol support based on the BuiltInProtocols defaults.
-     */
-    protected static ProtocolSupport defaultProtocolSupport() {
-        return BuiltInProtocols.getDefaultProtocolSupport()
-                .withoutProtocol(PROTOCOL_NAME);
-    }
-
-    @Override
-    protected ResultSetMapper makeCalculation(
-            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
-    ) {
-        return NO_OP_MAPPER;
-    }
-
     /**
      * Copy a set of aggregations, replacing any sketch aggregations with sketchMerge aggregations.
      * This is an artifact of earlier sketch code which didn't have a single sketch type that could be used without
@@ -228,7 +220,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
      *
      * @return Either the original MetricField, or a new SketchEstimate post aggregation
      */
-    protected MetricField convertToSketchEstimateIfNeeded(MetricField originalSourceMetric) {
+    private MetricField convertToSketchEstimateIfNeeded(MetricField originalSourceMetric) {
         return originalSourceMetric instanceof SketchAggregation ?
                 getSketchConverter().asSketchEstimate((SketchAggregation) originalSourceMetric) :
                 originalSourceMetric;

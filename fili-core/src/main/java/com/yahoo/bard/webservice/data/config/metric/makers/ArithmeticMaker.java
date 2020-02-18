@@ -7,7 +7,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
-import com.yahoo.bard.webservice.data.metric.protocol.BuiltInProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetric;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation;
@@ -36,7 +36,25 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
 
     private final Function<String, ResultSetMapper> resultSetMapperSupplier;
 
-    private static final ProtocolSupport DEFAULT_PROTOCOL_SUPPORT = BuiltInProtocols.getDefaultProtocolSupport();
+    /**
+     * Constructor.
+     *
+     * @param metricDictionary  The dictionary used to resolve dependent metrics when building the LogicalMetric
+     * @param function  The arithmetic operation performed by the LogicalMetrics constructed by this maker
+     * @param resultSetMapperSupplier  A function that takes a metric column name and produces at build time, a result
+     * @param defaultProtocolSupport Protocols to support by default
+     * set mapper.
+     */
+    public ArithmeticMaker(
+            MetricDictionary metricDictionary,
+            ArithmeticPostAggregationFunction function,
+            Function<String, ResultSetMapper> resultSetMapperSupplier,
+            ProtocolSupport defaultProtocolSupport
+    ) {
+        super(metricDictionary, defaultProtocolSupport);
+        this.function = function;
+        this.resultSetMapperSupplier = resultSetMapperSupplier;
+    }
 
     /**
      * Constructor.
@@ -51,9 +69,7 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
             ArithmeticPostAggregationFunction function,
             Function<String, ResultSetMapper> resultSetMapperSupplier
     ) {
-        super(metricDictionary);
-        this.function = function;
-        this.resultSetMapperSupplier = resultSetMapperSupplier;
+        this(metricDictionary, function, resultSetMapperSupplier, BuiltInMetricProtocols.getDefaultProtocolSupport());
     }
 
     /**
@@ -101,16 +117,17 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
             final LogicalMetricInfo logicalMetricInfo,
             final List<LogicalMetric> dependentMetrics
     ) {
-        List<ProtocolSupport> dependentSupports =
+        List<ProtocolSupport> supportsOfDependents =
                 dependentMetrics.stream()
                         .filter(metric -> metric instanceof ProtocolMetric)
                         .map(metric -> (ProtocolMetric) metric)
                         .map(ProtocolMetric::getProtocolSupport)
                         .collect(Collectors.toList());
 
+
         return dependentMetrics.isEmpty() ?
-                DEFAULT_PROTOCOL_SUPPORT
-                : DEFAULT_PROTOCOL_SUPPORT.withoutProtocolSupport(dependentSupports);
+                BuiltInMetricProtocols.getDefaultProtocolSupport()
+                : BuiltInMetricProtocols.getDefaultProtocolSupport().combineBlacklists(supportsOfDependents);
     }
 
     @Override

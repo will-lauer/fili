@@ -17,18 +17,24 @@ public interface MetricTransformer {
      *
      * @param logicalMetric  The metric to transform.
      * @param protocol The protocol being transformed
-     * @param signalData  The data associated with that signal.
+     * @param parameterValues  The data associated with that signal.
      *
      * @return A new metric based on the signal;
      * @throws UnknownProtocolValueException if this transformer doesn't know how to accept this signal
      */
-    LogicalMetric apply(LogicalMetric logicalMetric, Protocol protocol, Map<String, String> signalData)
+    LogicalMetric apply(LogicalMetric logicalMetric, Protocol protocol, Map<String, String> parameterValues)
             throws UnknownProtocolValueException;
 
-    MetricTransformer EMPTY_TRANSFORM = (metric, protocol, map) -> {
+    /**
+     * Implemented here to illustrate test flows for errors.
+     */
+    MetricTransformer ERROR_THROWING_TRANSFORM = (metric, protocol, map) -> {
         throw new UnknownProtocolValueException(protocol, map);
     };
 
+    /**
+     * Implemented here to illustrate non mutating flows.
+     */
     MetricTransformer IDENTITY_TRANSFORM = (metric, protocol, map) -> {
         return metric;
     };

@@ -7,14 +7,16 @@ import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.MONTH;
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.WEEK;
 
 import com.yahoo.bard.webservice.data.config.metric.makers.AggregationAverageMaker;
-import com.yahoo.bard.webservice.data.config.metric.makers.MakeFromMetrics;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
+import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * An interface for transforming metrics into other metrics.
@@ -23,67 +25,191 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
 
     private static final MetricDictionary EMPTY_METRIC_DICTIONARY = new MetricDictionary();
 
-    public static final Protocol BASE_PROTOCOL = BuiltInProtocols.REAGGREGATION_PROTOCOL;
+    public static final String CONTRACT_NAME = "reagg";
+    private static final String CORE_PARAMETER = "reagg";
 
-    public static final TimeAverageMetricTransformer INSTANCE = new TimeAverageMetricTransformer();
+    public final static TimeAverageMetricTransformer INSTANCE = new TimeAverageMetricTransformer();
 
-    public String nameFormat = "%s%s";
-    public String longNameFormat = "%s (%s)";
-    public String descriptionFormat = "The %s of %s.";
+    private static final String NAME_FORMAT = "%s%s";
+    private static final String LONG_NAME_FORMAT = "%s (%s)";
+    private static final String DESCRIPTION_FORMAT = "The %s of %s.";
 
-    private static final String DAILY_AVERAGE = "dayAvg";
-    private static final String DAILY_AVERAGE_LONG = "Daily Average";
-    private static final String WEEKLY_AVERAGE = "weekAvg";
-    private static final String WEEKLY_AVERAGE_LONG = "Weekly Average";
-    private static final String MONTHLY_AVERAGE = "monthAvg";
-    private static final String MONTHLY_AVERAGE_LONG = "Monthly Average";
+    private Map<String, TimeAverageMetricMakerConfig> makerConfigMap;
 
-    private AggregationAverageMaker dayMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, DAY);
-    private AggregationAverageMaker weekMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, WEEK);
-    private AggregationAverageMaker monthMaker = new AggregationAverageMaker(EMPTY_METRIC_DICTIONARY, MONTH);
-
-    private Map<String, MakeFromMetrics> metricMakerMap = new HashMap<>();
-    private Map<String, String> formatLongName = new HashMap<>();
+    private Map<String, AggregationAverageMaker> metricMakerMap;
+    private final Supplier<ProtocolSupport> protocolSupportSupplier;
 
     /**
      * Constructor.
+     *
+     * Left protected to allow subclasses to change initialization patterns.
+     *
+     * @param protocolSupportSupplier  A source for the default protocol support used by the makers.
+     * @param  makerConfigMap  A collection of maker configurations to use when making time reaggregations.
      */
-    private TimeAverageMetricTransformer() {
-        metricMakerMap.put(DAILY_AVERAGE, dayMaker);
-        metricMakerMap.put(WEEKLY_AVERAGE, weekMaker);
-        metricMakerMap.put(MONTHLY_AVERAGE, monthMaker);
-
-        formatLongName.put(DAILY_AVERAGE, DAILY_AVERAGE_LONG);
-        formatLongName.put(WEEKLY_AVERAGE, WEEKLY_AVERAGE_LONG);
-        formatLongName.put(MONTHLY_AVERAGE, MONTHLY_AVERAGE_LONG);
+    protected TimeAverageMetricTransformer(
+            Supplier<ProtocolSupport> protocolSupportSupplier,
+            Map<String, TimeAverageMetricMakerConfig> makerConfigMap
+    ) {
+        this.protocolSupportSupplier = protocolSupportSupplier;
+        this.makerConfigMap = makerConfigMap;
+        metricMakerMap = new HashMap<>();
     }
 
-    @Override
-    public LogicalMetric apply(LogicalMetric logicalMetric, Protocol protocol, Map<String, String> signalData)
-            throws UnknownProtocolValueException {
-        String makerValue = signalData.get(BASE_PROTOCOL.getCoreParameter());
-        if (!metricMakerMap.containsKey(makerValue)) {
-            throw new UnknownProtocolValueException(protocol, signalData);
-        }
-        LogicalMetricInfo info = makeNewLogicalMetricInfo(logicalMetric.getLogicalMetricInfo(), makerValue);
+    /**
+     * Constructor.
+     *
+     * Private to implement singleton pattern for normal usage.
+     */
+    private TimeAverageMetricTransformer() {
+        this(BuiltInMetricProtocols::getDefaultProtocolSupport, TimeAverageMetricMakerConfig.timeMakerConfigs);
+    }
 
-        return metricMakerMap.get(makerValue)
-                .makeInnerWithResolvedDependencies(info, Collections.singletonList(logicalMetric));
+    /**
+     * Build a MetricMaker for this configuration.
+     *
+     * @param makerConfig  The configuration for the metric maker.
+     *
+     * @return  A metric maker for this configuration.
+     */
+    private AggregationAverageMaker buildMaker(TimeAverageMetricMakerConfig makerConfig) {
+        return new AggregationAverageMaker(
+                EMPTY_METRIC_DICTIONARY,
+                makerConfig.getGrain(),
+                protocolSupportSupplier.get()
+        );
+    }
+    @Override
+    public LogicalMetric apply(LogicalMetric logicalMetric, Protocol protocol, Map<String, String> parameterValues)
+            throws UnknownProtocolValueException {
+
+        String parameterValue = parameterValues.get(CORE_PARAMETER);
+
+        if (!makerConfigMap.containsKey(parameterValue)) {
+            throw new UnknownProtocolValueException(protocol, parameterValues);
+        }
+        TimeAverageMetricMakerConfig metricMakerConfig = makerConfigMap.get(parameterValue);
+
+        AggregationAverageMaker maker = metricMakerMap.computeIfAbsent(
+                parameterValue,
+                key -> buildMaker(metricMakerConfig)
+        );
+
+        LogicalMetricInfo info = makeNewLogicalMetricInfo(logicalMetric.getLogicalMetricInfo(), metricMakerConfig);
+        return maker.makeInnerWithResolvedDependencies(info, Collections.singletonList(logicalMetric));
     }
 
     /**
      * Build the new identity metadata for the transformed metric.
      *
      * @param info  The identity metadata from the existing metric
-     * @param makerValue The type of time reaggregation being performed.
+     * @param config The descriptors for the maker type being built
      *
      * @return  A metric info for a time-ly logical metric.
      */
-    protected LogicalMetricInfo makeNewLogicalMetricInfo(LogicalMetricInfo info, String makerValue) {
-        String makeValueName = formatLongName.get(makerValue);
-        String name = String.format(nameFormat, makerValue, info.getName());
-        String longName = String.format(longNameFormat, info.getLongName(), makeValueName);
-        String description = String.format(descriptionFormat, makeValueName, info.getDescription());
+    protected LogicalMetricInfo makeNewLogicalMetricInfo(LogicalMetricInfo info, TimeAverageMetricMakerConfig config) {
+        String name = String.format(NAME_FORMAT, config.getNamePrefix(), info.getName());
+        String longName = String.format(LONG_NAME_FORMAT, info.getLongName(), config.getLongNameSuffix());
+        String description = String.format(DESCRIPTION_FORMAT, config.getLongNameSuffix(), info.getDescription());
         return new LogicalMetricInfo(name, longName, info.getCategory(), description, info.getType());
+    }
+
+    /**
+     * Bean describing the information needed to support building a time aggregation.
+     *
+     * If an implementing  system requires time aggregation of additional custom grains, it can build instances and add
+     * them to the timeMakerConfigs static map.
+     */
+    public static class TimeAverageMetricMakerConfig {
+
+        public static Map<String, TimeAverageMetricMakerConfig> timeMakerConfigs = new LinkedHashMap<>();
+
+        private final String parameterValue;
+        private final String namePrefix;
+        private final String longNameSuffix;
+        private final ZonelessTimeGrain grain;
+
+        public static final TimeAverageMetricMakerConfig DAY_AVERAGE = new TimeAverageMetricMakerConfig(
+                "dayAvg",
+                "dayAvg",
+                "Daily Average",
+                DAY
+        );
+
+        public static final TimeAverageMetricMakerConfig WEEK_AVERAGE = new TimeAverageMetricMakerConfig(
+                "weekAvg",
+                "weekAvg",
+                "Weekly Average",
+                WEEK
+        );
+
+        public static final TimeAverageMetricMakerConfig MONTH_AVERAGE = new TimeAverageMetricMakerConfig(
+                "monthAvg",
+                "monthAvg",
+                "Monthly Average",
+                MONTH
+        );
+
+        static {
+            timeMakerConfigs.put(DAY_AVERAGE.getParameterValue(), DAY_AVERAGE);
+            timeMakerConfigs.put(WEEK_AVERAGE.getParameterValue(), WEEK_AVERAGE);
+            timeMakerConfigs.put(MONTH_AVERAGE.getParameterValue(), MONTH_AVERAGE);
+        }
+
+        /**
+         * Getter.
+         *
+         * @return  The parameter value that triggers this config.
+         */
+        public String getParameterValue() {
+            return parameterValue;
+        }
+
+        /**
+         * Getter.
+         *
+         * @return The name added to the logical metric info name.
+         */
+        public String getNamePrefix() {
+            return namePrefix;
+        }
+
+        /**
+         * Getter.
+         *
+         * @return The longName added to the logical metric info long name and description.
+         */
+        public String getLongNameSuffix() {
+            return longNameSuffix;
+        }
+
+        /**
+         * Getter.
+         *
+         * @return The grain of the metric maker for this config.
+         */
+        public ZonelessTimeGrain getGrain() {
+            return grain;
+        }
+
+        /**
+         * Build a configuration bean that helps configure grain specific reaggregation.
+         *
+         * @param parameterValue  The value of the parameter that uses this config.
+         * @param namePrefix   The prefix added to the metric apiName.
+         * @param longNameSuffix  The suffix added to longNames.
+         * @param granularity  The granularity of reaggregation.
+         */
+        TimeAverageMetricMakerConfig(
+                String parameterValue,
+                String namePrefix,
+                String longNameSuffix,
+                ZonelessTimeGrain granularity
+        ) {
+            this.parameterValue = parameterValue;
+            this.namePrefix = namePrefix;
+            this.longNameSuffix = longNameSuffix;
+            this.grain = granularity;
+        }
     }
 }

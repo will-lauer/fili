@@ -51,7 +51,7 @@ public class ProtocolSupport {
             Collection<Protocol> protocols,
             Collection<String> blacklist
     ) {
-        protocolMap = protocols.stream().collect(Collectors.toMap(Protocol::getName, Function.identity()));
+        protocolMap = protocols.stream().collect(Collectors.toMap(Protocol::getContractName, Function.identity()));
         this.blacklist = blacklist;
     }
 
@@ -92,7 +92,7 @@ public class ProtocolSupport {
 
         List<Protocol> protocols =
                 protocolMap.values().stream()
-                        .filter(protocol -> !protocolNames.contains(protocol.getName()))
+                        .filter(protocol -> !protocolNames.contains(protocol.getContractName()))
                         .collect(Collectors.toList());
         List<String> newBlackList = Stream.concat(protocolNames.stream(), blacklist.stream())
                 .collect(Collectors.toList());
@@ -107,7 +107,7 @@ public class ProtocolSupport {
      *
      * @return A protocol handler with additional protocols not supported.
      */
-    public ProtocolSupport withoutProtocolSupport(Collection<ProtocolSupport> protocolSupport) {
+    public ProtocolSupport combineBlacklists(Collection<ProtocolSupport> protocolSupport) {
 
         List<String> protocols =
                 protocolSupport.stream()

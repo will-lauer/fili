@@ -6,8 +6,6 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetric
 
 import spock.lang.Specification
 
-import java.util.function.Function
-
 class ProtocolSupportSpec extends Specification {
 
     MetricTransformer metricTransformer = Mock(MetricTransformer)
@@ -57,10 +55,10 @@ class ProtocolSupportSpec extends Specification {
     def "Without protocol support supresses both previously unknown and known protocols"() {
         setup:
         ProtocolSupport subtractFooAndBaz = new ProtocolSupport([barProtocol], ["foo", "baz"])
-        ProtocolSupport noToAll = signalHandler.withoutProtocolSupport([subtractFooAndBaz])
+        ProtocolSupport noToAll = signalHandler.combineBlacklists([subtractFooAndBaz])
 
         ProtocolSupport subtractBaz = new ProtocolSupport([barProtocol], ["baz"])
-        ProtocolSupport fooNoBarBaz = signalHandler.withoutProtocolSupport([subtractBaz])
+        ProtocolSupport fooNoBarBaz = signalHandler.combineBlacklists([subtractBaz])
 
         expect:
         noToAll.accepts("foo")  == ProtocolSupport.Accepts.FALSE

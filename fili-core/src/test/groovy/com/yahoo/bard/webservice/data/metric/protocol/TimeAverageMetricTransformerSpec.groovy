@@ -21,7 +21,7 @@ import spock.lang.Unroll
 
 class TimeAverageMetricTransformerSpec extends Specification {
 
-    Protocol protocol = TimeAverageMetricTransformer.BASE_PROTOCOL
+    Protocol protocol = BuiltInMetricProtocols.REAGGREGATION_PROTOCOL
 
     @Unroll
     def "Create a time average for #grain"() {
@@ -66,16 +66,16 @@ class TimeAverageMetricTransformerSpec extends Specification {
     def "LogicalName transformer"() {
         setup:
         TimeAverageMetricTransformer timeAverageTransformer = TimeAverageMetricTransformer.INSTANCE
+        TimeAverageMetricTransformer.TimeAverageMetricMakerConfig config = new TimeAverageMetricTransformer.TimeAverageMetricMakerConfig(value, value, longNameBase, DefaultTimeGrain.DAY)
         MetricDictionary metricDictionary = new MetricDictionary();
 
-        FieldConverterSupplier.sketchConverter = new ThetaSketchFieldConverter()
         String longName = "foo (" + longNameBase + ")"
 
         MetricMaker maker = new LongSumMaker(metricDictionary)
         LogicalMetric longSum = maker.make("foo", "bar")
         Map params = [(protocol.coreParameter): value]
 
-        LogicalMetricInfo info = timeAverageTransformer.makeNewLogicalMetricInfo(longSum.logicalMetricInfo, value)
+        LogicalMetricInfo info = timeAverageTransformer.makeNewLogicalMetricInfo(longSum.logicalMetricInfo, config)
 
         expect:
         info.getName().startsWith(value)
