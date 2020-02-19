@@ -15,7 +15,7 @@ import java.util.Map;
 public interface ProtocolMetric extends LogicalMetric {
 
     /**
-     * Test whether this Metric (or potentially a dependency of it) accepts this kind of signal.
+     * Test whether this Metric accepts this kind of signal.
      *
      * @param signalName  The name of the signal.
      *
