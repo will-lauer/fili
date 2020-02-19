@@ -13,7 +13,7 @@ public class BuiltInMetricProtocols {
 
     // The names for default protocols
     // Intentionally mutable
-    private static final Set<String> DEFAULT_PROTOCOL_NAMES = new HashSet<>();
+    private static final Set<String> DEFAULT_PROTOCOL_CONTRACTS = new HashSet<>();
 
     // The dictionary for default protocols
     // intentionally mutable
@@ -38,7 +38,7 @@ public class BuiltInMetricProtocols {
      * @return any existing protocol with the same contract name as this one.
      */
     public static Protocol addDefaultProtocol(Protocol protocol) {
-        DEFAULT_PROTOCOL_NAMES.add(protocol.getContractName());
+        DEFAULT_PROTOCOL_CONTRACTS.add(protocol.getContractName());
         return PROTOCOL_DICTIONARY.put(protocol.getContractName(), protocol);
     }
 
@@ -50,7 +50,7 @@ public class BuiltInMetricProtocols {
      * @return The existing protocol correspnding to this protocol contract name (if any).
      */
     public static Protocol removeDefaultProtocol(String protocolName) {
-        DEFAULT_PROTOCOL_NAMES.remove(protocolName);
+        DEFAULT_PROTOCOL_CONTRACTS.remove(protocolName);
         return PROTOCOL_DICTIONARY.remove(protocolName);
     }
 
@@ -73,7 +73,7 @@ public class BuiltInMetricProtocols {
      * @return  A Protocol Support describing the default protocols supported throughout the system.
      */
     public static ProtocolSupport getDefaultProtocolSupport() {
-        return new ProtocolSupport(DEFAULT_PROTOCOL_NAMES.stream()
+        return new ProtocolSupport(DEFAULT_PROTOCOL_CONTRACTS.stream()
                 .map(PROTOCOL_DICTIONARY::get)
                 .collect(Collectors.toList()));
     }

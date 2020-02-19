@@ -39,7 +39,7 @@ public class Protocol {
     /**
      * Constructor.
      *
-     * @param contractName  The name of the protocol.
+     * @param contractName  The name of the protocol contract.
      * @param coreParameter The name of the core parameter for this protocol.
      * @param metricTransformer  The transformer to process metrics under this protocol.
      */
