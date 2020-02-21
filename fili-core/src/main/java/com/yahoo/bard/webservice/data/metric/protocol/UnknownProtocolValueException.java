@@ -23,8 +23,8 @@ public class UnknownProtocolValueException extends Exception {
     public UnknownProtocolValueException(Protocol protocol, Map<String, String> parameterValues) {
         super(String.format(
                 MESSAGE_FORMAT,
-                protocol.getCoreParameter(),
-                parameterValues.get(protocol.getCoreParameter())
+                protocol.getCoreParameterName(),
+                parameterValues.get(protocol.getCoreParameterName())
         ));
         this.protocol = protocol;
         this.parameterValues = parameterValues;

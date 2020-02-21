@@ -37,7 +37,7 @@ class ProtocolMetricImplSpec extends Specification {
         accepts = protocolMetric.accepts(protocolName)
 
         then:
-        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.FALSE
+        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.REJECT
         ! accepts
 
         when:
@@ -70,7 +70,7 @@ class ProtocolMetricImplSpec extends Specification {
         LogicalMetric expected = Mock(LogicalMetric)
         MetricTransformer metricTransformer = Mock(MetricTransformer)
         protocolSupport.getProtocol(protocolName) >> protocol
-        protocol.getCoreParameter() >> protocolName
+        protocol.getCoreParameterName() >> protocolName
         protocol.getMetricTransformer() >> metricTransformer
 
         Map values = ["foo": "bar"]

@@ -23,8 +23,8 @@ public class ProtocolSupport {
      */
     public enum Accepts {
         TRUE,
-        FALSE,
-        MAYBE  // If this Handler cannot accept the protocol, but doesn't make positive claims if another might.
+        REJECT,  // This Protocol is not supported and probably shouldn't be supported in metrics that close over it
+        MAYBE  // This protocol isn't directly supported by this metric
     }
 
     private final Collection<String> blacklist;
@@ -58,43 +58,43 @@ public class ProtocolSupport {
     /**
      * Determine if this protocol handler or accepts this protocol.
      *
-     * @param protocolName The name of the protocol to test for.
+     * @param contractName The name of the protocol to test for.
      *
      * @return TRUE if this metric directly or indirectly supports this signal, FALSE if it refuses, MAYBE if it
      * doesn't assert authority.
      */
-    public Accepts accepts(String protocolName) {
-        return protocolMap.containsKey(protocolName) ? Accepts.TRUE :
-                blacklist.contains(protocolName) ?
-                        Accepts.FALSE :
+    public Accepts accepts(String contractName) {
+        return protocolMap.containsKey(contractName) ? Accepts.TRUE :
+                blacklist.contains(contractName) ?
+                        Accepts.REJECT :
                         Accepts.MAYBE;
     }
 
     /**
      * Create a modified protocol handler which doesn't accepts a certain protocol.
      *
-     * @param protocolName  The name of a protocol to not handle.
+     * @param contractName  The name of a protocol to not handle.
      *
      * @return A protocol handler with additional signals bound.
      */
-    public ProtocolSupport withoutProtocol(String protocolName) {
-        return withoutProtocols(Collections.singleton(protocolName));
+    public ProtocolSupport withoutProtocol(String contractName) {
+        return withoutProtocols(Collections.singleton(contractName));
     }
 
     /**
-     * Create a modified protocol handler which doesn't accepts certain protocols.
+     * Create a modified protocol handler which doesn't accepts protocols.
      *
-     * @param protocolNames  The names of protocols to not handle.
+     * @param contractNames  The names of protocols to not handle.
      *
      * @return A protocol handler with protocols not supported.
      */
-    public ProtocolSupport withoutProtocols(Collection<String> protocolNames) {
+    public ProtocolSupport withoutProtocols(Collection<String> contractNames) {
 
         List<Protocol> protocols =
                 protocolMap.values().stream()
-                        .filter(protocol -> !protocolNames.contains(protocol.getContractName()))
+                        .filter(protocol -> !contractNames.contains(protocol.getContractName()))
                         .collect(Collectors.toList());
-        List<String> newBlackList = Stream.concat(protocolNames.stream(), blacklist.stream())
+        List<String> newBlackList = Stream.concat(contractNames.stream(), blacklist.stream())
                 .collect(Collectors.toList());
 
         return new ProtocolSupport(protocols, newBlackList);
@@ -117,7 +117,7 @@ public class ProtocolSupport {
     }
 
     /**
-     * Create a modified protocol handler which accepts certain protocols.
+     * Create a modified protocol handler which accepts additional protocols.
      *
      * @param addedProtocols  The protocols to handle.
      *
@@ -136,13 +136,13 @@ public class ProtocolSupport {
     }
 
     /**
-     * Retrieve the Protocol for a given protocol name.
+     * Retrieve the Protocol for a given protocol contract name.
      *
-     * @param protocolName a protocol name
+     * @param contractName a protocol contract name
      *
-     * @return The Protocol for this protocol name
+     * @return The Protocol for this protocol contract name
      */
-    Protocol getProtocol(String protocolName) {
-        return protocolMap.get(protocolName);
+    Protocol getProtocol(String contractName) {
+        return protocolMap.get(contractName);
     }
 }

@@ -26,6 +26,8 @@ public interface ProtocolMetric extends LogicalMetric {
     /**
      * Apply this protocol and parameters to this metric and return a (potentially different) metric.
      *
+     * The transformed metric is not necessarily a protocol metric.
+     *
      * @param protocolName  The name of the protocol to apply
      * @param parameters  A map of keys and values representing the transformation.
      *

@@ -32,7 +32,7 @@ public abstract class BaseProtocolMetricMaker extends MetricMaker implements Mak
      * when making the logical metric.
      */
     public BaseProtocolMetricMaker(MetricDictionary metrics) {
-        this(metrics, BuiltInMetricProtocols.getDefaultProtocolSupport());
+        this(metrics, BuiltInMetricProtocols.getStandardProtocolSupport());
     }
 
     /**

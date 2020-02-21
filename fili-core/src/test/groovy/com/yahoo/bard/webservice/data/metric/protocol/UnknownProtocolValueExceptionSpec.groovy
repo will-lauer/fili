@@ -11,7 +11,7 @@ class UnknownProtocolValueExceptionSpec extends Specification {
         String name = "name"
         Protocol protocol = Mock(Protocol)
         protocol.getContractName() >> name
-        protocol.getCoreParameter() >> name
+        protocol.getCoreParameterName() >> name
         Map<String, String> values = [name: "bar", "otherName": "foo"]
 
         UnknownProtocolValueException exception = new UnknownProtocolValueException(protocol, values)

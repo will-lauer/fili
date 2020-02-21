@@ -10,4 +10,6 @@ import java.util.LinkedHashMap;
  * The key should be the contract name for the Protocols supported.
  */
 public class ProtocolDictionary extends LinkedHashMap<String, Protocol> {
+
+    public static final ProtocolDictionary DEFAULT = new ProtocolDictionary();
 }

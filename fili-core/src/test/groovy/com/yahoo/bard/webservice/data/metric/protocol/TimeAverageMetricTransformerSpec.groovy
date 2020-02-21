@@ -35,7 +35,7 @@ class TimeAverageMetricTransformerSpec extends Specification {
 
         LogicalMetric longSum = maker.make("foo", "bar")
         LogicalMetric sketchUnion = sketchMaker.make("foo", "bar")
-        Map params = [(protocol.coreParameter): value]
+        Map params = [(protocol.coreParameterName): value]
 
         LogicalMetric averageMetric = timeAverageTransformer.apply(longSum, protocol, params)
         LogicalMetric sketchAverage = timeAverageTransformer.apply(sketchUnion, protocol, params)
@@ -73,7 +73,7 @@ class TimeAverageMetricTransformerSpec extends Specification {
 
         MetricMaker maker = new LongSumMaker(metricDictionary)
         LogicalMetric longSum = maker.make("foo", "bar")
-        Map params = [(protocol.coreParameter): value]
+        Map params = [(protocol.coreParameterName): value]
 
         LogicalMetricInfo info = timeAverageTransformer.makeNewLogicalMetricInfo(longSum.logicalMetricInfo, config)
 

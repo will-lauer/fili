@@ -69,7 +69,7 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
             ArithmeticPostAggregationFunction function,
             Function<String, ResultSetMapper> resultSetMapperSupplier
     ) {
-        this(metricDictionary, function, resultSetMapperSupplier, BuiltInMetricProtocols.getDefaultProtocolSupport());
+        this(metricDictionary, function, resultSetMapperSupplier, BuiltInMetricProtocols.getStandardProtocolSupport());
     }
 
     /**
@@ -126,8 +126,8 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
 
 
         return dependentMetrics.isEmpty() ?
-                BuiltInMetricProtocols.getDefaultProtocolSupport()
-                : BuiltInMetricProtocols.getDefaultProtocolSupport().combineBlacklists(supportsOfDependents);
+                BuiltInMetricProtocols.getStandardProtocolSupport()
+                : BuiltInMetricProtocols.getStandardProtocolSupport().combineBlacklists(supportsOfDependents);
     }
 
     @Override

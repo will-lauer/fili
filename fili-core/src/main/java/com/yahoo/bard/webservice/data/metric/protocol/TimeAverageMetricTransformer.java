@@ -42,7 +42,7 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
     /**
      * Constructor.
      *
-     * Left protected to allow subclasses to change initialization patterns.
+     * Left protected to allow subclasses to add custom time intervals for reaggregation.
      *
      * @param protocolSupportSupplier  A source for the default protocol support used by the makers.
      * @param  makerConfigMap  A collection of maker configurations to use when making time reaggregations.
@@ -62,7 +62,7 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
      * Private to implement singleton pattern for normal usage.
      */
     private TimeAverageMetricTransformer() {
-        this(BuiltInMetricProtocols::getDefaultProtocolSupport, TimeAverageMetricMakerConfig.timeMakerConfigs);
+        this(BuiltInMetricProtocols::getStandardProtocolSupport, TimeAverageMetricMakerConfig.timeMakerConfigs);
     }
 
     /**

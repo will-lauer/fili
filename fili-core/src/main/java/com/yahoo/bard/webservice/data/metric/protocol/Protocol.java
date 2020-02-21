@@ -21,7 +21,7 @@ package com.yahoo.bard.webservice.data.metric.protocol;
 public class Protocol {
 
     private final String contractName;
-    private final String coreParameter;
+    private final String coreParameterName;
     private final MetricTransformer metricTransformer;
 
     /**
@@ -29,7 +29,7 @@ public class Protocol {
      *
      * Use the protocol name as the default parameter name.
      *
-     * @param contractName  The name of the protocol.
+     * @param contractName  The name of the protocol contract.
      * @param metricTransformer  The metric transformer implementing this protocol's transform
      */
     public Protocol(String contractName, MetricTransformer metricTransformer) {
@@ -40,16 +40,16 @@ public class Protocol {
      * Constructor.
      *
      * @param contractName  The name of the protocol contract.
-     * @param coreParameter The name of the core parameter for this protocol.
+     * @param coreParameterName The name of the core parameter for this protocol.
      * @param metricTransformer  The transformer to process metrics under this protocol.
      */
     public Protocol(
             String contractName,
-            String coreParameter,
+            String coreParameterName,
             MetricTransformer metricTransformer
     ) {
         this.contractName = contractName;
-        this.coreParameter = coreParameter;
+        this.coreParameterName = coreParameterName;
         this.metricTransformer = metricTransformer;
     }
 
@@ -67,8 +67,8 @@ public class Protocol {
      *
      * @return a parameter name
      */
-    public String getCoreParameter() {
-        return coreParameter;
+    public String getCoreParameterName() {
+        return coreParameterName;
     }
 
     /**

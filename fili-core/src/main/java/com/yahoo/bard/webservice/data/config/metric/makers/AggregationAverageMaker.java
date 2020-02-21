@@ -74,7 +74,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
      * @param innerGrain  The time grain across which queries should aggregate.
      */
     public AggregationAverageMaker(MetricDictionary metrics, ZonelessTimeGrain innerGrain) {
-        this(metrics, innerGrain, BuiltInMetricProtocols.getDefaultProtocolSupport());
+        this(metrics, innerGrain, BuiltInMetricProtocols.getStandardProtocolSupport());
     }
 
     /**

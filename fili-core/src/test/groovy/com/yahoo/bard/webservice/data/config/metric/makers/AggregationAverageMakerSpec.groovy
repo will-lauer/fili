@@ -181,7 +181,7 @@ class AggregationAverageMakerSpec extends Specification{
                 new LogicalMetricInfo(NAME, DESCRIPTION),
                 outerQuery,
                 new NoOpResultSetMapper(),
-                BuiltInMetricProtocols.getDefaultProtocolSupport()
+                BuiltInMetricProtocols.getStandardProtocolSupport()
         )
     }
 }

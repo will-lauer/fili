@@ -11,47 +11,33 @@ import java.util.stream.Collectors;
  */
 public class BuiltInMetricProtocols {
 
-    // The names for default protocols
-    // Intentionally mutable
-    private static final Set<String> DEFAULT_PROTOCOL_CONTRACTS = new HashSet<>();
-
-    // The dictionary for default protocols
-    // intentionally mutable
-    private static final ProtocolDictionary PROTOCOL_DICTIONARY = new ProtocolDictionary();
-
     /**
-     * Add a protocol to the shared protocol dictionary.
+     * The names for standard protocol contracts supplied to makers by default.
      *
-     * @param protocol  a new protocol
-     *
-     * @return any existing protocol with the same contract name as this one.
+     * Intentionally mutable to be managed at config time before building makers.
      */
-    public static Protocol addProtocol(Protocol protocol) {
-        return PROTOCOL_DICTIONARY.put(protocol.getContractName(), protocol);
-    }
+    private static final Set<String> STANDARD_CONTRACTS = new HashSet<>();
 
     /**
-     * Add a protocol to the shared protocol dictionary and as a default protocol.
+     * Add a protocol to the global protocol dictionary and as a default protocol.
      *
      * @param protocol  a new protocol to be supported globally
      *
-     * @return any existing protocol with the same contract name as this one.
      */
-    public static Protocol addDefaultProtocol(Protocol protocol) {
-        DEFAULT_PROTOCOL_CONTRACTS.add(protocol.getContractName());
-        return PROTOCOL_DICTIONARY.put(protocol.getContractName(), protocol);
+    public static void addAsStandardProtocol(Protocol protocol) {
+        STANDARD_CONTRACTS.add(protocol.getContractName());
+        ProtocolDictionary.DEFAULT.put(protocol.getContractName(), protocol);
     }
 
     /**
-     * Remove a protocol from the default protocols and protocol dictionary.
+     * Remove a protocol contract from the standard protocol list.
      *
-     * @param protocolName  the name of the protocol to be removed.
+     * @param contractName  the name of the protocol contract to be removed.
      *
-     * @return The existing protocol correspnding to this protocol contract name (if any).
+     * @return true if this contract was previously supported
      */
-    public static Protocol removeDefaultProtocol(String protocolName) {
-        DEFAULT_PROTOCOL_CONTRACTS.remove(protocolName);
-        return PROTOCOL_DICTIONARY.remove(protocolName);
+    public static boolean removeFromStandardProtocols(String contractName) {
+        return STANDARD_CONTRACTS.remove(contractName);
     }
 
     public static final String REAGGREGATION_CONTRACT_NAME = "reaggregation";
@@ -64,7 +50,7 @@ public class BuiltInMetricProtocols {
     );
 
     static {
-        addDefaultProtocol(REAGGREGATION_PROTOCOL);
+        addAsStandardProtocol(REAGGREGATION_PROTOCOL);
     }
 
     /**
@@ -72,9 +58,9 @@ public class BuiltInMetricProtocols {
      *
      * @return  A Protocol Support describing the default protocols supported throughout the system.
      */
-    public static ProtocolSupport getDefaultProtocolSupport() {
-        return new ProtocolSupport(DEFAULT_PROTOCOL_CONTRACTS.stream()
-                .map(PROTOCOL_DICTIONARY::get)
+    public static ProtocolSupport getStandardProtocolSupport() {
+        return new ProtocolSupport(STANDARD_CONTRACTS.stream()
+                .map(ProtocolDictionary.DEFAULT::get)
                 .collect(Collectors.toList()));
     }
 
