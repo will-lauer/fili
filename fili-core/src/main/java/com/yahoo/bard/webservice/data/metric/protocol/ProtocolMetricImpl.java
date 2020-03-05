@@ -31,7 +31,7 @@ public class ProtocolMetricImpl extends LogicalMetricImpl implements ProtocolMet
             @NotNull TemplateDruidQuery templateDruidQuery,
             ResultSetMapper calculation
     ) {
-        this(logicalMetricInfo, templateDruidQuery, calculation, BuiltInMetricProtocols.getStandardProtocolSupport());
+        this(logicalMetricInfo, templateDruidQuery, calculation, DefaultSystemMetricProtocols.getStandardProtocolSupport());
     }
 
     /**

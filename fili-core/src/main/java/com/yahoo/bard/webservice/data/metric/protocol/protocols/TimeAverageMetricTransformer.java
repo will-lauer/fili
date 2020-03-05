@@ -10,7 +10,7 @@ import com.yahoo.bard.webservice.data.config.metric.makers.AggregationAverageMak
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
-import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.DefaultSystemMetricProtocols;
 import com.yahoo.bard.webservice.data.metric.protocol.MetricTransformer;
 import com.yahoo.bard.webservice.data.metric.protocol.Protocol;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
@@ -68,7 +68,7 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
      * Private to implement singleton pattern for normal usage.
      */
     private TimeAverageMetricTransformer() {
-        this(BuiltInMetricProtocols::getStandardProtocolSupport, TimeAverageMetricMakerConfig.timeMakerConfigs);
+        this(DefaultSystemMetricProtocols::getStandardProtocolSupport, TimeAverageMetricMakerConfig.timeMakerConfigs);
     }
 
     /**

@@ -7,7 +7,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
-import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.DefaultSystemMetricProtocols;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetric;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.druid.model.postaggregation.ArithmeticPostAggregation;
@@ -70,7 +70,7 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
             ArithmeticPostAggregationFunction function,
             Function<String, ResultSetMapper> resultSetMapperSupplier
     ) {
-        this(metricDictionary, function, resultSetMapperSupplier, BuiltInMetricProtocols.getStandardProtocolSupport());
+        this(metricDictionary, function, resultSetMapperSupplier, DefaultSystemMetricProtocols.getStandardProtocolSupport());
     }
 
     /**
@@ -124,7 +124,7 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
                         .collect(Collectors.toList());
 
         // Any blacklisted protocols in dependencies should roll upward
-        return BuiltInMetricProtocols.getStandardProtocolSupport().mergeBlacklists(supportsOfDependents);
+        return DefaultSystemMetricProtocols.getStandardProtocolSupport().mergeBlacklists(supportsOfDependents);
     }
 
     @Override

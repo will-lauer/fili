@@ -7,7 +7,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
-import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.DefaultSystemMetricProtocols;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetricImpl;
 
@@ -32,7 +32,7 @@ public abstract class BaseProtocolMetricMaker extends MetricMaker implements Mak
      * when making the logical metric.
      */
     public BaseProtocolMetricMaker(MetricDictionary metrics) {
-        this(metrics, BuiltInMetricProtocols.getStandardProtocolSupport());
+        this(metrics, DefaultSystemMetricProtocols.getStandardProtocolSupport());
     }
 
     /**

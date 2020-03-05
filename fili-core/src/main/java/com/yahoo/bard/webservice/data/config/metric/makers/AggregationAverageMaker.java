@@ -9,7 +9,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
-import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.DefaultSystemMetricProtocols;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
 import com.yahoo.bard.webservice.data.metric.protocol.protocols.ReaggregationProtocol;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
@@ -75,7 +75,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
      * @param innerGrain  The time grain across which queries should aggregate.
      */
     public AggregationAverageMaker(MetricDictionary metrics, ZonelessTimeGrain innerGrain) {
-        this(metrics, innerGrain, BuiltInMetricProtocols.getStandardProtocolSupport());
+        this(metrics, innerGrain, DefaultSystemMetricProtocols.getStandardProtocolSupport());
     }
 
     /**

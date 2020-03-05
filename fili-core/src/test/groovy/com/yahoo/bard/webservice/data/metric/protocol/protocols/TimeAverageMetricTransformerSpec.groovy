@@ -9,9 +9,7 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetric
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
-import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols
 import com.yahoo.bard.webservice.data.metric.protocol.Protocol
-import com.yahoo.bard.webservice.data.metric.protocol.protocols.TimeAverageMetricTransformer
 import com.yahoo.bard.webservice.data.time.DefaultTimeGrain
 import com.yahoo.bard.webservice.druid.model.aggregation.DoubleSumAggregation
 import com.yahoo.bard.webservice.druid.model.aggregation.LongSumAggregation

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 /**
  * Source for default protocols and default protocol dictionary.
  */
-public class BuiltInMetricProtocols {
+public class DefaultSystemMetricProtocols {
 
     private static final ProtocolDictionary DEFAULT_PROTOCOL_DICTIONARY = new ProtocolDictionary();
 
@@ -80,6 +80,6 @@ public class BuiltInMetricProtocols {
      *
      * Private to prevent instance creation.
      */
-    private BuiltInMetricProtocols() {
+    private DefaultSystemMetricProtocols() {
     }
 }
