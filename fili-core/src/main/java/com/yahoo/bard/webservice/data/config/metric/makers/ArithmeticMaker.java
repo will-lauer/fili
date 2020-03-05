@@ -70,7 +70,12 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
             ArithmeticPostAggregationFunction function,
             Function<String, ResultSetMapper> resultSetMapperSupplier
     ) {
-        this(metricDictionary, function, resultSetMapperSupplier, DefaultSystemMetricProtocols.getStandardProtocolSupport());
+        this(
+                metricDictionary,
+                function,
+                resultSetMapperSupplier,
+                DefaultSystemMetricProtocols.getStandardProtocolSupport()
+        );
     }
 
     /**

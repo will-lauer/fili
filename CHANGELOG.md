@@ -561,7 +561,8 @@ select filters)
 ### Added:
 
 
--- [MAJOR FEATURE: Protocol Metrics](https://github.com/yahoo/fili/issues/1014)
+-- [MAJOR FEATURE: Protocol Metrics](https://github.com/yahoo/fili/issues/1014)]
+    * Split `LogicalMetric` into an interface and an implementation: `LogicalMetricImpl`
     * Added `Protocol`, `ProtocolSupport` and `MetricTransformer` to support metric self-trasnformation.
     * Added `DefaultSystemMetricProtocols` and `ProtocolDictionary` to support protocol configuration.
     * Updated `ArithmeticMaker` and `AggregationAverageMaker` to produce protocol metrics. 

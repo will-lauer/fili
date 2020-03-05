@@ -2,7 +2,6 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.metric.protocol
 
-import com.yahoo.bard.webservice.data.metric.LogicalMetric
 
 import spock.lang.Specification
 
@@ -25,8 +24,8 @@ class ProtocolSupportSpec extends Specification {
         fooProtocol = new Protocol(protocolName1, metricTransformer)
         barProtocol = new Protocol(protocolName2, metricTransformer)
         bazProtocol = new Protocol(protocolName3, metricTransformer)
-        withFooWithoutBarProtocolSupport = new ProtocolSupport([fooProtocol], [protocolName2])
-        withAndWithoutBarProtocolSupport = new ProtocolSupport([fooProtocol], [protocolName1])
+        withFooWithoutBarProtocolSupport = new ProtocolSupport([fooProtocol], [protocolName2] as HashSet)
+        withAndWithoutBarProtocolSupport = new ProtocolSupport([fooProtocol], [protocolName1] as HashSet)
     }
 
     def "Accepts is true configured values that are configured and not blacklisted"() {
@@ -77,10 +76,10 @@ class ProtocolSupportSpec extends Specification {
 
     def "Without protocol support supresses both previously unknown and known protocols"() {
         setup:
-        ProtocolSupport subtractFooAndBaz = new ProtocolSupport([barProtocol], ["foo", "baz"])
+        ProtocolSupport subtractFooAndBaz = new ProtocolSupport([barProtocol], ["foo", "baz"] as LinkedHashSet)
         ProtocolSupport noToAll = withFooWithoutBarProtocolSupport.mergeBlacklists([subtractFooAndBaz])
 
-        ProtocolSupport subtractBaz = new ProtocolSupport([barProtocol], ["baz"])
+        ProtocolSupport subtractBaz = new ProtocolSupport([barProtocol], ["baz"] as LinkedHashSet)
         ProtocolSupport fooNoBarBaz = withFooWithoutBarProtocolSupport.mergeBlacklists([subtractBaz])
 
         expect:
@@ -116,8 +115,8 @@ class ProtocolSupportSpec extends Specification {
 
     def "Combine blacklists combines blacklists"() {
         setup:
-        ProtocolSupport protocolSupport2 = new ProtocolSupport([fooProtocol], [protocolName1])
-        ProtocolSupport test = withFooWithoutBarProtocolSupport.mergeBlacklists([protocolSupport2])
+        ProtocolSupport protocolSupport2 = new ProtocolSupport([fooProtocol], [protocolName1] as LinkedHashSet)
+        ProtocolSupport test = withFooWithoutBarProtocolSupport.mergeBlacklists([protocolSupport2] as LinkedHashSet)
 
         expect:
         test.isBlacklisted(protocolName1)

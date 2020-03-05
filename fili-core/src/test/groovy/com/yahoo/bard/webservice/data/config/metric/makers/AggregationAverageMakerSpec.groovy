@@ -2,10 +2,10 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.config.metric.makers
 
+import static com.yahoo.bard.webservice.data.metric.protocol.protocols.ReaggregationProtocol.REAGGREGATION_CONTRACT_NAME
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.DAY
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric
-import com.yahoo.bard.webservice.data.metric.LogicalMetricImpl
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
@@ -71,9 +71,10 @@ class AggregationAverageMakerSpec extends Specification{
                 new FieldAccessorPostAggregation(userSketchCount)
         )
         LogicalMetric expectedMetric = buildExpectedMetric(sketchEstimate)
+        LogicalMetric actual = maker.make(NAME, NAME)
 
         expect:
-        maker.make(NAME, NAME).equals(expectedMetric)
+        actual.equals(expectedMetric)
     }
 
     def "Build a correct LogicalMetric when passed a sketch merge and sketch estimate"(){
@@ -127,7 +128,12 @@ class AggregationAverageMakerSpec extends Specification{
     }
 
     LogicalMetric buildDependentMetric(TemplateDruidQuery dependentQuery){
-        return new LogicalMetricImpl(dependentQuery, new NoOpResultSetMapper(), NAME, DESCRIPTION)
+        return new ProtocolMetricImpl(
+                new LogicalMetricInfo(NAME, DESCRIPTION),
+                dependentQuery,
+                new NoOpResultSetMapper(),
+                DefaultSystemMetricProtocols.getStandardProtocolSupport()
+        )
     }
     /**
      * Builds the LogicalMetric expected by the tests.
@@ -181,7 +187,7 @@ class AggregationAverageMakerSpec extends Specification{
                 new LogicalMetricInfo(NAME, DESCRIPTION),
                 outerQuery,
                 new NoOpResultSetMapper(),
-                DefaultSystemMetricProtocols.getStandardProtocolSupport()
+                DefaultSystemMetricProtocols.getStandardProtocolSupport().blacklistProtocol(REAGGREGATION_CONTRACT_NAME)
         )
     }
 }

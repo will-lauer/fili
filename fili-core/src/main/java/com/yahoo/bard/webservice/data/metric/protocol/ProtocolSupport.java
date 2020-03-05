@@ -5,8 +5,11 @@ package com.yahoo.bard.webservice.data.metric.protocol;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,7 +25,7 @@ public class ProtocolSupport {
     /**
      * Contracts which should not be supported on this metric or metrics that depend on it.
      */
-    private final Collection<String> blacklist;
+    private final Set<String> blacklist;
 
     /**
      * Protocols supported for this metric, keyed by contract name.
@@ -48,7 +51,7 @@ public class ProtocolSupport {
      */
     public ProtocolSupport(
             Collection<Protocol> protocols,
-            Collection<String> blacklist
+            Set<String> blacklist
     ) {
         protocolMap = protocols.stream().collect(Collectors.toMap(Protocol::getContractName, Function.identity()));
         this.blacklist = blacklist;
@@ -102,8 +105,8 @@ public class ProtocolSupport {
                         .collect(Collectors.toList());
 
         // Add all the blacklisted names to the blacklist
-        List<String> newBlackList = Stream.concat(protocolNames.stream(), blacklist.stream())
-                .collect(Collectors.toList());
+        Set<String> newBlackList = Stream.concat(protocolNames.stream(), blacklist.stream())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         return new ProtocolSupport(protocols, newBlackList);
     }
@@ -137,7 +140,7 @@ public class ProtocolSupport {
                 .collect(Collectors.toSet());
 
         // Remove any added protocols from the blacklist
-        Collection<String> newBlackList = new HashSet<String>(blacklist);
+        Set<String> newBlackList = new HashSet<String>(blacklist);
         addingProtocols.stream()
                 .map(Protocol::getContractName)
                 .forEach(name -> newBlackList.remove(name));
@@ -154,5 +157,29 @@ public class ProtocolSupport {
      */
     Protocol getProtocol(String protocolName) {
         return protocolMap.get(protocolName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        final ProtocolSupport that = (ProtocolSupport) o;
+        // MetricTransformers won't generally be comparable and may be anonymous functions, so equality on them
+        // is impractical to guarantee.  So instead simply use the protocol names as the basis for equality
+        return Objects.equals(blacklist, that.blacklist) &&
+                Objects.equals(protocolMap.keySet(), that.protocolMap.keySet());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(blacklist, protocolMap.keySet());
+    }
+
+    @Override
+    public String toString() {
+        return "ProtocolSupport{" +
+                "blacklist=" + blacklist +
+                ", protocolMap=" + protocolMap +
+                '}';
     }
 }

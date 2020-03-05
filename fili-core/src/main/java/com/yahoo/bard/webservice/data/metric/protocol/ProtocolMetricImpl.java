@@ -9,6 +9,7 @@ import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.mappers.ResultSetMapper;
 
 import java.util.Map;
+import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
 
@@ -31,7 +32,12 @@ public class ProtocolMetricImpl extends LogicalMetricImpl implements ProtocolMet
             @NotNull TemplateDruidQuery templateDruidQuery,
             ResultSetMapper calculation
     ) {
-        this(logicalMetricInfo, templateDruidQuery, calculation, DefaultSystemMetricProtocols.getStandardProtocolSupport());
+        this(
+                logicalMetricInfo,
+                templateDruidQuery,
+                calculation,
+                DefaultSystemMetricProtocols.getStandardProtocolSupport()
+        );
     }
 
     /**
@@ -67,5 +73,27 @@ public class ProtocolMetricImpl extends LogicalMetricImpl implements ProtocolMet
     @Override
     public ProtocolSupport getProtocolSupport() {
         return protocolSupport;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        if (!super.equals(o)) { return false; }
+        final ProtocolMetricImpl that = (ProtocolMetricImpl) o;
+        return Objects.equals(protocolSupport, that.protocolSupport);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), protocolSupport);
+    }
+
+    @Override
+    public String toString() {
+        return "ProtocolMetricImpl{" +
+                super.toString() +
+                ", protocolSupport=" + protocolSupport +
+                '}';
     }
 }
