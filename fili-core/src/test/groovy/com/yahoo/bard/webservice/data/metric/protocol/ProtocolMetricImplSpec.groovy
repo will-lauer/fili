@@ -25,29 +25,6 @@ class ProtocolMetricImplSpec extends Specification {
         protocolMetric = new ProtocolMetricImpl(logicalMetricInfo, templateDruidQuery, resultSetMapper, protocolSupport)
     }
 
-    def "Accepts returns true if and only if the underlying protocol support is TRUE for a given protocol name"() {
-        when:
-        boolean accepts = protocolMetric.accepts(protocolName)
-
-        then:
-        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.MAYBE
-        ! accepts
-
-        when:
-        accepts = protocolMetric.accepts(protocolName)
-
-        then:
-        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.REJECT
-        ! accepts
-
-        when:
-        accepts = protocolMetric.accepts(protocolName)
-
-        then:
-        1 * protocolSupport.accepts(protocolName) >> ProtocolSupport.Accepts.TRUE
-        accepts
-    }
-
     def "Accept invokes the protocol support and applies the attached transformer"() {
         setup:
         LogicalMetric expected = Mock(LogicalMetric)
