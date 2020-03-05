@@ -1,6 +1,6 @@
 // Copyright 2020 Oath Inc.
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
-package com.yahoo.bard.webservice.data.metric.protocol
+package com.yahoo.bard.webservice.data.metric.protocol.protocols
 
 import com.yahoo.bard.webservice.data.config.metric.makers.LongSumMaker
 import com.yahoo.bard.webservice.data.config.metric.makers.MetricMaker
@@ -9,6 +9,9 @@ import com.yahoo.bard.webservice.data.metric.LogicalMetric
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols
+import com.yahoo.bard.webservice.data.metric.protocol.Protocol
+import com.yahoo.bard.webservice.data.metric.protocol.protocols.TimeAverageMetricTransformer
 import com.yahoo.bard.webservice.data.time.DefaultTimeGrain
 import com.yahoo.bard.webservice.druid.model.aggregation.DoubleSumAggregation
 import com.yahoo.bard.webservice.druid.model.aggregation.LongSumAggregation
@@ -21,7 +24,7 @@ import spock.lang.Unroll
 
 class TimeAverageMetricTransformerSpec extends Specification {
 
-    Protocol protocol = BuiltInMetricProtocols.REAGGREGATION_PROTOCOL
+    Protocol protocol = ReaggregationProtocol.INSTANCE
 
     @Unroll
     def "Create a time average for #grain"() {

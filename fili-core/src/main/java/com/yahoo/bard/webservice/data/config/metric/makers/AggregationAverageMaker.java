@@ -11,6 +11,7 @@ import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.TemplateDruidQuery;
 import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
+import com.yahoo.bard.webservice.data.metric.protocol.protocols.ReaggregationProtocol;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 import com.yahoo.bard.webservice.druid.model.MetricField;
 import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation;
@@ -54,7 +55,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
 
     private static final int DEPENDENT_METRICS_REQUIRED = 1;
 
-    public static final String PROTOCOL_NAME = BuiltInMetricProtocols.REAGGREGATION_CONTRACT_NAME;
+    public static final String PROTOCOL_NAME = ReaggregationProtocol.REAGGREGATION_CONTRACT_NAME;
 
     public static final PostAggregation COUNT_INNER = new ConstantPostAggregation("one", 1);
     public static final @NotNull Aggregation COUNT_OUTER = new LongSumAggregation("count", "one");
@@ -80,7 +81,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
     /**
      * Constructor.
      *
-     * Any aggregation average maker will disable the protocol Aggregation.
+     * Any aggregation average maker will disable the protocol {@link ReaggregationProtocol#INSTANCE}
      *
      * @param metrics  A mapping of metric names to the corresponding LogicalMetrics. Used to resolve metric names
      * when making the logical metric.
@@ -92,7 +93,7 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
             ZonelessTimeGrain innerGrain,
             ProtocolSupport protocolSupport
     ) {
-        super(metrics, protocolSupport.withoutProtocol(PROTOCOL_NAME));
+        super(metrics, protocolSupport.blacklistProtocol(PROTOCOL_NAME));
         this.innerGrain = innerGrain;
     }
 
@@ -131,7 +132,6 @@ public class AggregationAverageMaker extends BaseProtocolMetricMaker {
         PostAggregation average = new ArithmeticPostAggregation(
                 metricName,
                 DIVIDE,
-
                 Arrays.asList(sumPost, COUNT_FIELD_OUTER)
         );
         Set<PostAggregation> outerPostAggs = Collections.singleton(average);

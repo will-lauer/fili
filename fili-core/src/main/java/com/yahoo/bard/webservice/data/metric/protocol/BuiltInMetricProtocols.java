@@ -2,21 +2,26 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.metric.protocol;
 
+import com.yahoo.bard.webservice.data.metric.protocol.protocols.ReaggregationProtocol;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * A collection of signal names supported.
+ * Source for default protocols and default protocol dictionary.
  */
 public class BuiltInMetricProtocols {
+
+    private static final ProtocolDictionary DEFAULT_PROTOCOL_DICTIONARY = new ProtocolDictionary();
 
     /**
      * The names for standard protocol contracts supplied to makers by default.
      *
      * Intentionally mutable to be managed at config time before building makers.
      */
-    private static final Set<String> STANDARD_CONTRACTS = new HashSet<>();
+    private static final Set<String> STANDARD_PROTOCOLS = new HashSet<>();
+
 
     /**
      * Add a protocol to the global protocol dictionary and as a default protocol.
@@ -25,8 +30,8 @@ public class BuiltInMetricProtocols {
      *
      */
     public static void addAsStandardProtocol(Protocol protocol) {
-        STANDARD_CONTRACTS.add(protocol.getContractName());
-        ProtocolDictionary.DEFAULT.put(protocol.getContractName(), protocol);
+        STANDARD_PROTOCOLS.add(protocol.getContractName());
+        addProtocol(protocol);
     }
 
     /**
@@ -37,20 +42,21 @@ public class BuiltInMetricProtocols {
      * @return true if this contract was previously supported
      */
     public static boolean removeFromStandardProtocols(String contractName) {
-        return STANDARD_CONTRACTS.remove(contractName);
+        return STANDARD_PROTOCOLS.remove(contractName);
     }
 
-    public static final String REAGGREGATION_CONTRACT_NAME = "reaggregation";
-    public static final String REAGG_CORE_PARAMETER = "reagg";
-
-    public static final Protocol REAGGREGATION_PROTOCOL = new Protocol(
-            REAGGREGATION_CONTRACT_NAME,
-            REAGG_CORE_PARAMETER,
-            TimeAverageMetricTransformer.INSTANCE
-    );
+    /**
+     * Add a protocol to the global protocol dictionary and as a default protocol.
+     *
+     * @param protocol  a new protocol to be supported globally
+     *
+     */
+    public static void addProtocol(Protocol protocol) {
+        DEFAULT_PROTOCOL_DICTIONARY.put(protocol.getContractName(), protocol);
+    }
 
     static {
-        addAsStandardProtocol(REAGGREGATION_PROTOCOL);
+        addAsStandardProtocol(ReaggregationProtocol.INSTANCE);
     }
 
     /**
@@ -59,9 +65,14 @@ public class BuiltInMetricProtocols {
      * @return  A Protocol Support describing the default protocols supported throughout the system.
      */
     public static ProtocolSupport getStandardProtocolSupport() {
-        return new ProtocolSupport(STANDARD_CONTRACTS.stream()
-                .map(ProtocolDictionary.DEFAULT::get)
+        return new ProtocolSupport(STANDARD_PROTOCOLS.stream()
+                .map(DEFAULT_PROTOCOL_DICTIONARY::get)
                 .collect(Collectors.toList()));
+    }
+
+
+    public static ProtocolDictionary getDefaultProtocolDictionary() {
+        return DEFAULT_PROTOCOL_DICTIONARY;
     }
 
     /**

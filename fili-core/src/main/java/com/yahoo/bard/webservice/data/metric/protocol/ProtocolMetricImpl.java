@@ -13,7 +13,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * Implement a metric that supports protocols.
+ * Implement a metric that accepts protocols.
  */
 public class ProtocolMetricImpl extends LogicalMetricImpl implements ProtocolMetric {
 
@@ -54,7 +54,7 @@ public class ProtocolMetricImpl extends LogicalMetricImpl implements ProtocolMet
 
     @Override
     public boolean accepts(String protocolName) {
-        return protocolSupport.accepts(protocolName).equals(ProtocolSupport.Accepts.TRUE);
+        return protocolSupport.accepts(protocolName);
     }
 
     @Override

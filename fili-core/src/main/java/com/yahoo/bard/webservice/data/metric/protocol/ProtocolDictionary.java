@@ -11,5 +11,14 @@ import java.util.LinkedHashMap;
  */
 public class ProtocolDictionary extends LinkedHashMap<String, Protocol> {
 
-    public static final ProtocolDictionary DEFAULT = new ProtocolDictionary();
+    /**
+     * Convenience method to add protocols to the dictionary.
+     *
+     * @param protocol  A protocol to add to the dictionary
+     *
+     * @return  The replaced protocol from the dictionary, if any.
+     */
+    public Protocol add(Protocol protocol) {
+        return this.put(protocol.getContractName(), protocol);
+    }
 }

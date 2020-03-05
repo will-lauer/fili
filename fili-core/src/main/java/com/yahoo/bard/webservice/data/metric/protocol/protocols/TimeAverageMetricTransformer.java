@@ -1,6 +1,6 @@
 // Copyright 2020 Oath Inc.
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
-package com.yahoo.bard.webservice.data.metric.protocol;
+package com.yahoo.bard.webservice.data.metric.protocol.protocols;
 
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.DAY;
 import static com.yahoo.bard.webservice.data.time.DefaultTimeGrain.MONTH;
@@ -10,8 +10,14 @@ import com.yahoo.bard.webservice.data.config.metric.makers.AggregationAverageMak
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
+import com.yahoo.bard.webservice.data.metric.protocol.BuiltInMetricProtocols;
+import com.yahoo.bard.webservice.data.metric.protocol.MetricTransformer;
+import com.yahoo.bard.webservice.data.metric.protocol.Protocol;
+import com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport;
+import com.yahoo.bard.webservice.data.metric.protocol.UnknownProtocolValueException;
 import com.yahoo.bard.webservice.data.time.ZonelessTimeGrain;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -24,10 +30,6 @@ import java.util.function.Supplier;
 public class TimeAverageMetricTransformer implements MetricTransformer {
 
     private static final MetricDictionary EMPTY_METRIC_DICTIONARY = new MetricDictionary();
-
-    public static final String CONTRACT_NAME = "reagg";
-    private static final String CORE_PARAMETER = "reagg";
-
     public final static TimeAverageMetricTransformer INSTANCE = new TimeAverageMetricTransformer();
 
     private static final String NAME_FORMAT = "%s%s";
@@ -38,6 +40,10 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
 
     private Map<String, AggregationAverageMaker> metricMakerMap;
     private final Supplier<ProtocolSupport> protocolSupportSupplier;
+
+    public static Collection<String> acceptedValues() {
+        return TimeAverageMetricMakerConfig.timeMakerConfigs.keySet();
+    }
 
     /**
      * Constructor.
@@ -83,7 +89,7 @@ public class TimeAverageMetricTransformer implements MetricTransformer {
     public LogicalMetric apply(LogicalMetric logicalMetric, Protocol protocol, Map<String, String> parameterValues)
             throws UnknownProtocolValueException {
 
-        String parameterValue = parameterValues.get(CORE_PARAMETER);
+        String parameterValue = parameterValues.get(protocol.getCoreParameterName());
 
         if (!makerConfigMap.containsKey(parameterValue)) {
             throw new UnknownProtocolValueException(protocol, parameterValues);

@@ -3,7 +3,7 @@
 package com.yahoo.bard.webservice.data.metric.protocol;
 
 /**
- * Protocol describes a named type transformation on a group of metrics.
+ * Protocol describes a named type transformation for metrics.
  *
  * Protocols should be immutable.
  *
@@ -14,9 +14,9 @@ package com.yahoo.bard.webservice.data.metric.protocol;
  * Protocols have a 'core' parameter, the parameter name from metric request terms
  * that indicate this protocol should be invoked.
  *
- * Finally, a Metric Transformer, a metric function which transforms metrics into other metrics.
+ * Finally, they have a  Metric Transformer, a function which transforms metrics into other metrics.
  *
- * Typcically protocols are not idempotent and applying the same mapping twice is incorrect.
+ * Typically protocols are not idempotent and applying the same mapping twice is invalid and unsafe.
  */
 public class Protocol {
 

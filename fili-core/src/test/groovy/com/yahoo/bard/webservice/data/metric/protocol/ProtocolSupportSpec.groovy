@@ -9,13 +9,12 @@ import spock.lang.Specification
 class ProtocolSupportSpec extends Specification {
 
     MetricTransformer metricTransformer = Mock(MetricTransformer)
-    LogicalMetric logicalMetric = Mock(LogicalMetric)
 
     Protocol fooProtocol
     Protocol barProtocol
     Protocol bazProtocol
 
-    ProtocolSupport protocolSupport
+    ProtocolSupport withFooWithoutBarProtocolSupport, withAndWithoutBarProtocolSupport
 
     String protocolName1 = "foo"
     String protocolName2 = "bar"
@@ -26,80 +25,105 @@ class ProtocolSupportSpec extends Specification {
         fooProtocol = new Protocol(protocolName1, metricTransformer)
         barProtocol = new Protocol(protocolName2, metricTransformer)
         bazProtocol = new Protocol(protocolName3, metricTransformer)
-        protocolSupport = new ProtocolSupport([fooProtocol], [protocolName2])
+        withFooWithoutBarProtocolSupport = new ProtocolSupport([fooProtocol], [protocolName2])
+        withAndWithoutBarProtocolSupport = new ProtocolSupport([fooProtocol], [protocolName1])
     }
 
-    def "Accepts is true for whitelists false for blacklists or maybe for neither"() {
+    def "Accepts is true configured values that are configured and not blacklisted"() {
         expect:
-        protocolSupport.accepts("foo")  == ProtocolSupport.Accepts.TRUE
-        protocolSupport.accepts("bar")  == ProtocolSupport.Accepts.REJECT
-        protocolSupport.accepts("baz")  == ProtocolSupport.Accepts.MAYBE
+        withFooWithoutBarProtocolSupport.accepts("foo")
+        ! withFooWithoutBarProtocolSupport.accepts("bar")
+        ! withFooWithoutBarProtocolSupport.accepts("baz")
+        ! withAndWithoutBarProtocolSupport.accepts("foo")
+        ! withAndWithoutBarProtocolSupport.accepts("bar")
+        ! withAndWithoutBarProtocolSupport.accepts("baz")
     }
 
-    def "Without protocol supresses both previously unknown and known protocols"() {
+    def "isBlacklisted is true for blacklisted fields"() {
+        expect:
+        ! withFooWithoutBarProtocolSupport.isBlacklisted("foo")
+        withFooWithoutBarProtocolSupport.isBlacklisted("bar")
+        ! withFooWithoutBarProtocolSupport.isBlacklisted("baz")
+        withAndWithoutBarProtocolSupport.isBlacklisted("foo")
+        ! withAndWithoutBarProtocolSupport.isBlacklisted("bar")
+        ! withAndWithoutBarProtocolSupport.isBlacklisted("baz")
+    }
+
+
+    def "BlacklistProtocol supresses both previously unknown and known protocols"() {
         setup:
-        ProtocolSupport test1 = protocolSupport.withoutProtocol("foo")
-        ProtocolSupport test2 = protocolSupport.withoutProtocol("baz")
+        ProtocolSupport test1 = withFooWithoutBarProtocolSupport.blacklistProtocol("foo")
+        ProtocolSupport test2 = withAndWithoutBarProtocolSupport.blacklistProtocol("baz")
 
         expect:
-        test1.accepts("foo")  == ProtocolSupport.Accepts.REJECT
-        test1.accepts("bar")  == ProtocolSupport.Accepts.REJECT
-        test1.accepts("baz")  == ProtocolSupport.Accepts.MAYBE
+        test1.isBlacklisted("foo")
+        ! test1.accepts("foo")
 
-        test2.accepts("foo")  == ProtocolSupport.Accepts.TRUE
-        test2.accepts("bar")  == ProtocolSupport.Accepts.REJECT
-        test2.accepts("baz")  == ProtocolSupport.Accepts.REJECT
+        test1.isBlacklisted("bar")
+        ! test1.accepts("bar")
 
+        ! test1.isBlacklisted("baz")
+        ! test1.accepts("baz")
+
+        test2.isBlacklisted("foo")
+        ! test2.accepts("foo")
+
+        ! test2.isBlacklisted("bar")
+        ! test2.accepts("bar")
+
+        test2.isBlacklisted("baz")
+        ! test2.accepts("baz")
     }
 
     def "Without protocol support supresses both previously unknown and known protocols"() {
         setup:
         ProtocolSupport subtractFooAndBaz = new ProtocolSupport([barProtocol], ["foo", "baz"])
-        ProtocolSupport noToAll = protocolSupport.combineBlacklists([subtractFooAndBaz])
+        ProtocolSupport noToAll = withFooWithoutBarProtocolSupport.mergeBlacklists([subtractFooAndBaz])
 
         ProtocolSupport subtractBaz = new ProtocolSupport([barProtocol], ["baz"])
-        ProtocolSupport fooNoBarBaz = protocolSupport.combineBlacklists([subtractBaz])
+        ProtocolSupport fooNoBarBaz = withFooWithoutBarProtocolSupport.mergeBlacklists([subtractBaz])
 
         expect:
-        noToAll.accepts("foo")  == ProtocolSupport.Accepts.REJECT
-        noToAll.accepts("bar")  == ProtocolSupport.Accepts.REJECT
-        noToAll.accepts("baz")  == ProtocolSupport.Accepts.REJECT
+        noToAll.isBlacklisted("foo")
+        noToAll.isBlacklisted("bar")
+        noToAll.isBlacklisted("baz")
 
-        fooNoBarBaz.accepts("foo")  == ProtocolSupport.Accepts.TRUE
-        fooNoBarBaz.accepts("bar")  == ProtocolSupport.Accepts.REJECT
-        fooNoBarBaz.accepts("baz")  == ProtocolSupport.Accepts.REJECT
+        fooNoBarBaz.accepts("foo")
+        fooNoBarBaz.isBlacklisted("bar")
+        fooNoBarBaz.isBlacklisted("baz")
     }
 
 
     def "Without protocols supresses both previously unknown and known protocols"() {
         setup:
-        ProtocolSupport test1 = protocolSupport.withoutProtocols(["foo", "baz"])
+        ProtocolSupport test1 = withFooWithoutBarProtocolSupport.blackListProtocols(["foo", "baz"])
 
         expect:
-        test1.accepts("foo")  == ProtocolSupport.Accepts.REJECT
-        test1.accepts("bar")  == ProtocolSupport.Accepts.REJECT
-        test1.accepts("baz")  == ProtocolSupport.Accepts.REJECT
+        test1.isBlacklisted("foo")
+        test1.isBlacklisted("bar")
+        test1.isBlacklisted("baz")
     }
 
     def "With protocols approves both previously unknown and known protocols"() {
         setup:
-        ProtocolSupport test1 = protocolSupport.withProtocols([fooProtocol, barProtocol, bazProtocol])
+        ProtocolSupport test1 = withFooWithoutBarProtocolSupport.withProtocols([fooProtocol, barProtocol, bazProtocol])
 
         expect:
-        test1.accepts("foo")  == ProtocolSupport.Accepts.TRUE
-        test1.accepts("bar")  == ProtocolSupport.Accepts.TRUE
-        test1.accepts("baz")  == ProtocolSupport.Accepts.TRUE
+        test1.accepts("foo")
+        test1.accepts("bar")
+        test1.accepts("baz")
     }
 
     def "Combine blacklists combines blacklists"() {
         setup:
         ProtocolSupport protocolSupport2 = new ProtocolSupport([fooProtocol], [protocolName1])
-        ProtocolSupport test = protocolSupport.combineBlacklists([protocolSupport2])
+        ProtocolSupport test = withFooWithoutBarProtocolSupport.mergeBlacklists([protocolSupport2])
 
         expect:
-        test.accepts(protocolName1)  == ProtocolSupport.Accepts.REJECT
-        test.accepts(protocolName2)  == ProtocolSupport.Accepts.REJECT
-        test.accepts(protocolName3)  == ProtocolSupport.Accepts.MAYBE
+        test.isBlacklisted(protocolName1)
+        test.isBlacklisted(protocolName2)
+        ! test.accepts(protocolName3)
+        ! test.isBlacklisted(protocolName3)
 
     }
 }

@@ -4,6 +4,7 @@ package com.yahoo.bard.webservice.data.metric.protocol;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,29 +12,27 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * An object to describe which protocols a metric can support and to invoke the apply for that protocol.
+ * Protocol supports define which protocols a metric can support and to supply those supported protocols.
  *
- * In the case where a stack of metrics might be delegated to, white or black listing allows the handler to indicate
- * whether delegation should be allowed.
+ * A Protocol support has a map of protocols keyed by the contract name of the protocol.  It also has a blacklist
+ * which defines protocols which are explicitly not supported for metrics which depend on this metric.
  */
 public class ProtocolSupport {
 
     /**
-     * A substitute for Boolean to indicate Yes, No or Uknown in the case where delegates might service a signal.
+     * Contracts which should not be supported on this metric or metrics that depend on it.
      */
-    public enum Accepts {
-        TRUE,
-        REJECT,  // This Protocol is not supported and probably shouldn't be supported in metrics that close over it
-        MAYBE  // This protocol isn't directly supported by this metric
-    }
-
     private final Collection<String> blacklist;
+
+    /**
+     * Protocols supported for this metric, keyed by contract name.
+     */
     private final Map<String, Protocol> protocolMap;
 
     /**
      * Constructor.
      *
-     * @param protocols A collection of protocols this handler will support.
+     * @param protocols A collection of protocols to support.
      */
     public ProtocolSupport(
             Collection<Protocol> protocols
@@ -44,8 +43,8 @@ public class ProtocolSupport {
     /**
      * Constructor.
      *
-     * @param protocols A collection of protocols this handler will support.
-     * @param blacklist  Protocols that this handler will neither support nor delegate.
+     * @param protocols  A collection of protocols to support.
+     * @param blacklist  Protocols that will not be supported and should not be supported by depending metrics.
      */
     public ProtocolSupport(
             Collection<Protocol> protocols,
@@ -56,93 +55,104 @@ public class ProtocolSupport {
     }
 
     /**
-     * Determine if this protocol handler or accepts this protocol.
+     * Determine if this protocol is supported.
      *
-     * @param contractName The name of the protocol to test for.
+     * @param protocolName The name of the protocol.
      *
-     * @return TRUE if this metric directly or indirectly supports this signal, FALSE if it refuses, MAYBE if it
-     * doesn't assert authority.
+     * @return true if this protocol is not blacklisted and supplied by protocol map.
      */
-    public Accepts accepts(String contractName) {
-        return protocolMap.containsKey(contractName) ? Accepts.TRUE :
-                blacklist.contains(contractName) ?
-                        Accepts.REJECT :
-                        Accepts.MAYBE;
+    public boolean accepts(String protocolName) {
+        return ! blacklist.contains(protocolName) && protocolMap.containsKey(protocolName);
     }
 
     /**
-     * Create a modified protocol handler which doesn't accepts a certain protocol.
+     * Determine if this protocol is blacklisted.
      *
-     * @param contractName  The name of a protocol to not handle.
+     * @param protocolName The name of the protocol.
      *
-     * @return A protocol handler with additional signals bound.
+     * @return true if this protocol is blacklisted
      */
-    public ProtocolSupport withoutProtocol(String contractName) {
-        return withoutProtocols(Collections.singleton(contractName));
+    public boolean isBlacklisted(String protocolName) {
+        return blacklist.contains(protocolName);
     }
 
     /**
-     * Create a modified protocol handler which doesn't accepts protocols.
+     * Create a modified copy with this protocol blacklisted.
      *
-     * @param contractNames  The names of protocols to not handle.
+     * @param protocolName  The name of a protocol to not support.
      *
-     * @return A protocol handler with protocols not supported.
+     * @return A protocol support with a protocol blacklisted.
      */
-    public ProtocolSupport withoutProtocols(Collection<String> contractNames) {
+    public ProtocolSupport blacklistProtocol(String protocolName) {
+        return blackListProtocols(Collections.singleton(protocolName));
+    }
 
+    /**
+     * Create a modified copy with these protocols blacklisted.
+     *
+     * @param protocolNames  The names of a protocol to not support.
+     *
+     * @return A protocol support with protocols blacklisted.
+     */
+    public ProtocolSupport blackListProtocols(Collection<String> protocolNames) {
+        // Remove all the protocols from the protocol map
         List<Protocol> protocols =
                 protocolMap.values().stream()
-                        .filter(protocol -> !contractNames.contains(protocol.getContractName()))
+                        .filter(protocol -> !protocolNames.contains(protocol.getContractName()))
                         .collect(Collectors.toList());
-        List<String> newBlackList = Stream.concat(contractNames.stream(), blacklist.stream())
+
+        // Add all the blacklisted names to the blacklist
+        List<String> newBlackList = Stream.concat(protocolNames.stream(), blacklist.stream())
                 .collect(Collectors.toList());
 
         return new ProtocolSupport(protocols, newBlackList);
     }
 
     /**
-     * Create a modified protocol handler which doesn't accepts protocols blacklisted in these other protocols.
+     * Create a copy combines the blacklist of other protocols.
      *
-     * @param protocolSupport  The protocol supports whose blacklists should not be handled.
+     * @param protocolSupports  Protocol supports whose blacklists should not be combined.
      *
-     * @return A protocol handler with additional protocols not supported.
+     * @return A protocol support with additional protocols not supported.
      */
-    public ProtocolSupport combineBlacklists(Collection<ProtocolSupport> protocolSupport) {
-
+    public ProtocolSupport mergeBlacklists(Collection<ProtocolSupport> protocolSupports) {
+        // Union the blacklists of several protocols
         List<String> protocols =
-                protocolSupport.stream()
+                protocolSupports.stream()
                         .flatMap(support -> support.blacklist.stream())
                         .collect(Collectors.toList());
-        return withoutProtocols(protocols);
+        return blackListProtocols(protocols);
     }
 
     /**
-     * Create a modified protocol handler which accepts additional protocols.
+     * Create a copy which supports additional protocols.
      *
-     * @param addedProtocols  The protocols to handle.
+     * @param addingProtocols  Additional protocols to support.
      *
-     * @return A protocol handler with additional protocols supported.
+     * @return A protocol support which accepts these protocols.
      */
-    public ProtocolSupport withProtocols(Collection<Protocol> addedProtocols) {
-
-        Collection<Protocol> newProtocols = Stream.concat(addedProtocols.stream(), protocolMap.values().stream())
+    public ProtocolSupport withProtocols(Collection<Protocol> addingProtocols) {
+        // Add any addedProtocols to the map
+        Collection<Protocol> newProtocols = Stream.concat(addingProtocols.stream(), protocolMap.values().stream())
                 .collect(Collectors.toSet());
 
-        Collection<String> newBlackList = blacklist.stream()
-                .filter(name -> !addedProtocols.contains(name))
-                .collect(Collectors.toSet());
+        // Remove any added protocols from the blacklist
+        Collection<String> newBlackList = new HashSet<String>(blacklist);
+        addingProtocols.stream()
+                .map(Protocol::getContractName)
+                .forEach(name -> newBlackList.remove(name));
 
         return new ProtocolSupport(newProtocols, newBlackList);
     }
 
     /**
-     * Retrieve the Protocol for a given protocol contract name.
+     * Retrieve the protocol value for a given protocol contract name.
      *
-     * @param contractName a protocol contract name
+     * @param protocolName a protocol contract name
      *
-     * @return The Protocol for this protocol contract name
+     * @return The Protocol for this protocol name
      */
-    Protocol getProtocol(String contractName) {
-        return protocolMap.get(contractName);
+    Protocol getProtocol(String protocolName) {
+        return protocolMap.get(protocolName);
     }
 }

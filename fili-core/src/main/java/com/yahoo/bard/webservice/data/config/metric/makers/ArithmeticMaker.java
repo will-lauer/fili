@@ -41,17 +41,18 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
      *
      * @param metricDictionary  The dictionary used to resolve dependent metrics when building the LogicalMetric
      * @param function  The arithmetic operation performed by the LogicalMetrics constructed by this maker
-     * @param resultSetMapperSupplier  A function that takes a metric column name and produces at build time, a result
-     * @param defaultProtocolSupport Protocols to support by default
-     * set mapper.
+     * @param resultSetMapperSupplier  A function that takes a metric column name and produces at build time, a
+     * result set mapper.
+     * @param baseProtocolSupport The protocols to support before removing any blacklisted dependencies
+     *
      */
     public ArithmeticMaker(
             MetricDictionary metricDictionary,
             ArithmeticPostAggregationFunction function,
             Function<String, ResultSetMapper> resultSetMapperSupplier,
-            ProtocolSupport defaultProtocolSupport
+            ProtocolSupport baseProtocolSupport
     ) {
-        super(metricDictionary, defaultProtocolSupport);
+        super(metricDictionary, baseProtocolSupport);
         this.function = function;
         this.resultSetMapperSupplier = resultSetMapperSupplier;
     }
@@ -87,9 +88,7 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
     }
 
     @Override
-    public ResultSetMapper makeCalculation(
-            final LogicalMetricInfo logicalMetricInfo, final List<LogicalMetric> dependentMetrics
-    ) {
+    public ResultSetMapper makeCalculation(LogicalMetricInfo logicalMetricInfo, List<LogicalMetric> dependentMetric) {
         return resultSetMapperSupplier.apply(logicalMetricInfo.getName());
     }
 
@@ -114,8 +113,8 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
 
     @Override
     public ProtocolSupport makeProtocolSupport(
-            final LogicalMetricInfo logicalMetricInfo,
-            final List<LogicalMetric> dependentMetrics
+            LogicalMetricInfo logicalMetricInfo,
+            List<LogicalMetric> dependentMetrics
     ) {
         List<ProtocolSupport> supportsOfDependents =
                 dependentMetrics.stream()
@@ -124,10 +123,8 @@ public class ArithmeticMaker extends BaseProtocolMetricMaker {
                         .map(ProtocolMetric::getProtocolSupport)
                         .collect(Collectors.toList());
 
-
-        return dependentMetrics.isEmpty() ?
-                BuiltInMetricProtocols.getStandardProtocolSupport()
-                : BuiltInMetricProtocols.getStandardProtocolSupport().combineBlacklists(supportsOfDependents);
+        // Any blacklisted protocols in dependencies should roll upward
+        return BuiltInMetricProtocols.getStandardProtocolSupport().mergeBlacklists(supportsOfDependents);
     }
 
     @Override

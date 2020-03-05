@@ -2,13 +2,11 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.data.metric.protocol
 
-import static com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport.Accepts.MAYBE
-import static com.yahoo.bard.webservice.data.metric.protocol.ProtocolSupport.Accepts.TRUE
-
 import spock.lang.Specification
 
 class BuiltInMetricProtocolsSpec extends Specification {
 
+    ProtocolDictionary protocolDictionary = BuiltInMetricProtocols.DEFAULT_PROTOCOL_DICTIONARY;
     String testProtocol = "Foo"
     Protocol p = Mock(Protocol)
 
@@ -17,8 +15,8 @@ class BuiltInMetricProtocolsSpec extends Specification {
     }
 
     def cleanup() {
-        ProtocolDictionary.DEFAULT.remove(testProtocol)
-        BuiltInMetricProtocols.STANDARD_CONTRACTS.remove(testProtocol)
+        protocolDictionary.remove(testProtocol)
+        BuiltInMetricProtocols.STANDARD_PROTOCOLS.remove(testProtocol)
     }
 
     def "Add a Standard Protocol modifies default contracts"() {
@@ -26,8 +24,8 @@ class BuiltInMetricProtocolsSpec extends Specification {
         BuiltInMetricProtocols.addAsStandardProtocol(p)
 
         then:
-        ProtocolDictionary.DEFAULT.containsKey(testProtocol)
-        ProtocolDictionary.DEFAULT.get(testProtocol) == p
+        protocolDictionary.containsKey(testProtocol)
+        protocolDictionary.get(testProtocol) == p
         BuiltInMetricProtocols.getStandardProtocolSupport().accepts(testProtocol)
     }
 
@@ -36,15 +34,15 @@ class BuiltInMetricProtocolsSpec extends Specification {
         BuiltInMetricProtocols.addAsStandardProtocol(p)
 
         then:
-        ProtocolDictionary.DEFAULT.containsKey(testProtocol)
-        ProtocolDictionary.DEFAULT.get(testProtocol) == p
-        BuiltInMetricProtocols.getStandardProtocolSupport().accepts(testProtocol) == TRUE
+        protocolDictionary.containsKey(testProtocol)
+        protocolDictionary.get(testProtocol) == p
+        BuiltInMetricProtocols.getStandardProtocolSupport().accepts(testProtocol)
 
         when:
         BuiltInMetricProtocols.removeFromStandardProtocols(testProtocol)
 
         then:
-        BuiltInMetricProtocols.getStandardProtocolSupport().accepts(testProtocol) == MAYBE
+        ! BuiltInMetricProtocols.getStandardProtocolSupport().accepts(testProtocol)
 
     }
 
@@ -54,7 +52,7 @@ class BuiltInMetricProtocolsSpec extends Specification {
         ProtocolSupport protocolSupport = BuiltInMetricProtocols.getStandardProtocolSupport()
 
         expect:
-        protocolSupport.accepts(testProtocol) == TRUE
+        protocolSupport.accepts(testProtocol)
         protocolSupport.getProtocol(testProtocol) == p
     }
 }

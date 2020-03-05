@@ -8,23 +8,24 @@ import java.util.Map;
 
 /**
  * Protocol metrics are capable of handling transforming signals from the client.
- * This is a key feature in reducing the number of persisted variations on base metrics.  A signal could indicate that
- * a metric should be directly transformed, should be composed into a new metric, or have it's entire expression tree
- * rebuilt after modifying some root dependency.
+ *
+ * This is a key feature in reducing the number of configured metric on a system while supporting a wide range of
+ * calculations.  By passing parameter value to a metric at the API, a chain of Protocols can by applied to a metric
+ * to transform it into one of many calculation permutations.
  */
 public interface ProtocolMetric extends LogicalMetric {
 
     /**
-     * Test whether this Metric accepts this kind of signal.
+     * Test whether this Metric accepts this named contract.
      *
-     * @param signalName  The name of the signal.
+     * @param protocolName  The name of the protocol being tested.
      *
      * @return true if this metric knows how to handle this signal type.
      */
-    boolean accepts(String signalName);
+    boolean accepts(String protocolName);
 
     /**
-     * Apply this protocol and parameters to this metric and return a (potentially different) metric.
+     * Apply this protocol with these parameters to this metric and return a (typically different) metric.
      *
      * The transformed metric is not necessarily a protocol metric.
      *
@@ -32,14 +33,15 @@ public interface ProtocolMetric extends LogicalMetric {
      * @param parameters  A map of keys and values representing the transformation.
      *
      * @return A metric that has accepted this protocol transformation.
-     * @throws UnknownProtocolValueException if the protocol cannot be processed correctly
+     *
+     * @throws UnknownProtocolValueException if the values passed for the protocol is invalid for that protocol.
      */
     LogicalMetric accept(String protocolName, Map<String, String> parameters) throws UnknownProtocolValueException;
 
     /**
-     * Get the underlying signal handler for this metric.
+     * Get the underlying protocol support for this metric.
      *
-     * @return The signal handler for this metric.
+     * @return The protocol support
      */
     ProtocolSupport getProtocolSupport();
 }
