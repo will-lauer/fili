@@ -28,6 +28,12 @@ class ProtocolSupportSpec extends Specification {
         withAndWithoutBarProtocolSupport = new ProtocolSupport([fooProtocol], [protocolName1] as HashSet)
     }
 
+    def "getProtocolNames correctly identifies metrics"() {
+        expect:
+        withAndWithoutBarProtocolSupport.getProtocolNames() == [] as TreeSet
+        withFooWithoutBarProtocolSupport.getProtocolNames() == [protocolName1] as TreeSet
+    }
+
     def "Accepts is true configured values that are configured and not blacklisted"() {
         expect:
         withFooWithoutBarProtocolSupport.accepts("foo")

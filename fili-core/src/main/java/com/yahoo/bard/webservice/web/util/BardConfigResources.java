@@ -4,6 +4,7 @@ package com.yahoo.bard.webservice.web.util;
 
 import com.yahoo.bard.webservice.data.config.ResourceDictionaries;
 import com.yahoo.bard.webservice.data.dimension.DimensionDictionary;
+import com.yahoo.bard.webservice.data.metric.protocol.utils.LogicalMetricParameterMapper;
 import com.yahoo.bard.webservice.druid.model.builders.DruidFilterBuilder;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.time.GranularityParser;
@@ -46,6 +47,13 @@ public interface BardConfigResources {
      * @return  A Having Generator
      */
     HavingGenerator getHavingApiGenerator();
+
+    /**
+     * A mapper for logical metric parameters.
+     *
+     * @return A mapper for logical metrics with parameters.
+     */
+    LogicalMetricParameterMapper getMetricParameterMapper();
 
     /**
      * The configured default time zone for dates.
