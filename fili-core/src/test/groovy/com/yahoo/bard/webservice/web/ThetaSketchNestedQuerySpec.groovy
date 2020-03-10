@@ -72,9 +72,9 @@ class ThetaSketchNestedQuerySpec extends Specification {
     def "Intersection reporting when Logical Metric has nested query"(){
         LinkedHashSet<LogicalMetric> logicalMetrics =  new TestingDataApiRequestImpl().generateLogicalMetrics(
                 "dayAvgFoos(AND(country|id-in[US,IN],property|id-in[114,125]))",
+                resources.table,
                 resources.metricDict,
-                resources.dimensionDict,
-                resources.table
+                resources.dimensionDict
         )
         TemplateDruidQuery nestedQuery = logicalMetrics.first().templateDruidQuery.innerQuery.get()
 

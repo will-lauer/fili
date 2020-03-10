@@ -10,7 +10,7 @@ class SimpleMetricApiProtocolParserSpec extends Specification {
     @Unroll
     def "Parser produces correct value for single metric"() {
         expect:
-        new MetricDetailParser(text).metricDetails == [new MetricDetail(metric, params)]
+        new MetricDetailParser(text).metricDetails == [new MetricDetail(text, metric, params)]
         where:
         text                         | metric  | params
         "one(bar=baz)"               | "one"   | ["bar": "baz"]
@@ -24,9 +24,19 @@ class SimpleMetricApiProtocolParserSpec extends Specification {
 
     def "Parser produces correct value for list of metrics"() {
         setup:
-        def metrics = "one(bar=baz),two(  ),three(),four(bar=baz, one=two)";
+        def expected = [:] as LinkedHashMap
+        String key = "one(bar=baz)"
+        expected.put(key, new MetricDetail(key, "one", ["bar": "baz"]))
+        key = "two(  )"
+        expected.put(key, new MetricDetail(key, "two", [:]))
+        key = "three()"
+        expected.put(key, new MetricDetail(key, "three", [:]))
+        key = "four(bar=baz, one=two)"
+        expected.put(key, new MetricDetail(key, "four", ["bar": "baz", "one": "two"]))
+
+        def metrics =
         List expected = [];
-        expected.add(new MetricDetail("one", ["bar": "baz"]))
+        expected.add()
         expected.add(new MetricDetail("two", [:]))
         expected.add(new MetricDetail("three", [:]))
         expected.add(new MetricDetail("four", ["bar": "baz", "one": "two"]))

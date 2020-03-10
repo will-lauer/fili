@@ -111,9 +111,9 @@ class DataApiRequestImplSpec extends Specification {
         given:
         Set<LogicalMetric> logicalMetrics = new TestingDataApiRequestImpl().generateLogicalMetrics(
                 "met1,met2,met3",
+                table,
                 metricDict,
-                dimensionDict,
-                table
+                dimensionDict
         )
 
         HashSet<Dimension> expected =
@@ -131,9 +131,9 @@ class DataApiRequestImplSpec extends Specification {
         when:
         Set<LogicalMetric> logicalMetrics = new TestingDataApiRequestImpl().generateLogicalMetrics(
                 "met1,met2,nonExistingMetric",
+                table,
                 metricDict,
-                dimensionDict,
-                table
+                dimensionDict
         )
 
         then: "BadApiRequestException is thrown"
@@ -176,9 +176,9 @@ class DataApiRequestImplSpec extends Specification {
         when:
         new TestingDataApiRequestImpl().generateLogicalMetrics(
                 "",
+                table,
                 metricDict,
-                dimensionDict,
-                table
+                dimensionDict
         )
 
         then:
@@ -203,9 +203,9 @@ class DataApiRequestImplSpec extends Specification {
         when:
         new TestingDataApiRequestImpl().generateLogicalMetrics(
                 "",
+                table,
                 metricDict,
-                dimensionDict,
-                table
+                dimensionDict
         )
 
         then:

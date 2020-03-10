@@ -116,6 +116,8 @@ public enum ErrorMessageFormat implements MessageFormatter {
     HAVING_METRICS_NOT_IN_QUERY_FORMAT("Requested having metric(s) '%s' were not selected in the metrics expression."),
     HAVING_OPERATOR_INVALID("Having operator '%s' is invalid."),
 
+    HAVING_INVALID_WITH_DETAIL("Having expression '%s' is invalid. (%s)"),
+
     LOGINFO_CLASS_INVALID("Invalid LogInfo class: %s. Cannot define its order. Ignoring."),
 
     DRUID_METADATA_READ_ERROR("Unable to read metadata for: '%s'."),
