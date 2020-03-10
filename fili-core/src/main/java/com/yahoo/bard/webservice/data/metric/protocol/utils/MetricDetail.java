@@ -17,8 +17,8 @@ public class MetricDetail {
     /**
      * Constructor.
      *
-     * @param columnName
-     * @param apiName  The name for the column
+     * @param columnName  The name for the column
+     * @param apiName  The api name for the base metric (the one in the metric dictionary)
      * @param params The list of key value params associated with it.
      */
     MetricDetail(String columnName, String apiName, Map<String, String> params) {
@@ -30,7 +30,7 @@ public class MetricDetail {
     /**
      * Getter.
      *
-     * @return  The original column name
+     * @return The original column name
      */
     public String getColumnName() {
         return columnName;
@@ -39,7 +39,7 @@ public class MetricDetail {
     /**
      * Getter.
      *
-     * @return  An api name
+     * @return An api name
      */
     public String getApiName() {
         return apiName;

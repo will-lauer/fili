@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 
 public class MetricDetailParser {
 
-    private static final String nameFromParentheticalPattern = "([\\w\\s]+)(.*)";
-    private static final String nameValuePairPattern = "\\s*([^,]*)=([^,]*)\\w*($|,)";
-    private static final String paramPatternWithParens = "^\\([\\s]*(.*)[\\s]*\\)$";
+    private final String nameFromParentheticalPattern = "([\\w\\s]+)(.*)";
+    private final String nameValuePairPattern = "\\s*([^,]*)=([^,]*)\\w*($|,)";
+    private final String paramPatternWithParens = "^\\([\\s]*(.*)[\\s]*\\)$";
 
     MetricTokenIterator iterator;
 
@@ -23,26 +23,28 @@ public class MetricDetailParser {
 
     public MetricDetailParser(String input) {
         iterator = new MetricTokenIterator(input);
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             metricDetails.add(extractMetricDetail(iterator.next()));
         }
     }
 
     private MetricDetail extractMetricDetail(String input) {
         Matcher m = Pattern.compile(nameFromParentheticalPattern).matcher(input);
-        if (! m.find()) {
-            throw new IllegalArgumentException(input + " could not be parsed with pattern " + nameFromParentheticalPattern);
+        if (!m.find()) {
+            throw new IllegalArgumentException(
+                    input + " could not be parsed with pattern " + nameFromParentheticalPattern)
+            ;
         }
         String metricName = m.group(1);
         String baseParams = m.group(2);
 
-        Map<String,String> params;
+        Map<String, String> params;
 
-        if ( baseParams.isEmpty()) {
+        if (baseParams.isEmpty()) {
             params = Collections.emptyMap();
         } else {
             Matcher m2 = Pattern.compile(paramPatternWithParens).matcher(baseParams);
-            if (! m2.find() || m2.group(1).trim().isEmpty()) {
+            if (!m2.find() || m2.group(1).trim().isEmpty()) {
                 params = Collections.emptyMap();
             } else {
                 String parameters = m2.group(1);
@@ -56,7 +58,7 @@ public class MetricDetailParser {
     private Map<String, String> extractParameter(String input) {
         Map<String, String> result = new HashMap<>();
         Matcher matcher = Pattern.compile(nameValuePairPattern).matcher(input);
-        while (matcher.find() ) {
+        while (matcher.find()) {
             String group1 = matcher.group(1);
             if (group1.isEmpty()) {
                 continue;

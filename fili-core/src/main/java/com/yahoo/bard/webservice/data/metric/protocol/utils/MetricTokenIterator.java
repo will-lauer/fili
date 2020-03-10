@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 /**
  * An iterator to pull comma delimited metrics off a string without splitting on paranthetical commas.
  */
-class MetricTokenIterator implements Iterator<String> {
+public class MetricTokenIterator implements Iterator<String> {
 
     String text;
 
@@ -21,7 +21,7 @@ class MetricTokenIterator implements Iterator<String> {
      *
      * @param metricText  Text describing an expression for a list of metrics.
      */
-    public MetricTokenIterator(String metricText) {
+    MetricTokenIterator(String metricText) {
         text = metricText.trim();
         position = 0;
     }
@@ -40,7 +40,7 @@ class MetricTokenIterator implements Iterator<String> {
             throw new IllegalStateException(text.toString());
         }
         int tempPosition = position;
-        while(tempPosition < text.length() && ! isSplittableComma(tempPosition)) {
+        while (tempPosition < text.length() && !isSplittableComma(tempPosition)) {
             if (text.charAt(tempPosition) == '(') {
                 paranDepth++;
             }
@@ -67,7 +67,7 @@ class MetricTokenIterator implements Iterator<String> {
     }
 
     private boolean isSplittableComma(int position) {
-        return ( text.charAt(position) == ','&& paranDepth == 0);
+        return (text.charAt(position) == ',' && paranDepth == 0);
     }
 
     @Override
@@ -79,7 +79,7 @@ class MetricTokenIterator implements Iterator<String> {
 
         public static String messageFormat = "Unbalanced parantheses while parsing expression: %s";
 
-        public UnbalancedMetricExpressionException(String expression) {
+        UnbalancedMetricExpressionException(String expression) {
             super(String.format(messageFormat, expression));
         }
     }

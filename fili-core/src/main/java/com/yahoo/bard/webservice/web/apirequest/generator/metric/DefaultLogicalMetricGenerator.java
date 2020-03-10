@@ -1,6 +1,6 @@
-// Copyright 2019 Oath Inc.
+// Copyright 2020 Oath Inc.
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
-package com.yahoo.bard.webservice.web.apirequest.generator;
+package com.yahoo.bard.webservice.web.apirequest.generator.metric;
 
 import static com.yahoo.bard.webservice.web.ErrorMessageFormat.METRICS_NOT_IN_TABLE;
 import static com.yahoo.bard.webservice.web.apirequest.DataApiRequestBuilder.RequestResource.LOGICAL_METRICS;
@@ -13,6 +13,8 @@ import com.yahoo.bard.webservice.web.BadApiRequestException;
 import com.yahoo.bard.webservice.web.ErrorMessageFormat;
 import com.yahoo.bard.webservice.web.apirequest.DataApiRequestBuilder;
 import com.yahoo.bard.webservice.web.apirequest.RequestParameters;
+import com.yahoo.bard.webservice.web.apirequest.generator.Generator;
+import com.yahoo.bard.webservice.web.apirequest.generator.UnsatisfiedApiRequestConstraintsException;
 import com.yahoo.bard.webservice.web.util.BardConfigResources;
 
 import org.slf4j.Logger;

@@ -6,6 +6,7 @@ import com.yahoo.bard.webservice.data.dimension.Dimension
 import com.yahoo.bard.webservice.data.dimension.DimensionField
 import com.yahoo.bard.webservice.web.ApiFilter
 import com.yahoo.bard.webservice.web.FilterOperation
+import com.yahoo.bard.webservice.web.apirequest.generator.filter.FilterFactory
 
 import spock.lang.Specification
 

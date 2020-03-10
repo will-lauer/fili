@@ -99,7 +99,8 @@ public class ProtocolSupport {
      * Return a set of supported protocol names.
      *
      * This allows easy classification, and identification of supported contracts.
-     * @return
+     *
+     * @return Sorted names of the supported protocols
      */
     public SortedSet<String> getProtocolNames() {
         TreeSet<String> protocolNames = new TreeSet<>(protocolMap.keySet());

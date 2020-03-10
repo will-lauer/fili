@@ -4,7 +4,7 @@ package com.yahoo.bard.webservice.web.apirequest.binders
 
 import com.yahoo.bard.webservice.config.SystemConfig
 import com.yahoo.bard.webservice.config.SystemConfigProvider
-import com.yahoo.bard.webservice.web.apirequest.binders.IntervalBinders
+import com.yahoo.bard.webservice.web.apirequest.generator.IntervalBinders
 
 import org.joda.time.DateTime
 

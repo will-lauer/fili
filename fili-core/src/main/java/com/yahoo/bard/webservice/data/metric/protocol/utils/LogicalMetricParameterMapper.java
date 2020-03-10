@@ -3,10 +3,8 @@
 package com.yahoo.bard.webservice.data.metric.protocol.utils;
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
-import com.yahoo.bard.webservice.data.metric.protocol.Protocol;
 import com.yahoo.bard.webservice.data.metric.protocol.UnknownProtocolValueException;
 
-import java.util.List;
 import java.util.Map;
 
 public interface LogicalMetricParameterMapper {

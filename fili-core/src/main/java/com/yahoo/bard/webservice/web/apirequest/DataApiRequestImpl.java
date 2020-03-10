@@ -50,10 +50,10 @@ import com.yahoo.bard.webservice.web.DimensionFieldSpecifierKeywords;
 import com.yahoo.bard.webservice.web.ErrorMessageFormat;
 import com.yahoo.bard.webservice.web.MetricParser;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
-import com.yahoo.bard.webservice.web.apirequest.binders.FilterBinders;
-import com.yahoo.bard.webservice.web.apirequest.binders.FilterGenerator;
-import com.yahoo.bard.webservice.web.apirequest.binders.HavingGenerator;
-import com.yahoo.bard.webservice.web.apirequest.binders.IntervalBinders;
+import com.yahoo.bard.webservice.web.apirequest.generator.IntervalBinders;
+import com.yahoo.bard.webservice.web.apirequest.generator.filter.FilterBinders;
+import com.yahoo.bard.webservice.web.apirequest.generator.filter.FilterGenerator;
+import com.yahoo.bard.webservice.web.apirequest.generator.having.HavingGenerator;
 import com.yahoo.bard.webservice.web.filters.ApiFilters;
 import com.yahoo.bard.webservice.web.util.BardConfigResources;
 import com.yahoo.bard.webservice.web.util.PaginationParameters;
@@ -795,7 +795,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
      *
      * @deprecated Removing filterBuilder. Use {@link #DataApiRequestImpl(LogicalTable, Granularity, LinkedHashSet,
      *      LinkedHashMap, LinkedHashSet, List, ApiFilters, Map, LinkedHashSet, OrderByColumn, DateTimeZone, Integer,
-     *      Integer, PaginationParameters, ResponseFormatType, String, Long)}
+     *      Integer, PaginationParameters, ResponseFormatType, String, Long, boolean)}
      */
     @Deprecated
     protected DataApiRequestImpl(
@@ -1051,7 +1051,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             MetricDictionary metricDictionary,
             DimensionDictionary dimensionDictionary
     ) throws BadApiRequestException {
-        return generateLogicalMetrics(apiMetricExpression, metricDictionary, dimensionDictionary, logicalTable);
+        return generateLogicalMetrics(apiMetricExpression, logicalTable, metricDictionary, dimensionDictionary);
     }
 
     /**
@@ -1569,18 +1569,18 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
      * Extracts the list of metrics from the url metric query string and generates a set of LogicalMetrics.
      *
      * @param apiMetricQuery  URL query string containing the metrics separated by ','.
+     * @param table  The logical table for the data request
      * @param metricDictionary  Metric dictionary contains the map of valid metric names and logical metric objects.
      * @param dimensionDictionary  Dimension dictionary to look the dimension up in
-     * @param table  The logical table for the data request
      *
      * @return set of metric objects
      * @throws BadApiRequestException if the metric dictionary returns a null or if the apiMetricQuery is invalid.
      */
     protected LinkedHashSet<LogicalMetric> generateLogicalMetrics(
             String apiMetricQuery,
+            LogicalTable table,
             MetricDictionary metricDictionary,
-            DimensionDictionary dimensionDictionary,
-            LogicalTable table
+            DimensionDictionary dimensionDictionary
     ) throws BadApiRequestException {
         try (TimedPhase timer = RequestLog.startTiming("GeneratingLogicalMetrics")) {
             LOG.trace("Metric dictionary: {}", metricDictionary);
@@ -1595,93 +1595,12 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             }
 
             // set of logical metric objects
-            LinkedHashSet<LogicalMetric> generated = new LinkedHashSet<>();
-            List<String> invalidMetricNames = new ArrayList<>();
+            LinkedHashSet<LogicalMetric> generated;
 
             //If INTERSECTION_REPORTING_ENABLED flag is true, convert the aggregators into FilteredAggregators and
             //replace old PostAggs with new postAggs in order to generate a new Filtered Logical Metric
             if (BardFeatureFlag.INTERSECTION_REPORTING.isOn()) {
-                ArrayNode metricsJsonArray;
-                try {
-                    //For a given metricString, returns an array of json objects contains metric name and associated
-                    // filters
-
-                    metricsJsonArray = MetricParser.generateMetricFilterJsonArray(apiMetricQuery);
-                } catch (IllegalArgumentException e) {
-                    LOG.debug(INCORRECT_METRIC_FILTER_FORMAT.logFormat(e.getMessage()));
-                    throw new BadApiRequestException(INCORRECT_METRIC_FILTER_FORMAT.format(apiMetricQuery));
-                }
-                //check for the duplicate occurrence of metrics in an API
-                FieldConverterSupplier.getMetricsFilterSetBuilder().validateDuplicateMetrics(metricsJsonArray);
-                for (int i = 0; i < metricsJsonArray.size(); i++) {
-                    JsonNode jsonObject;
-                    try {
-                        jsonObject = metricsJsonArray.get(i);
-                    } catch (IndexOutOfBoundsException e) {
-                        LOG.debug(INCORRECT_METRIC_FILTER_FORMAT.logFormat(e.getMessage()));
-                        throw new BadApiRequestException(INCORRECT_METRIC_FILTER_FORMAT.format(apiMetricQuery));
-                    }
-                    String metricName = jsonObject.get("name").asText();
-                    LogicalMetric logicalMetric = metricDictionary.get(metricName);
-
-                    // If metric dictionary returns a null, it means the requested metric is not found.
-                    if (logicalMetric == null) {
-                        invalidMetricNames.add(metricName);
-                    } else {
-                        //metricFilterObject contains all the filters for a given metric
-                        JsonNode metricFilterObject = jsonObject.get("filter");
-
-                        //Currently supporting AND operation for metric filters.
-                        if (metricFilterObject.has("AND") && !metricFilterObject.get("AND").isNull()) {
-
-                            //We currently do not support ratio metrics
-                            if (logicalMetric.getCategory().equals(RATIO_METRIC_CATEGORY)) {
-                                LOG.debug(
-                                        UNSUPPORTED_FILTERED_METRIC_CATEGORY.logFormat(
-                                                logicalMetric.getName(),
-                                                logicalMetric.getCategory()
-                                        )
-                                );
-                                throw new BadApiRequestException(
-                                        UNSUPPORTED_FILTERED_METRIC_CATEGORY.format(
-                                                logicalMetric.getName(),
-                                                logicalMetric.getCategory()
-                                        )
-                                );
-                            }
-                            try {
-                                logicalMetric = FieldConverterSupplier.getMetricsFilterSetBuilder()
-                                        .getFilteredLogicalMetric(
-                                            logicalMetric,
-                                            metricFilterObject,
-                                            dimensionDictionary,
-                                            table,
-                                            this
-                                );
-                            } catch (FilterBuilderException filterBuilderException) {
-                                LOG.debug(filterBuilderException.getMessage());
-                                throw new BadApiRequestException(
-                                        filterBuilderException.getMessage(),
-                                        filterBuilderException
-                                );
-                            }
-
-                            //If metric filter isn't empty or it has anything other then 'AND' then throw an exception
-                        } else if (!metricFilterObject.asText().isEmpty()) {
-                            LOG.debug(INVALID_METRIC_FILTER_CONDITION.logFormat(metricFilterObject.asText()));
-                            throw new BadApiRequestException(
-                                    INVALID_METRIC_FILTER_CONDITION.format(metricFilterObject.asText())
-                            );
-                        }
-                        generated.add(logicalMetric);
-                    }
-                }
-
-                if (!invalidMetricNames.isEmpty()) {
-                    String message = ErrorMessageFormat.METRICS_UNDEFINED.logFormat(invalidMetricNames);
-                    LOG.error(message);
-                    throw new BadApiRequestException(message);
-                }
+                generated = getLogicalMetrics(apiMetricQuery, table, metricDictionary, dimensionDictionary);
             } else {
                 //Feature flag for intersection reporting is disabled
                 // list of metrics extracted from the query string
@@ -1690,6 +1609,99 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             LOG.trace("Generated set of logical metric: {}", generated);
             return generated;
         }
+    }
+
+    private LinkedHashSet<LogicalMetric> getLogicalMetrics(
+            final String apiMetricQuery,
+            final LogicalTable table,
+            final MetricDictionary metricDictionary,
+            final DimensionDictionary dimensionDictionary
+    ) {
+        final LinkedHashSet<LogicalMetric> generated;
+        List<String> invalidMetricNames = new ArrayList<>();
+        generated = new LinkedHashSet<>();
+        ArrayNode metricsJsonArray;
+        try {
+            //For a given metricString, returns an array of json objects contains metric name and associated
+            // filters
+
+            metricsJsonArray = MetricParser.generateMetricFilterJsonArray(apiMetricQuery);
+        } catch (IllegalArgumentException e) {
+            LOG.debug(INCORRECT_METRIC_FILTER_FORMAT.logFormat(e.getMessage()));
+            throw new BadApiRequestException(INCORRECT_METRIC_FILTER_FORMAT.format(apiMetricQuery));
+        }
+        //check for the duplicate occurrence of metrics in an API
+        FieldConverterSupplier.getMetricsFilterSetBuilder().validateDuplicateMetrics(metricsJsonArray);
+        for (int i = 0; i < metricsJsonArray.size(); i++) {
+            JsonNode jsonObject;
+            try {
+                jsonObject = metricsJsonArray.get(i);
+            } catch (IndexOutOfBoundsException e) {
+                LOG.debug(INCORRECT_METRIC_FILTER_FORMAT.logFormat(e.getMessage()));
+                throw new BadApiRequestException(INCORRECT_METRIC_FILTER_FORMAT.format(apiMetricQuery));
+            }
+            String metricName = jsonObject.get("name").asText();
+            LogicalMetric logicalMetric = metricDictionary.get(metricName);
+
+            // If metric dictionary returns a null, it means the requested metric is not found.
+            if (logicalMetric == null) {
+                invalidMetricNames.add(metricName);
+            } else {
+                //metricFilterObject contains all the filters for a given metric
+                JsonNode metricFilterObject = jsonObject.get("filter");
+
+                //Currently supporting AND operation for metric filters.
+                if (metricFilterObject.has("AND") && !metricFilterObject.get("AND").isNull()) {
+
+                    //We currently do not support ratio metrics
+                    if (logicalMetric.getCategory().equals(RATIO_METRIC_CATEGORY)) {
+                        LOG.debug(
+                                UNSUPPORTED_FILTERED_METRIC_CATEGORY.logFormat(
+                                        logicalMetric.getName(),
+                                        logicalMetric.getCategory()
+                                )
+                        );
+                        throw new BadApiRequestException(
+                                UNSUPPORTED_FILTERED_METRIC_CATEGORY.format(
+                                        logicalMetric.getName(),
+                                        logicalMetric.getCategory()
+                                )
+                        );
+                    }
+                    try {
+                        logicalMetric = FieldConverterSupplier.getMetricsFilterSetBuilder()
+                                .getFilteredLogicalMetric(
+                                    logicalMetric,
+                                    metricFilterObject,
+                                    dimensionDictionary,
+                                    table,
+                                    this
+                        );
+                    } catch (FilterBuilderException filterBuilderException) {
+                        LOG.debug(filterBuilderException.getMessage());
+                        throw new BadApiRequestException(
+                                filterBuilderException.getMessage(),
+                                filterBuilderException
+                        );
+                    }
+
+                    //If metric filter isn't empty or it has anything other then 'AND' then throw an exception
+                } else if (!metricFilterObject.asText().isEmpty()) {
+                    LOG.debug(INVALID_METRIC_FILTER_CONDITION.logFormat(metricFilterObject.asText()));
+                    throw new BadApiRequestException(
+                            INVALID_METRIC_FILTER_CONDITION.format(metricFilterObject.asText())
+                    );
+                }
+                generated.add(logicalMetric);
+            }
+        }
+
+        if (!invalidMetricNames.isEmpty()) {
+            String message = ErrorMessageFormat.METRICS_UNDEFINED.logFormat(invalidMetricNames);
+            LOG.error(message);
+            throw new BadApiRequestException(message);
+        }
+        return generated;
     }
 
     /**

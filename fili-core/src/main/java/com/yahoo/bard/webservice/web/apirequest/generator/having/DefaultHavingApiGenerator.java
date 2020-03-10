@@ -1,7 +1,7 @@
 // Copyright 2020 Oath Inc.
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 
-package com.yahoo.bard.webservice.web.apirequest.generator;
+package com.yahoo.bard.webservice.web.apirequest.generator.having;
 
 import static com.yahoo.bard.webservice.web.ErrorMessageFormat.HAVING_METRICS_NOT_IN_QUERY_FORMAT;
 

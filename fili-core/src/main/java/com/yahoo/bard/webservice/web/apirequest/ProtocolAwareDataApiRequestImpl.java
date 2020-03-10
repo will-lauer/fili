@@ -2,21 +2,13 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.web.apirequest;
 
-import com.yahoo.bard.webservice.data.metric.LogicalMetric;
-import com.yahoo.bard.webservice.data.metric.MetricDictionary;
 import com.yahoo.bard.webservice.data.metric.protocol.utils.LogicalMetricParameterMapper;
-import com.yahoo.bard.webservice.data.metric.protocol.utils.MetricDetail;
-import com.yahoo.bard.webservice.data.metric.protocol.utils.MetricDetailParser;
-import com.yahoo.bard.webservice.data.metric.protocol.utils.ProtocolListLogicalMetricParameterMapper;
 import com.yahoo.bard.webservice.web.BadApiRequestException;
-import com.yahoo.bard.webservice.web.ErrorMessageFormat;
 import com.yahoo.bard.webservice.web.util.BardConfigResources;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.ws.rs.core.PathSegment;
@@ -65,7 +57,6 @@ public class ProtocolAwareDataApiRequestImpl extends DataApiRequestImpl {
                 page,
                 bardConfigResources
         );
-        logicalMetricParameterMapper = bardConfigResources.getMetricParameterMapper();
     }
 
 
@@ -79,7 +70,7 @@ public class ProtocolAwareDataApiRequestImpl extends DataApiRequestImpl {
      * @param metricDictionary  Metric dictionary contains the map of valid metric names and logical metric objects
      *
      * @return set of metric objects
-     */
+
     protected LinkedHashSet<LogicalMetric> generateLogicalMetrics(
             String apiMetricQuery,
             MetricDictionary metricDictionary
@@ -108,4 +99,5 @@ public class ProtocolAwareDataApiRequestImpl extends DataApiRequestImpl {
         }
         return result;
     }
+     */
 }

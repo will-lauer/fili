@@ -11,7 +11,7 @@ import com.yahoo.bard.webservice.web.ApiFilter;
 import com.yahoo.bard.webservice.web.BadApiRequestException;
 import com.yahoo.bard.webservice.web.BadFilterException;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
-import com.yahoo.bard.webservice.web.apirequest.binders.FilterBinders;
+import com.yahoo.bard.webservice.web.apirequest.generator.filter.FilterBinders;
 import com.yahoo.bard.webservice.web.util.PaginationParameters;
 
 import com.google.common.collect.Sets;
