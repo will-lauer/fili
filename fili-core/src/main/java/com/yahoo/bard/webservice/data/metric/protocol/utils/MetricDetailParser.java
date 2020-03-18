@@ -20,7 +20,11 @@ public class MetricDetailParser {
 
     List<MetricDetail> metricDetails = new ArrayList<>();
 
-
+    /**
+     * Constructor.
+     *
+     * @param input The metric string being parsed
+     */
     public MetricDetailParser(String input) {
         iterator = new MetricTokenIterator(input);
         while (iterator.hasNext()) {
@@ -35,24 +39,23 @@ public class MetricDetailParser {
                     input + " could not be parsed with pattern " + nameFromParentheticalPattern)
             ;
         }
-        String metricName = m.group(1);
-        String baseParams = m.group(2);
+        String baseMetricName = m.group(1);
+        String rawParams = m.group(2);
 
         Map<String, String> params;
 
-        if (baseParams.isEmpty()) {
+        if (rawParams.isEmpty()) {
             params = Collections.emptyMap();
         } else {
-            Matcher m2 = Pattern.compile(paramPatternWithParens).matcher(baseParams);
+            Matcher m2 = Pattern.compile(paramPatternWithParens).matcher(rawParams);
             if (!m2.find() || m2.group(1).trim().isEmpty()) {
                 params = Collections.emptyMap();
             } else {
                 String parameters = m2.group(1);
-                System.out.println("Parameters: " + parameters);
                 params = extractParameter(parameters);
             }
         }
-        return new MetricDetail(input, metricName, params);
+        return new MetricDetail(input, baseMetricName, params);
     }
 
     private Map<String, String> extractParameter(String input) {

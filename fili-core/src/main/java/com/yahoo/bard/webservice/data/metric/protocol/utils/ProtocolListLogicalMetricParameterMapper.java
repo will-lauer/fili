@@ -3,6 +3,7 @@
 package com.yahoo.bard.webservice.data.metric.protocol.utils;
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
+import com.yahoo.bard.webservice.data.metric.LogicalMetricInfo;
 import com.yahoo.bard.webservice.data.metric.protocol.Protocol;
 import com.yahoo.bard.webservice.data.metric.protocol.ProtocolMetric;
 import com.yahoo.bard.webservice.data.metric.protocol.UnknownProtocolValueException;
@@ -32,7 +33,7 @@ public class ProtocolListLogicalMetricParameterMapper implements LogicalMetricPa
             return logicalMetric;
         }
         LogicalMetric current = logicalMetric;
-
+        LogicalMetricInfo info = new LogicalMetricInfo("foo");
 
         for (Protocol p: protocols) {
             ProtocolMetric protocolMetric;
@@ -47,7 +48,7 @@ public class ProtocolListLogicalMetricParameterMapper implements LogicalMetricPa
             if (! protocolMetric.accepts(p.getContractName())) {
                 continue;
             }
-            current = protocolMetric.accept(p.getContractName(), parameterValues);
+            current = protocolMetric.accept(info, p.getContractName(), parameterValues);
         }
 
         return current;

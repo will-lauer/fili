@@ -10,19 +10,19 @@ import java.util.Objects;
  */
 public class MetricDetail {
 
-    final String columnName;
     final String apiName;
+    final String baseApiName;
     final Map<String, String> params;
 
     /**
      * Constructor.
      *
-     * @param columnName  The name for the column
+     * @param baseApiName  The name for the column
      * @param apiName  The api name for the base metric (the one in the metric dictionary)
      * @param params The list of key value params associated with it.
      */
-    MetricDetail(String columnName, String apiName, Map<String, String> params) {
-        this.columnName = columnName;
+    MetricDetail(String apiName, String baseApiName, Map<String, String> params) {
+        this.baseApiName = baseApiName;
         this.apiName = apiName;
         this.params = params;
     }
@@ -32,8 +32,8 @@ public class MetricDetail {
      *
      * @return The original column name
      */
-    public String getColumnName() {
-        return columnName;
+    public String getBaseApiName() {
+        return baseApiName;
     }
 
     /**
@@ -64,13 +64,13 @@ public class MetricDetail {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
         final MetricDetail that = (MetricDetail) o;
-        return Objects.equals(columnName, that.columnName) &&
+        return Objects.equals(baseApiName, that.baseApiName) &&
                 Objects.equals(apiName, that.apiName) &&
                 Objects.equals(params, that.params);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(columnName, apiName, params);
+        return Objects.hash(baseApiName, apiName, params);
     }
 }
