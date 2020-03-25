@@ -10,12 +10,12 @@ import static com.yahoo.bard.webservice.web.ErrorMessageFormat.HAVING_OPERATOR_I
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
+import com.yahoo.bard.webservice.web.HavingOperation;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadHavingException;
-import com.yahoo.bard.webservice.web.HavingOperation;
-import com.yahoo.bard.webservice.web.havingparser.HavingsBaseListener;
-import com.yahoo.bard.webservice.web.havingparser.HavingsParser;
+import com.yahoo.bard.webservice.web.protocol.havingparser.HavingsBaseListener;
+import com.yahoo.bard.webservice.web.protocol.havingparser.HavingsParser;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.slf4j.Logger;
@@ -32,8 +32,8 @@ import java.util.Set;
 public class ApiHavingsListListener extends HavingsBaseListener {
     private static final Logger LOG = LoggerFactory.getLogger(ApiHavingsListListener.class);
 
-    private final Map<HavingsParser.HavingComponentContext, ApiHaving> havings = new HashMap<>();
-    private final Map<LogicalMetric, Set<ApiHaving>> metricHavingsMap = new LinkedHashMap<>();
+    private final Map<HavingsParser.HavingComponentContext, LogicalHaving> havings = new HashMap<>();
+    private final Map<LogicalMetric, Set<LogicalHaving>> metricHavingsMap = new LinkedHashMap<>();
     private Exception error = null;
     private final MetricDictionary metricDictionary;
     private final Set<LogicalMetric> logicalMetrics;
@@ -51,7 +51,7 @@ public class ApiHavingsListListener extends HavingsBaseListener {
     @Override
     public void exitHavings(HavingsParser.HavingsContext ctx) {
         for (HavingsParser.HavingComponentContext f : ctx.havingComponent()) {
-            ApiHaving having = havings.get(f);
+            LogicalHaving having = havings.get(f);
             if (having == null) {
                 // there was some error and it has been saved in the errors list
                 break;
@@ -60,7 +60,7 @@ public class ApiHavingsListListener extends HavingsBaseListener {
             if (!metricHavingsMap.containsKey(metric)) {
                 metricHavingsMap.put(metric, new LinkedHashSet<>());
             }
-            Set<ApiHaving> havingSet = metricHavingsMap.get(metric);
+            Set<LogicalHaving> havingSet = metricHavingsMap.get(metric);
             havingSet.add(having);
             metricHavingsMap.put(metric, havingSet);
         }
@@ -81,7 +81,7 @@ public class ApiHavingsListListener extends HavingsBaseListener {
         List<Double> values = extractValues(ctx);
 
         //Make the constructor public in having
-        ApiHaving having = new ApiHaving(metric, operation, values);
+        LogicalHaving having = new LogicalHaving(metric, operation, values);
         havings.put(ctx, having);
 
     }
@@ -157,11 +157,11 @@ public class ApiHavingsListListener extends HavingsBaseListener {
      * Gets the list of parsed metricHavingMap. If a parsing error occured or an invalid having was
      * specified, throws BadHavingException
      *
-     * @return a Map of ApiHaving keyed by Metric
+     * @return a Map of LogicalHaving keyed by Metric
      * @throws BadHavingException Thrown when an invalid having is specified
      * @throws BadApiRequestException Thrown when a filter isn't supported
      */
-    public Map<LogicalMetric, Set<ApiHaving>> getMetricHavingsMap () throws BadHavingException, BadApiRequestException {
+    public Map<LogicalMetric, Set<LogicalHaving>> getMetricHavingsMap () throws BadHavingException, BadApiRequestException {
         processErrors();
         return metricHavingsMap;
     }

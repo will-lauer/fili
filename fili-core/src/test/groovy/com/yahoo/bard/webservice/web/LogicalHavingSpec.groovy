@@ -10,7 +10,7 @@ import com.yahoo.bard.webservice.web.apirequest.exceptions.BadHavingException
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class ApiHavingSpec extends Specification {
+class LogicalHavingSpec extends Specification {
 
     MetricDictionary metricStore
     LogicalMetric metric1
@@ -35,7 +35,7 @@ class ApiHavingSpec extends Specification {
         String query = "$metric-$op$values"
 
         when:
-        ApiHaving having = new ApiHaving(query, metricStore)
+        LogicalHaving having = new LogicalHaving(query, metricStore)
 
         then:
         having.metric?.name == metric
@@ -94,7 +94,7 @@ class ApiHavingSpec extends Specification {
     def "Bad having query #having throws #exception.simpleName because #reason"() {
 
         when:
-        new ApiHaving(having, metricStore)
+        new LogicalHaving(having, metricStore)
 
         then:
         thrown exception

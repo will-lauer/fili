@@ -3,7 +3,7 @@
 package com.yahoo.bard.webservice.web.apirequest.generator.having;
 
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,10 +32,10 @@ public class PerRequestDictionaryHavingGenerator implements HavingGenerator {
      * @param havingString  The having clause from the URI
      * @param logicalMetrics The set of metrics provided
      *
-     * @return  A collection of ApiHaving objects grouped by Logical Metric
+     * @return  A collection of LogicalHaving objects grouped by Logical Metric
      */
     @Override
-    public Map<LogicalMetric, Set<ApiHaving>> apply(String havingString, Set<LogicalMetric> logicalMetrics) {
+    public Map<LogicalMetric, Set<LogicalHaving>> apply(String havingString, Set<LogicalMetric> logicalMetrics) {
         return havingGenerator
                 .withMetricDictionary(
                         logicalMetrics.stream().collect(Collectors.toMap(LogicalMetric::getName, Function.identity()))

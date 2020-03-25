@@ -5,7 +5,7 @@ package com.yahoo.bard.webservice.data;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.druid.model.builders.DefaultDruidHavingBuilder;
 import com.yahoo.bard.webservice.druid.model.having.Having;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class DruidHavingBuilder {
      *
      * @return The having clause to appear in the Druid query. Returns null if the metricMap is empty or null.
      */
-    public static Having buildHavings(final Map<LogicalMetric, Set<ApiHaving>> apiHavingMap) {
+    public static Having buildHavings(final Map<LogicalMetric, Set<LogicalHaving>> apiHavingMap) {
         return DefaultDruidHavingBuilder.INSTANCE.buildHavings(apiHavingMap);
     }
 }

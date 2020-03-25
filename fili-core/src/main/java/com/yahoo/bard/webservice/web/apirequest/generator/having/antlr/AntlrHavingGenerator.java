@@ -8,12 +8,12 @@ import static com.yahoo.bard.webservice.web.ErrorMessageFormat.HAVING_INVALID_WI
 import com.yahoo.bard.webservice.data.config.ConfigurationLoader;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.data.metric.MetricDictionary;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadHavingException;
 import com.yahoo.bard.webservice.web.apirequest.generator.having.DefaultHavingApiGenerator;
-import com.yahoo.bard.webservice.web.havingparser.HavingsLex;
-import com.yahoo.bard.webservice.web.havingparser.HavingsParser;
+import com.yahoo.bard.webservice.web.protocol.havingparser.HavingsLex;
+import com.yahoo.bard.webservice.web.protocol.havingparser.HavingsParser;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -38,7 +38,7 @@ public class AntlrHavingGenerator extends DefaultHavingApiGenerator {
         this.metricDictionary = loader.getMetricDictionary();
     }
 
-    public Map<LogicalMetric, Set<ApiHaving>> apply(
+    public Map<LogicalMetric, Set<LogicalHaving>> apply(
         String havingQuery,
         Set<LogicalMetric> logicalMetrics
     ) throws BadApiRequestException {
@@ -51,8 +51,8 @@ public class AntlrHavingGenerator extends DefaultHavingApiGenerator {
         }
 
         ApiHavingsListListener apiHavingsListListener = new ApiHavingsListListener(metricDictionary, logicalMetrics);
-        HavingsLex lexer = HavingGrammarUtils.getLexer(havingQuery);
-        HavingsParser parser = HavingGrammarUtils.getParser(lexer);
+        HavingsLex lexer = ProtocolHavingGrammarUtils.getLexer(havingQuery);
+        HavingsParser parser = ProtocolHavingGrammarUtils.getParser(lexer);
         try {
             try {
                 HavingsParser.HavingsContext tree = parser.havings();
@@ -63,7 +63,7 @@ public class AntlrHavingGenerator extends DefaultHavingApiGenerator {
                     HAVING_INVALID_WITH_DETAIL.format(havingQuery, parseException.getMessage()),
                     parseException.getCause());
             }
-            Map<LogicalMetric, Set<ApiHaving>> generated = apiHavingsListListener.getMetricHavingsMap();
+            Map<LogicalMetric, Set<LogicalHaving>> generated = apiHavingsListListener.getMetricHavingsMap();
             LOG.trace("Generated map of havings: {}", generated);
             return generated;
         } catch (BadHavingException havingException) {

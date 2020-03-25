@@ -15,7 +15,7 @@ import com.yahoo.bard.webservice.table.LogicalTable;
 import com.yahoo.bard.webservice.util.UnmodifiableLinkedHashMap;
 import com.yahoo.bard.webservice.util.UnmodifiableLinkedHashSet;
 import com.yahoo.bard.webservice.web.ApiFilter;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
 import com.yahoo.bard.webservice.web.filters.ApiFilters;
 import com.yahoo.bard.webservice.web.filters.UnmodifiableApiFilters;
@@ -51,7 +51,7 @@ public class DataApiRequestValueObject implements DataApiRequest {
     private final LinkedHashSet<LogicalMetric> metrics;
     private final List<Interval> intervals;
     private final ApiFilters apiFilters;
-    private final LinkedHashMap<LogicalMetric, Set<ApiHaving>> havings;
+    private final LinkedHashMap<LogicalMetric, Set<LogicalHaving>> havings;
     private final LinkedHashSet<OrderByColumn> allSorts;
     private final Integer count;
     private final Integer topN;
@@ -92,7 +92,7 @@ public class DataApiRequestValueObject implements DataApiRequest {
             LinkedHashSet<LogicalMetric> metrics,
             List<Interval> intervals,
             ApiFilters apiFilters,
-            LinkedHashMap<LogicalMetric, Set<ApiHaving>> havings,
+            LinkedHashMap<LogicalMetric, Set<LogicalHaving>> havings,
             LinkedHashSet<OrderByColumn> allSorts,
             Integer count,
             Integer topN,
@@ -159,7 +159,7 @@ public class DataApiRequestValueObject implements DataApiRequest {
     }
 
     @Override
-    public LinkedHashMap<LogicalMetric, Set<ApiHaving>> getHavings() {
+    public LinkedHashMap<LogicalMetric, Set<LogicalHaving>> getHavings() {
         return havings;
     }
 
@@ -397,7 +397,7 @@ public class DataApiRequestValueObject implements DataApiRequest {
     }
 
     @Override
-    public DataApiRequest withHavings(LinkedHashMap<LogicalMetric, Set<ApiHaving>> havings) {
+    public DataApiRequest withHavings(LinkedHashMap<LogicalMetric, Set<LogicalHaving>> havings) {
         return new DataApiRequestValueObject(
                 table,
                 granularity,

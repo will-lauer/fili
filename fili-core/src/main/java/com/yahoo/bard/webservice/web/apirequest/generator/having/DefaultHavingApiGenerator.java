@@ -9,7 +9,7 @@ import com.yahoo.bard.webservice.data.config.ConfigurationLoader;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.logging.RequestLog;
 import com.yahoo.bard.webservice.logging.TimedPhase;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadHavingException;
 
@@ -65,7 +65,7 @@ public class DefaultHavingApiGenerator implements HavingGenerator {
      * @throws BadApiRequestException if the having query string does not match required syntax.
      */
     @Override
-    public Map<LogicalMetric, Set<ApiHaving>> apply(
+    public Map<LogicalMetric, Set<LogicalHaving>> apply(
         String havingQuery,
         Set<LogicalMetric> logicalMetrics
     ) throws BadApiRequestException {
@@ -79,10 +79,10 @@ public class DefaultHavingApiGenerator implements HavingGenerator {
 
             // split on '],' to get list of havings
             List<String> apiHavings = Arrays.asList(havingQuery.split(COMMA_AFTER_BRACKET_PATTERN));
-            Map<LogicalMetric, Set<ApiHaving>> generated = new LinkedHashMap<>();
+            Map<LogicalMetric, Set<LogicalHaving>> generated = new LinkedHashMap<>();
             for (String apiHaving : apiHavings) {
                 try {
-                    ApiHaving newHaving = new ApiHaving(apiHaving, metricDictionary);
+                    LogicalHaving newHaving = new LogicalHaving(apiHaving, metricDictionary);
                     LogicalMetric metric = newHaving.getMetric();
                     if (!logicalMetrics.contains(metric)) {
                         unmatchedMetrics.add(metric.getName());

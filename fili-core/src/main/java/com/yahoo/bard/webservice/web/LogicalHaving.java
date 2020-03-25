@@ -31,8 +31,8 @@ import javax.validation.constraints.NotNull;
  * The Bard-level representation of a Druid Having clause. This class assumes that all metrics in the associated
  * having clause are defined.
  */
-public class ApiHaving {
-    private static final Logger LOG = LoggerFactory.getLogger(ApiHaving.class);
+public class LogicalHaving {
+    private static final Logger LOG = LoggerFactory.getLogger(LogicalHaving.class);
 
     private final LogicalMetric metric;
     private final HavingOperation operation;
@@ -50,7 +50,7 @@ public class ApiHaving {
     private static final Pattern QUERY_PATTERN = Pattern.compile("([^\\|]+)-([^\\[]+)\\[([^\\]]+)\\]?");
 
     /**
-     * Parses the URL having Query and generates the ApiHaving object.
+     * Parses the URL having Query and generates the LogicalHaving object.
      *
      * @param havingQuery  Expects a URL having query String in the format:
      * <p>
@@ -59,7 +59,7 @@ public class ApiHaving {
      *
      * @throws BadHavingException  when having pattern is not matched or when any of its properties are not valid.
      */
-    public ApiHaving(
+    public LogicalHaving(
             @NotNull String havingQuery,
             Map<String, LogicalMetric> metricDictionary
     ) throws BadHavingException {
@@ -81,29 +81,29 @@ public class ApiHaving {
     }
 
     /**
-     * Constructor for an ApiHaving object whose data has already been parsed.
+     * Constructor for an LogicalHaving object whose data has already been parsed.
      *
      * @param metric  The metric to perform the "having" check on.
      * @param operation  The operation to perform (i.e. greater than, less than).
      * @param values  The numbers to compare the metric to.
      */
-    public ApiHaving(LogicalMetric metric, HavingOperation operation, List<Double> values) {
+    public LogicalHaving(LogicalMetric metric, HavingOperation operation, List<Double> values) {
         this.metric = metric;
         this.operation = operation;
         this.values = Collections.unmodifiableList(values);
     }
 
     // CHECKSTYLE:OFF
-    public ApiHaving withLogicalMetric(@NotNull LogicalMetric metric) {
-        return new ApiHaving(metric, operation, values);
+    public LogicalHaving withLogicalMetric(@NotNull LogicalMetric metric) {
+        return new LogicalHaving(metric, operation, values);
     }
 
-    public ApiHaving withOperation(@NotNull HavingOperation operation) {
-        return new ApiHaving(metric, operation, values);
+    public LogicalHaving withOperation(@NotNull HavingOperation operation) {
+        return new LogicalHaving(metric, operation, values);
     }
 
-    public ApiHaving withValues(@NotNull List<Double> values) {
-        return new ApiHaving(metric, operation, values);
+    public LogicalHaving withValues(@NotNull List<Double> values) {
+        return new LogicalHaving(metric, operation, values);
     }
     // CHECKSTYLE:ON
 
@@ -221,14 +221,14 @@ public class ApiHaving {
     @SuppressWarnings("checkstyle:cyclomaticcomplexity")
     public boolean equals(Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof ApiHaving)) { return false; }
+        if (!(o instanceof LogicalHaving)) { return false; }
 
-        ApiHaving apiHaving = (ApiHaving) o;
+        LogicalHaving logicalHaving = (LogicalHaving) o;
 
         return
-                Objects.equals(metric, apiHaving.metric) &&
-                Objects.equals(operation, apiHaving.operation) &&
-                Objects.equals(values, apiHaving.values);
+                Objects.equals(metric, logicalHaving.metric) &&
+                Objects.equals(operation, logicalHaving.operation) &&
+                Objects.equals(values, logicalHaving.values);
     }
 
     @Override

@@ -15,7 +15,7 @@ import com.yahoo.bard.webservice.druid.model.orderby.OrderByColumn;
 import com.yahoo.bard.webservice.logging.RequestLog;
 import com.yahoo.bard.webservice.logging.TimedPhase;
 import com.yahoo.bard.webservice.table.LogicalTable;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.apirequest.generator.metric.ApiRequestLogicalMetricBinder;
@@ -168,7 +168,7 @@ public class ProtocolMetricDataApiReqestImpl extends DataApiRequestImpl {
             LinkedHashSet<LogicalMetric> logicalMetrics,
             List<Interval> intervals,
             ApiFilters apiFilters,
-            Map<LogicalMetric, Set<ApiHaving>> havings,
+            Map<LogicalMetric, Set<LogicalHaving>> havings,
             LinkedHashSet<OrderByColumn> sorts,
             OrderByColumn dateTimeSort,
             DateTimeZone timeZone,

@@ -3,8 +3,8 @@
 package com.yahoo.bard.webservice.web.apirequest.generator.metric.antlr;
 
 import com.yahoo.bard.webservice.web.apirequest.generator.having.ExceptionErrorListener;
-import com.yahoo.bard.webservice.web.metrics.MetricsLex;
-import com.yahoo.bard.webservice.web.metrics.MetricsParser;
+import com.yahoo.bard.webservice.web.protocol.metrics.MetricsLex;
+import com.yahoo.bard.webservice.web.protocol.metrics.MetricsParser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;

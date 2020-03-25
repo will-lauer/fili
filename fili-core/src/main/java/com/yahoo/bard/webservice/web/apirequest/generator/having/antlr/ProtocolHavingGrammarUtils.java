@@ -3,13 +3,13 @@
 package com.yahoo.bard.webservice.web.apirequest.generator.having.antlr;
 
 import com.yahoo.bard.webservice.web.apirequest.generator.having.ExceptionErrorListener;
-import com.yahoo.bard.webservice.web.havingparser.HavingsLex;
-import com.yahoo.bard.webservice.web.havingparser.HavingsParser;
+import com.yahoo.bard.webservice.web.protocol.havingparser.HavingsLex;
+import com.yahoo.bard.webservice.web.protocol.havingparser.HavingsParser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-public class HavingGrammarUtils {
+public class ProtocolHavingGrammarUtils {
 
     public static HavingsLex getLexer(String havingQuery) {
         ANTLRInputStream input = new ANTLRInputStream(havingQuery);

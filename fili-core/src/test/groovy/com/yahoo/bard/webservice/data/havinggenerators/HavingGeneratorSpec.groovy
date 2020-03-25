@@ -6,10 +6,10 @@ import com.yahoo.bard.webservice.data.config.ConfigurationLoader
 import com.yahoo.bard.webservice.data.metric.LogicalMetric
 import com.yahoo.bard.webservice.data.metric.LogicalMetricImpl
 import com.yahoo.bard.webservice.data.metric.MetricDictionary
-import com.yahoo.bard.webservice.web.ApiHaving
+import com.yahoo.bard.webservice.web.LogicalHaving
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException
 import com.yahoo.bard.webservice.web.HavingOperation
-import com.yahoo.bard.webservice.web.apirequest.generator.having.antlr.AntlrHavingGenerator
+import com.yahoo.bard.webservice.web.apirequest.generator.having.antlr.ProtocolAntlrHavingGenerator
 
 import spock.lang.Shared
 import spock.lang.Specification
@@ -48,10 +48,10 @@ class HavingGeneratorSpec extends Specification {
         String query = "$metric-$op$values"
 
         when:
-        Map<LogicalMetric, Set<ApiHaving>> generateHaving =  new AntlrHavingGenerator(loader).apply(query, logicalMetrics);
+        Map<LogicalMetric, Set<LogicalHaving>> generateHaving =  new ProtocolAntlrHavingGenerator(loader).apply(query, logicalMetrics);
 
         then:
-        Set<ApiHaving> havings = generateHaving.get(metric1)
+        Set<LogicalHaving> havings = generateHaving.get(metric1)
         havings[0].metric?.name == metric
         havings[0].operation == HavingOperation.fromString(op)
         havings[0].values == expected as List
@@ -125,18 +125,18 @@ class HavingGeneratorSpec extends Specification {
         String query = "metric1-gt[25],metric3-notLessThan[1,2,3]"
 
         when:
-        Map<LogicalMetric, Set<ApiHaving>> generateHaving =  new AntlrHavingGenerator(loader).apply(query, logicalMetrics);
+        Map<LogicalMetric, Set<LogicalHaving>> generateHaving =  new ProtocolAntlrHavingGenerator(loader).apply(query, logicalMetrics);
 
         then:
         generateHaving.containsKey(metric1)
         generateHaving.containsKey(metric3)
 
-        Set<ApiHaving> havingsMetric1 = generateHaving.get(metric1)
+        Set<LogicalHaving> havingsMetric1 = generateHaving.get(metric1)
         havingsMetric1[0].metric?.name == 'metric1'
         havingsMetric1[0].operation == HavingOperation.fromString('gt')
         havingsMetric1[0].values == [25] as List
 
-        Set<ApiHaving> havingsMetric3 = generateHaving.get(metric3)
+        Set<LogicalHaving> havingsMetric3 = generateHaving.get(metric3)
         havingsMetric3[0].metric?.name == 'metric3'
         havingsMetric3[0].operation == HavingOperation.fromString('notLessThan')
         havingsMetric3[0].values == [1,2,3] as List
@@ -148,12 +148,12 @@ class HavingGeneratorSpec extends Specification {
         String query = "metric1-notEqualTo[-2.4],metric1-gte[8.0,23]"
 
         when:
-        Map<LogicalMetric, Set<ApiHaving>> generateHaving =  new AntlrHavingGenerator(loader).apply(query, logicalMetrics);
+        Map<LogicalMetric, Set<LogicalHaving>> generateHaving =  new ProtocolAntlrHavingGenerator(loader).apply(query, logicalMetrics);
 
         then:
         generateHaving.containsKey(metric1)
 
-        Set<ApiHaving> havingsMetric1 = generateHaving.get(metric1)
+        Set<LogicalHaving> havingsMetric1 = generateHaving.get(metric1)
         havingsMetric1[0].metric?.name == 'metric1'
         havingsMetric1[0].operation == HavingOperation.fromString('notEqualTo')
         havingsMetric1[0].values == [-2.4] as List
@@ -167,7 +167,7 @@ class HavingGeneratorSpec extends Specification {
     def "Bad having query #having throws #exception.simpleName because #reason"() {
 
         when:
-        AntlrHavingGenerator digitsHavingGenerator = new AntlrHavingGenerator(loader);
+        ProtocolAntlrHavingGenerator digitsHavingGenerator = new ProtocolAntlrHavingGenerator(loader);
         digitsHavingGenerator.apply(having, logicalMetrics);
 
         then:

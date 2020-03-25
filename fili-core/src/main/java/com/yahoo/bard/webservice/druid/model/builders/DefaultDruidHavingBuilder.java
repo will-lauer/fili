@@ -11,7 +11,7 @@ import com.yahoo.bard.webservice.druid.model.having.Having;
 import com.yahoo.bard.webservice.druid.model.having.NotHaving;
 import com.yahoo.bard.webservice.druid.model.having.NumericHaving;
 import com.yahoo.bard.webservice.druid.model.having.OrHaving;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.HavingOperation;
 
 import org.slf4j.Logger;
@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Class to hold static methods to build druid query model objects from ApiHaving.
+ * Class to hold static methods to build druid query model objects from LogicalHaving.
  */
 public class DefaultDruidHavingBuilder implements DruidHavingBuilder {
 
@@ -42,7 +42,7 @@ public class DefaultDruidHavingBuilder implements DruidHavingBuilder {
      * @return The having clause to appear in the Druid query. Returns null if the metricMap is empty or null.
      */
     @Override
-    public Having buildHavings(Map<LogicalMetric, Set<ApiHaving>> apiHavingMap) {
+    public Having buildHavings(Map<LogicalMetric, Set<LogicalHaving>> apiHavingMap) {
         // return null when no metrics are specified in the API
         if (apiHavingMap == null || apiHavingMap.isEmpty()) {
             return null;
@@ -65,7 +65,7 @@ public class DefaultDruidHavingBuilder implements DruidHavingBuilder {
      *
      * @return A druid query having object representing the having clause on a given metric
      */
-    public Having buildMetricHaving(LogicalMetric metric, Set<ApiHaving> havings) {
+    public Having buildMetricHaving(LogicalMetric metric, Set<LogicalHaving> havings) {
         LOG.trace("Building metric having using metric: {} \n\n and set of queries: {}", metric, havings);
         List<Having> orHavings = havings.stream()
                 .map(having -> buildHaving(metric, having))
@@ -79,11 +79,11 @@ public class DefaultDruidHavingBuilder implements DruidHavingBuilder {
      * Create a list of NumericHavings for the values specified and OR them together.
      *
      * @param metric  The metric that the operation applied to.
-     * @param having  The ApiHaving object
+     * @param having  The LogicalHaving object
      *
      * @return A single having representing the API Filter
      */
-    public Having buildHaving(LogicalMetric metric, ApiHaving having) {
+    public Having buildHaving(LogicalMetric metric, LogicalHaving having) {
         LOG.trace("Building having using metric: {} and API Having: {}", metric, having);
 
         HavingOperation operation = having.getOperation();

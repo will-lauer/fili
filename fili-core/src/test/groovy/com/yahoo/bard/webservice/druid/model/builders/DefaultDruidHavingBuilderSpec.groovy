@@ -7,7 +7,7 @@ import com.yahoo.bard.webservice.data.QueryBuildingTestingResources
 import com.yahoo.bard.webservice.data.metric.LogicalMetric
 import com.yahoo.bard.webservice.druid.model.having.Having
 import com.yahoo.bard.webservice.util.GroovyTestUtils
-import com.yahoo.bard.webservice.web.ApiHaving
+import com.yahoo.bard.webservice.web.LogicalHaving
 
 import com.fasterxml.jackson.databind.ObjectMapper
 
@@ -39,7 +39,7 @@ public class DefaultDruidHavingBuilderSpec extends Specification {
     def "buildHaving turns the query #havingString into the JSON #expectedJson"() {
 
         setup:
-        ApiHaving apiHaving = new ApiHaving(havingString, resources.metricDictionary)
+        LogicalHaving apiHaving = new LogicalHaving(havingString, resources.metricDictionary)
         Having having = druidHavingBuilder.buildHaving(metric, apiHaving)
 
         expect:
@@ -127,12 +127,12 @@ public class DefaultDruidHavingBuilderSpec extends Specification {
                 (resources.m3): ["metric3-neq[14.7,8,37]"] as Set,
         ]
 
-        Map<LogicalMetric, Set<ApiHaving>> metricMap = [:]
+        Map<LogicalMetric, Set<LogicalHaving>> metricMap = [:]
 
         havingStrings.each {
-            metricMap[it.key] = [] as Set<ApiHaving>
+            metricMap[it.key] = [] as Set<LogicalHaving>
             it.value.each { havingString ->
-                ApiHaving apiHaving = new ApiHaving(havingString, resources.metricDictionary)
+                LogicalHaving apiHaving = new LogicalHaving(havingString, resources.metricDictionary)
                 metricMap[it.key].add(apiHaving)
             }
         }

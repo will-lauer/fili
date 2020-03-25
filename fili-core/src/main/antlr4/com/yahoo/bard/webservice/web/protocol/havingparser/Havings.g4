@@ -8,7 +8,11 @@ havings
     : ( havingComponent ( COMMA havingComponent )* )? EOF;
 
 havingComponent
-    : metric DASH OPERATOR OPEN_BRACKET values CLOSE_BRACKET;
+    : metric DASH operator OPEN_BRACKET values CLOSE_BRACKET;
+
+operator
+    : ID
+    ;
 
 metric
     : ID ( OPEN_PARENTHESIS ID EQUALS ID CLOSE_PARENTHESIS )?

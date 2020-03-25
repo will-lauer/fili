@@ -10,7 +10,7 @@ import com.yahoo.bard.webservice.data.time.Granularity;
 import com.yahoo.bard.webservice.druid.model.orderby.OrderByColumn;
 import com.yahoo.bard.webservice.table.LogicalTable;
 import com.yahoo.bard.webservice.util.EnumUtils;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
 import com.yahoo.bard.webservice.web.apirequest.generator.Generator;
 import com.yahoo.bard.webservice.web.filters.ApiFilters;
@@ -114,7 +114,7 @@ public class DataApiRequestBuilder {
     private LinkedHashSet<LogicalMetric> metrics;
     private List<Interval> intervals;
     private ApiFilters apiFilters;
-    private LinkedHashMap<LogicalMetric, Set<ApiHaving>> havings;
+    private LinkedHashMap<LogicalMetric, Set<LogicalHaving>> havings;
     private LinkedHashSet<OrderByColumn> sorts;
     private Integer count;
     private Integer topN;
@@ -256,7 +256,7 @@ public class DataApiRequestBuilder {
     }
 
     /**
-     * Generates and sets the requested mapping of {@link LogicalMetric} to a set of {@link ApiHaving}s filtering that
+     * Generates and sets the requested mapping of {@link LogicalMetric} to a set of {@link LogicalHaving}s filtering that
      * metric.
      *
      * @param params  Raw request params
@@ -265,7 +265,7 @@ public class DataApiRequestBuilder {
      */
     public DataApiRequestBuilder setHavings(
             RequestParameters params,
-            Generator<LinkedHashMap<LogicalMetric, Set<ApiHaving>>> generator
+            Generator<LinkedHashMap<LogicalMetric, Set<LogicalHaving>>> generator
     ) {
         built.put(RequestResource.HAVINGS, Boolean.TRUE);
         this.havings = bindAndValidate(params, generator);
@@ -545,7 +545,7 @@ public class DataApiRequestBuilder {
      *
      * @return the havings
      */
-    public LinkedHashMap<LogicalMetric, Set<ApiHaving>> getHavingsIfInitialized() {
+    public LinkedHashMap<LogicalMetric, Set<LogicalHaving>> getHavingsIfInitialized() {
         if (!isHavingsInitialized()) {
             throw new UninitializedRequestResourceException(RequestResource.HAVINGS);
         }

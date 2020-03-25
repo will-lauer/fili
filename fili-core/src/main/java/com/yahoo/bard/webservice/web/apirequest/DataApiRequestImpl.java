@@ -43,7 +43,7 @@ import com.yahoo.bard.webservice.util.SimplifiedIntervalList;
 import com.yahoo.bard.webservice.util.StreamUtils;
 import com.yahoo.bard.webservice.util.TableUtils;
 import com.yahoo.bard.webservice.web.ApiFilter;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.DefaultFilterOperation;
 import com.yahoo.bard.webservice.web.DimensionFieldSpecifierKeywords;
@@ -100,7 +100,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
     private final LinkedHashSet<LogicalMetric> logicalMetrics;
     private final List<Interval> intervals;
     private final ApiFilters apiFilters;
-    private final Map<LogicalMetric, Set<ApiHaving>> havings;
+    private final Map<LogicalMetric, Set<LogicalHaving>> havings;
     private final LinkedHashSet<OrderByColumn> sorts;
     private final OrderByColumn dateTimeSort;
 
@@ -606,7 +606,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             LinkedHashSet<LogicalMetric> logicalMetrics,
             List<Interval> intervals,
             ApiFilters apiFilters,
-            Map<LogicalMetric, Set<ApiHaving>> havings,
+            Map<LogicalMetric, Set<LogicalHaving>> havings,
             LinkedHashSet<OrderByColumn> sorts,
             int count,
             int topN,
@@ -673,7 +673,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             LinkedHashSet<LogicalMetric> logicalMetrics,
             List<Interval> intervals,
             ApiFilters apiFilters,
-            Map<LogicalMetric, Set<ApiHaving>> havings,
+            Map<LogicalMetric, Set<LogicalHaving>> havings,
             LinkedHashSet<OrderByColumn> sorts,
             int count,
             int topN,
@@ -738,7 +738,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             LinkedHashSet<LogicalMetric> logicalMetrics,
             List<Interval> intervals,
             ApiFilters apiFilters,
-            Map<LogicalMetric, Set<ApiHaving>> havings,
+            Map<LogicalMetric, Set<LogicalHaving>> havings,
             LinkedHashSet<OrderByColumn> sorts,
             Optional<OrderByColumn> dateTimeSort,
             DateTimeZone timeZone,
@@ -809,7 +809,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             LinkedHashSet<LogicalMetric> logicalMetrics,
             List<Interval> intervals,
             ApiFilters apiFilters,
-            Map<LogicalMetric, Set<ApiHaving>> havings,
+            Map<LogicalMetric, Set<LogicalHaving>> havings,
             LinkedHashSet<OrderByColumn> sorts,
             OrderByColumn dateTimeSort,
             DateTimeZone timeZone,
@@ -879,7 +879,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             LinkedHashSet<LogicalMetric> logicalMetrics,
             List<Interval> intervals,
             ApiFilters apiFilters,
-            Map<LogicalMetric, Set<ApiHaving>> havings,
+            Map<LogicalMetric, Set<LogicalHaving>> havings,
             LinkedHashSet<OrderByColumn> sorts,
             OrderByColumn dateTimeSort,
             DateTimeZone timeZone,
@@ -1172,12 +1172,12 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
      * Produce a map describing the ApiRequest Havings.
      *
      * @param requestHavings  Request query string describing the having api clause
-     * @param havingGenerator  The factory to build ApiHaving instances
+     * @param havingGenerator  The factory to build LogicalHaving instances
      * @param logicalMetrics Logical metrics available for filtering
      *
      * @return The Apihaving instances grouped by metric.
      */
-    protected Map<LogicalMetric, Set<ApiHaving>> bindApiHavings(
+    protected Map<LogicalMetric, Set<LogicalHaving>> bindApiHavings(
             String requestHavings,
             HavingGenerator havingGenerator,
             Set<LogicalMetric> logicalMetrics
@@ -1195,7 +1195,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
      */
     protected void validateApiHavings(
             String requestHavings,
-            Map<LogicalMetric, Set<ApiHaving>> apiHavings
+            Map<LogicalMetric, Set<LogicalHaving>> apiHavings
     ) throws BadApiRequestException {
         // No default post bind validations yet
     }
@@ -1819,7 +1819,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
     }
 
     @Override
-    public DataApiRequestImpl withHavings(Map<LogicalMetric, Set<ApiHaving>> havings) {
+    public DataApiRequestImpl withHavings(Map<LogicalMetric, Set<LogicalHaving>> havings) {
         return new DataApiRequestImpl(table, granularity, dimensions, perDimensionFields, logicalMetrics, intervals, apiFilters, havings, sorts, dateTimeSort, timeZone, topN, count, paginationParameters, format, downloadFilename, asyncAfter, optimizable);
     }
 
@@ -1929,7 +1929,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
     }
 
     @Override
-    public Map<LogicalMetric, Set<ApiHaving>> getHavings() {
+    public Map<LogicalMetric, Set<LogicalHaving>> getHavings() {
         return this.havings;
     }
 

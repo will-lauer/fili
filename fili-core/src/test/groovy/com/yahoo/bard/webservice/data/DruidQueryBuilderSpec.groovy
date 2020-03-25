@@ -45,7 +45,7 @@ import com.yahoo.bard.webservice.table.TableIdentifier
 import com.yahoo.bard.webservice.table.TableTestUtils
 import com.yahoo.bard.webservice.table.resolver.DefaultPhysicalTableResolver
 import com.yahoo.bard.webservice.web.ApiFilter
-import com.yahoo.bard.webservice.web.ApiHaving
+import com.yahoo.bard.webservice.web.LogicalHaving
 import com.yahoo.bard.webservice.web.apirequest.DataApiRequest
 import com.yahoo.bard.webservice.web.apirequest.generator.filter.FilterBinders
 import com.yahoo.bard.webservice.web.filters.ApiFilters
@@ -68,7 +68,7 @@ class DruidQueryBuilderSpec extends Specification {
     @Shared Map<String, ApiFilter> apiFiltersByName
 
     @Shared boolean topNStatus
-    @Shared ApiHaving having
+    @Shared LogicalHaving having
 
     LimitSpec limitSpec
     TopNMetric topNMetric
@@ -119,7 +119,7 @@ class DruidQueryBuilderSpec extends Specification {
         staticInitialize()
         topNStatus = TOP_N.isOn();
         TOP_N.setOn(true)
-        having = new ApiHaving("$resources.m1.name-eq[1,2,3]" as String, resources.metricDictionary)
+        having = new LogicalHaving("$resources.m1.name-eq[1,2,3]" as String, resources.metricDictionary)
     }
 
     def cleanupSpec() {

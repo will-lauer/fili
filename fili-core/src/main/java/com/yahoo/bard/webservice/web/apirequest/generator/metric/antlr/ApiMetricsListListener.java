@@ -5,8 +5,8 @@ package com.yahoo.bard.webservice.web.apirequest.generator.metric.antlr;
 import com.yahoo.bard.webservice.data.metric.LogicalMetric;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadMetricException;
 import com.yahoo.bard.webservice.web.apirequest.metrics.ApiMetric;
-import com.yahoo.bard.webservice.web.metrics.MetricsBaseListener;
-import com.yahoo.bard.webservice.web.metrics.MetricsParser;
+import com.yahoo.bard.webservice.web.protocol.metrics.MetricsBaseListener;
+import com.yahoo.bard.webservice.web.protocol.metrics.MetricsParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;

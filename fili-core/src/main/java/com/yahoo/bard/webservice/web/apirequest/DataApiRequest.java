@@ -13,7 +13,7 @@ import com.yahoo.bard.webservice.druid.model.having.Having;
 import com.yahoo.bard.webservice.druid.model.orderby.OrderByColumn;
 import com.yahoo.bard.webservice.table.LogicalTable;
 import com.yahoo.bard.webservice.web.ApiFilter;
-import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.LogicalHaving;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
 import com.yahoo.bard.webservice.web.filters.ApiFilters;
 import com.yahoo.bard.webservice.web.util.PaginationParameters;
@@ -156,7 +156,7 @@ public interface DataApiRequest extends ApiRequest {
      *
      * @return a map of havings by metrics.
      */
-    Map<LogicalMetric, Set<ApiHaving>> getHavings();
+    Map<LogicalMetric, Set<LogicalHaving>> getHavings();
 
     // Row sequence constraints
 
@@ -318,11 +318,11 @@ public interface DataApiRequest extends ApiRequest {
     DataApiRequest withFilters(ApiFilters filters);
 
     @Deprecated
-    default DataApiRequest withHavings(Map<LogicalMetric, Set<ApiHaving>> havings) {
+    default DataApiRequest withHavings(Map<LogicalMetric, Set<LogicalHaving>> havings) {
         return withHavings(new LinkedHashMap<>(havings));
     }
 
-    default DataApiRequest withHavings(LinkedHashMap<LogicalMetric, Set<ApiHaving>> havings) {
+    default DataApiRequest withHavings(LinkedHashMap<LogicalMetric, Set<LogicalHaving>> havings) {
         throw new UnsupportedOperationException("this method has not been implemented");
     }
 
@@ -394,8 +394,8 @@ public interface DataApiRequest extends ApiRequest {
     /**
      * Whether or not to attempt to build an optimal backend query (i.e. topN or timeSeries in the case of Druid) if possible.
      *
-     * @return True if the backend query built from this request can be safely optimized (i.e. converted into a topN 
-     * or timeseries query when hitting Druid), false if a naive query should be built (i.e. groupBy in the 
+     * @return True if the backend query built from this request can be safely optimized (i.e. converted into a topN
+     * or timeseries query when hitting Druid), false if a naive query should be built (i.e. groupBy in the
      * case of Druid)
      */
     default boolean optimizeBackendQuery() {

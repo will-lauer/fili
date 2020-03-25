@@ -9,8 +9,8 @@ import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestExceptio
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadMetricException;
 import com.yahoo.bard.webservice.web.apirequest.generator.metric.ApiMetricParser;
 import com.yahoo.bard.webservice.web.apirequest.metrics.ApiMetric;
-import com.yahoo.bard.webservice.web.metrics.MetricsLex;
-import com.yahoo.bard.webservice.web.metrics.MetricsParser;
+import com.yahoo.bard.webservice.web.protocol.metrics.MetricsLex;
+import com.yahoo.bard.webservice.web.protocol.metrics.MetricsParser;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
