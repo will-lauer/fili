@@ -17,6 +17,7 @@ import com.yahoo.bard.webservice.util.UnmodifiableLinkedHashSet;
 import com.yahoo.bard.webservice.web.ApiFilter;
 import com.yahoo.bard.webservice.web.ApiHaving;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
+import com.yahoo.bard.webservice.web.apirequest.data.DataApiRequestImpl;
 import com.yahoo.bard.webservice.web.filters.ApiFilters;
 import com.yahoo.bard.webservice.web.filters.UnmodifiableApiFilters;
 import com.yahoo.bard.webservice.web.util.PaginationParameters;
@@ -39,7 +40,7 @@ import javax.ws.rs.core.Response;
 /**
  * And immutable POJO implementation of {@link DataApiRequest} contract. All data is provided through the constructor
  * and set, with very minor or no transformations occurring on the data. Unlike the old implementation
- * ({@link com.yahoo.bard.webservice.web.apirequest.DataApiRequestImpl}), this implementation does not build any of
+ * ({@link DataApiRequestImpl}), this implementation does not build any of
  * its components and all components must be fully built at creation time.
  */
 public class DataApiRequestValueObject implements DataApiRequest {

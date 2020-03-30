@@ -8,7 +8,7 @@ import com.yahoo.bard.webservice.logging.RequestLog;
 import com.yahoo.bard.webservice.logging.TimedPhase;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.apirequest.DataApiRequestBuilder;
-import com.yahoo.bard.webservice.web.apirequest.DataApiRequestImpl;
+import com.yahoo.bard.webservice.web.apirequest.data.DataApiRequestImpl;
 import com.yahoo.bard.webservice.web.apirequest.RequestParameters;
 import com.yahoo.bard.webservice.web.util.BardConfigResources;
 

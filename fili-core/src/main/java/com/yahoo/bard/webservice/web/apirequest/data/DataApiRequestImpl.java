@@ -1,6 +1,6 @@
-// Copyright 2016 Yahoo Inc.
+// Copyright 2020 Oath Inc.
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
-package com.yahoo.bard.webservice.web.apirequest;
+package com.yahoo.bard.webservice.web.apirequest.data;
 
 import static com.yahoo.bard.webservice.web.ErrorMessageFormat.DATE_TIME_SORT_VALUE_INVALID;
 import static com.yahoo.bard.webservice.web.ErrorMessageFormat.DIMENSION_FIELDS_UNDEFINED;
@@ -44,6 +44,8 @@ import com.yahoo.bard.webservice.util.StreamUtils;
 import com.yahoo.bard.webservice.util.TableUtils;
 import com.yahoo.bard.webservice.web.ApiFilter;
 import com.yahoo.bard.webservice.web.ApiHaving;
+import com.yahoo.bard.webservice.web.apirequest.ApiRequestImpl;
+import com.yahoo.bard.webservice.web.apirequest.DataApiRequest;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.DefaultFilterOperation;
 import com.yahoo.bard.webservice.web.DimensionFieldSpecifierKeywords;
@@ -88,31 +90,12 @@ import javax.ws.rs.core.Response;
 /**
  * Data API Request Implementation binds, validates, and models the parts of a request to the data endpoint.
  */
-public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest {
+public class DataApiRequestImpl extends AbstractDataApiRequestImpl implements DataApiRequest {
     private static final Logger LOG = LoggerFactory.getLogger(DataApiRequestImpl.class);
 
-    private final LogicalTable table;
-
-    private final Granularity granularity;
-
-    private final LinkedHashSet<Dimension> dimensions;
-    private final LinkedHashMap<Dimension, LinkedHashSet<DimensionField>> perDimensionFields;
-    private final LinkedHashSet<LogicalMetric> logicalMetrics;
-    private final List<Interval> intervals;
-    private final ApiFilters apiFilters;
-    private final Map<LogicalMetric, Set<ApiHaving>> havings;
-    private final LinkedHashSet<OrderByColumn> sorts;
-    private final OrderByColumn dateTimeSort;
-
-    private final int count;
-    private final int topN;
-    private final DateTimeZone timeZone;
-    private final boolean optimizable;
 
     protected FilterGenerator filterGenerator = FilterBinders.getInstance()::generateFilters;
 
-    @Deprecated
-    private final DruidFilterBuilder filterBuilder;
 
     /**
      * Parses the API request URL and generates the Api Request object.
@@ -271,7 +254,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             @NotNull String page,
             BardConfigResources bardConfigResources
     ) throws BadApiRequestException {
-        this(
+        super(
                tableName,
                 granularity,
                 dimensions,
@@ -891,7 +874,26 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
             Long asyncAfter,
             boolean optimizable
     ) {
-        super(format, downloadFilename, asyncAfter, paginationParameters);
+        super(
+                table,
+                granularity,
+                groupingDimensions,
+                perDimensionFields,
+                logicalMetrics,
+                intervals,
+                apiFilters,
+                havings,
+                sorts,
+                dateTimeSort,
+                timeZone,
+                topN,
+                count,
+                paginationParameters,
+                format,
+                downloadFilename,
+                asyncAfter,
+                optimizable
+        );
         this.table = table;
         this.granularity = granularity;
         this.dimensions = groupingDimensions;

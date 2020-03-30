@@ -17,6 +17,7 @@ import com.yahoo.bard.webservice.logging.TimedPhase;
 import com.yahoo.bard.webservice.table.LogicalTable;
 import com.yahoo.bard.webservice.web.ApiHaving;
 import com.yahoo.bard.webservice.web.ResponseFormatType;
+import com.yahoo.bard.webservice.web.apirequest.data.DataApiRequestImpl;
 import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
 import com.yahoo.bard.webservice.web.apirequest.generator.metric.ApiRequestLogicalMetricBinder;
 import com.yahoo.bard.webservice.web.filters.ApiFilters;
