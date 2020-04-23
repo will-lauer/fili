@@ -140,7 +140,7 @@ public class ApiHavingsListListener extends HavingsBaseListener {
     protected List<Double> extractValues(HavingsParser.HavingComponentContext havingContext) {
         List<Double> values = new LinkedList<>();
         Double val;
-        for (TerminalNode tok : havingContext.values().VALUE()) {
+        for (TerminalNode tok : havingContext.havingValues().VALUE()) {
             try {
                 val = Double.parseDouble(tok.getText());
             } catch (NumberFormatException e) {

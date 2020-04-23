@@ -2,17 +2,22 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.druid.model.orderby;
 
-import com.yahoo.bard.webservice.data.metric.LogicalMetric;
-import com.yahoo.bard.webservice.druid.model.aggregation.Aggregation;
-import com.yahoo.bard.webservice.druid.model.postaggregation.PostAggregation;
+import static com.yahoo.bard.webservice.web.ErrorMessageFormat.SORT_DIRECTION_INVALID;
 
+import com.yahoo.bard.webservice.data.metric.LogicalMetric;
+import com.yahoo.bard.webservice.druid.model.MetricField;
+import com.yahoo.bard.webservice.web.apirequest.exceptions.BadApiRequestException;
+
+import java.util.Locale;
 import java.util.Objects;
 
 /**
  * OrderByColumn class.
  */
 public class OrderByColumn {
-    private final String dimension;
+    public static final SortDirection DEFAULT_DIRECTION = SortDirection.DESC;
+
+    private final String column;
     private final SortDirection direction;
 
     /**
@@ -21,33 +26,32 @@ public class OrderByColumn {
      * @param metric  a LogicalMetric
      * @param direction  sort direction
      *
-     * Note: Plan is to remove this LogicalMetric based constructor and have a DruidColumn based constructor.
+     * @deprecated Use any the String constructor instead
      */
+    @Deprecated
     public OrderByColumn(LogicalMetric metric, SortDirection direction) {
-        this.dimension = metric.getName();
-        this.direction = direction;
+        this(metric.getName(), direction);
     }
 
     /**
      * Constructor.
      *
-     * @param aggregation  an Aggregation
+     * @param metricField  an Aggregation or PostAggregation
      * @param direction  sort direction
      */
-    public OrderByColumn(Aggregation aggregation, SortDirection direction) {
-        this.dimension = aggregation.getName();
-        this.direction = direction;
+    public OrderByColumn(MetricField metricField, SortDirection direction) {
+        this(metricField.getName(), direction);
     }
 
     /**
-     * Constructor.
+     * Constructor which accepts generic column with direction. For example: dateTime column is not part of aggregation
+     * or postAggregation. But still allowed to sort the resultSet based on dateTime value.
      *
-     * @param postAggregation  a PostAggregation
+     * @param column  a column needs to be associated with the direction
      * @param direction  sort direction
      */
-    public OrderByColumn(PostAggregation postAggregation, SortDirection direction) {
-        this.dimension = postAggregation.getName();
-        this.direction = direction;
+    public OrderByColumn(String column, String direction) {
+        this(column, parseSortDirection(direction));
     }
 
     /**
@@ -58,7 +62,7 @@ public class OrderByColumn {
      * @param direction  sort direction
      */
     public OrderByColumn(String column, SortDirection direction) {
-        this.dimension = column;
+        this.column = column;
         this.direction = direction;
     }
 
@@ -68,7 +72,7 @@ public class OrderByColumn {
      * @return dimension A dimension name, a metric name, an aggregation name or a post aggregation name
      */
     public String getDimension() {
-        return this.dimension;
+        return this.column;
     }
 
     /**
@@ -77,7 +81,26 @@ public class OrderByColumn {
      * @return direction
      */
     public SortDirection getDirection() {
-        return  this.direction;
+        return this.direction;
+    }
+
+    /**
+     * Bind sort direction request to SortDirection instance.
+     *
+     * @param sortDirection  The string representing the sort direction
+     *
+     * @return Sorting direction. If no direction provided then the default one will be DESC
+     */
+    protected static SortDirection parseSortDirection(String sortDirection) {
+        if (sortDirection == null) {
+            return DEFAULT_DIRECTION;
+        }
+
+        try {
+            return SortDirection.valueOf(sortDirection.toUpperCase(Locale.ENGLISH));
+        } catch (IllegalArgumentException ignored) {
+            throw new BadApiRequestException(SORT_DIRECTION_INVALID.format(sortDirection));
+        }
     }
 
     @Override
@@ -88,12 +111,12 @@ public class OrderByColumn {
         OrderByColumn that = (OrderByColumn) o;
 
         return
-                Objects.equals(dimension, that.dimension) &&
+                Objects.equals(column, that.column) &&
                 direction == that.direction;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dimension, direction);
+        return Objects.hash(column, direction);
     }
 }

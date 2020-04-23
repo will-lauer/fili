@@ -1284,7 +1284,7 @@ public class DataApiRequestImpl extends ApiRequestImpl implements DataApiRequest
                     unsortableMetrics.add(sortMetricName);
                     continue;
                 }
-                metricSortColumns.add(new OrderByColumn(logicalMetric, entry.getValue()));
+                metricSortColumns.add(new OrderByColumn(logicalMetric.getMetricField().getName(), entry.getValue()));
             }
             if (!unknownMetrics.isEmpty()) {
                 LOG.debug(SORT_METRICS_UNDEFINED.logFormat(unknownMetrics.toString()));
