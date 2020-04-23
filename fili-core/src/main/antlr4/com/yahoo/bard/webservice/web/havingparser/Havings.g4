@@ -8,12 +8,21 @@ havings
     : ( havingComponent ( COMMA havingComponent )* )? EOF;
 
 havingComponent
-    : metric DASH OPERATOR OPEN_BRACKET values CLOSE_BRACKET;
+    : metric DASH OPERATOR OPEN_BRACKET havingValues CLOSE_BRACKET;
 
 metric
-    : ID ( OPEN_PARENTHESIS ID EQUALS ID CLOSE_PARENTHESIS )?
+    : metricName ( OPEN_PARENTHESIS params? CLOSE_PARENTHESIS )?
+    ;
+metricName
+    : ID
+    ;
+params
+    : paramValue ( COMMA paramValue )*
+    ;
+paramValue
+    : ID EQUALS VALUE
     ;
 
-values
+havingValues
     : VALUE ( COMMA VALUE )*
     ;
