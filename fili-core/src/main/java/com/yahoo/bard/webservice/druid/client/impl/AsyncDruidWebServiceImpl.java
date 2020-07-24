@@ -110,7 +110,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     ) {
         this(
                 serviceConfig,
-                initializeWebClient(serviceConfig),
+                initializeWebClient(serviceConfig.getTimeout()),
                 mapper,
                 HashMap::new,
                 DEFAULT_JSON_NODE_BUILDER_STRATEGY
@@ -151,7 +151,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     ) {
         this(
                 serviceConfig,
-                initializeWebClient(serviceConfig),
+                initializeWebClient(serviceConfig.getTimeout()),
                 mapper,
                 headersToAppend,
                 DEFAULT_JSON_NODE_BUILDER_STRATEGY
@@ -174,7 +174,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     ) {
         this(
                 serviceConfig,
-                initializeWebClient(serviceConfig),
+                initializeWebClient(serviceConfig.getTimeout()),
                 mapper,
                 headersToAppend,
                 jsonNodeBuilderStrategy
@@ -237,14 +237,12 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     /**
      * Initialize the client config.
      *
-     * @param serviceConfig  DruidServiceConfig.
+     * @param requestTimeout  Timeout to use for the client configuration.
      *
      * @return the set up client
      */
-    private static AsyncHttpClient initializeWebClient(DruidServiceConfig serviceConfig) {
+    private static AsyncHttpClient initializeWebClient(int requestTimeout) {
 
-        int requestTimeout = serviceConfig.getTimeout();
-        String name = serviceConfig.getName() != null ? serviceConfig.getName() : "FiliClient";
         LOG.debug("Druid request timeout: {}ms", requestTimeout);
         List<String> cipherSuites = SYSTEM_CONFIG.getListProperty(SSL_ENABLED_CIPHER_KEY, null);
         String[] enabledCipherSuites = cipherSuites == null  || cipherSuites.isEmpty() ?
@@ -259,7 +257,6 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
                 .setConnectionTtl(requestTimeout)
                 .setPooledConnectionIdleTimeout(requestTimeout)
                 .setEnabledCipherSuites(enabledCipherSuites)
-                .setThreadPoolName(name)
                 .setFollowRedirect(true)
                 .build();
 
