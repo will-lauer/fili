@@ -116,6 +116,10 @@ Current
 
 ### Changed:
 
+- [Added explicit support for distinct metadata timeouts](https://github.com/yahoo/fili/issues/1073)
+   * Used named binding that was previously not wired up.
+   * Added default 10 second metadata wait.
+   
 - [Updated dependency code](https://github.com/yahoo/fili/issues/1066)
    * Removed expired suppressions
    * Suppressed transitive hibernate validator dependency with OWASP issue 

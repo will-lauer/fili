@@ -235,6 +235,7 @@ public abstract class AbstractBinderFactory implements BinderFactory {
     );
 
     public static final String SYSTEM_CONFIG_TIMEZONE_KEY = "timezone";
+    public static final String METADATA_DRUID_WEB_SERVICE = "metadataDruidWebService";
 
     private ObjectMappersSuite objectMappers;
 
@@ -274,7 +275,7 @@ public abstract class AbstractBinderFactory implements BinderFactory {
                 DruidWebService metadataDruidWebService = null;
                 if (DRUID_COORDINATOR_METADATA.isOn()) {
                     metadataDruidWebService = buildMetadataDruidWebService(getMappers().getMapper());
-                    bind(metadataDruidWebService).named("metadataDruidWebService").to(DruidWebService.class);
+                    bind(metadataDruidWebService).named(METADATA_DRUID_WEB_SERVICE).to(DruidWebService.class);
                 }
 
                 // Bind the timeGrain

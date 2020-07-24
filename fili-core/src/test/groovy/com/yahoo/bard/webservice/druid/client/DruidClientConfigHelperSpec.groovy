@@ -54,7 +54,8 @@ class DruidClientConfigHelperSpec extends Specification {
 
     def "check if appropriate druid request timeout is fetched"() {
         expect:
-        DruidClientConfigHelper.getDruidTimeout() == Integer.parseInt(expectedRequestTimeout)
+        DruidClientConfigHelper.fetchDruidResponseTimeOut(DRUID_REQUEST_TIMEOUT_KEY) == Integer.
+                parseInt(expectedRequestTimeout)
     }
 
 

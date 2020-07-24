@@ -39,10 +39,16 @@ public class DruidClientConfigHelper {
     public static final String DRUID_COORD_URL_KEY =
             SYSTEM_CONFIG.getPackageVariableName("druid_coord");
     /**
-     * The timeout setting for all queries.
+     * The timeout setting for all data queries.
      */
     private static final String DRUID_REQUEST_TIMEOUT_KEY =
             SYSTEM_CONFIG.getPackageVariableName("druid_request_timeout");
+
+    /**
+     * The timeout setting for all metadata queries.
+     */
+    private static final String DRUID_METADATA_REQUEST_TIMEOUT_KEY =
+            SYSTEM_CONFIG.getPackageVariableName("druid_metadata_request_timeout");
 
     /**
      * The default timeout for queries.
@@ -80,22 +86,17 @@ public class DruidClientConfigHelper {
     }
 
     /**
-     * Fetches the druid request timeout.
-     *
-     * @return druid request timeout
-     */
-    public static Integer getDruidTimeout() {
-        Integer time = fetchDruidResponseTimeOut(DRUID_REQUEST_TIMEOUT_KEY);
-        return time;
-    }
-
-    /**
      * Create a druid service configuration object.
      *
      * @return a druid service configuration object with all configuration parameters set
      */
     public static DruidServiceConfig getServiceConfig() {
-        return new DruidServiceConfig("Broker", getDruidUrl(), getDruidTimeout(), getDruidPriority());
+        return new DruidServiceConfig(
+                "Broker",
+                getDruidUrl(),
+                fetchDruidResponseTimeOut(DRUID_REQUEST_TIMEOUT_KEY),
+                getDruidPriority()
+        );
     }
 
     /**
@@ -107,7 +108,7 @@ public class DruidClientConfigHelper {
         return new DruidServiceConfig(
                 "Coordinator",
                 getDruidCoordUrl(),
-                getDruidTimeout(),
+                fetchDruidResponseTimeOut(DRUID_METADATA_REQUEST_TIMEOUT_KEY),
                 getDruidPriority()
         );
     }

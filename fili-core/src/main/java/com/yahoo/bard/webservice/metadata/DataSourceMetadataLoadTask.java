@@ -2,6 +2,7 @@
 // Licensed under the terms of the Apache license. Please see LICENSE.md file distributed with this work for terms.
 package com.yahoo.bard.webservice.metadata;
 
+import static com.yahoo.bard.webservice.application.AbstractBinderFactory.METADATA_DRUID_WEB_SERVICE;
 import static com.yahoo.bard.webservice.web.ErrorMessageFormat.DRUID_METADATA_READ_ERROR;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -75,7 +77,7 @@ public class DataSourceMetadataLoadTask extends LoadTask<Boolean> {
     public DataSourceMetadataLoadTask(
             PhysicalTableDictionary physicalTableDictionary,
             DataSourceMetadataService metadataService,
-            DruidWebService druidWebService,
+            @Named(METADATA_DRUID_WEB_SERVICE) DruidWebService druidWebService,
             ObjectMapper mapper
     ) {
         super(
