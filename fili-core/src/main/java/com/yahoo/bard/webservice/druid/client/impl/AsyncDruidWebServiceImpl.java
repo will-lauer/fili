@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -109,7 +110,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     ) {
         this(
                 serviceConfig,
-                initializeWebClient(serviceConfig.getTimeout()),
+                initializeWebClient(serviceConfig),
                 mapper,
                 HashMap::new,
                 DEFAULT_JSON_NODE_BUILDER_STRATEGY
@@ -150,7 +151,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     ) {
         this(
                 serviceConfig,
-                initializeWebClient(serviceConfig.getTimeout()),
+                initializeWebClient(serviceConfig),
                 mapper,
                 headersToAppend,
                 DEFAULT_JSON_NODE_BUILDER_STRATEGY
@@ -173,7 +174,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     ) {
         this(
                 serviceConfig,
-                initializeWebClient(serviceConfig.getTimeout()),
+                initializeWebClient(serviceConfig),
                 mapper,
                 headersToAppend,
                 jsonNodeBuilderStrategy
@@ -236,12 +237,14 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
     /**
      * Initialize the client config.
      *
-     * @param requestTimeout  Timeout to use for the client configuration.
+     * @param serviceConfig  DruidServiceConfig.
      *
      * @return the set up client
      */
-    private static AsyncHttpClient initializeWebClient(int requestTimeout) {
+    private static AsyncHttpClient initializeWebClient(DruidServiceConfig serviceConfig) {
 
+        int requestTimeout = serviceConfig.getTimeout();
+        String name = serviceConfig.getName() != null ? serviceConfig.getName() : "FiliClient";
         LOG.debug("Druid request timeout: {}ms", requestTimeout);
         List<String> cipherSuites = SYSTEM_CONFIG.getListProperty(SSL_ENABLED_CIPHER_KEY, null);
         String[] enabledCipherSuites = cipherSuites == null  || cipherSuites.isEmpty() ?
@@ -256,6 +259,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
                 .setConnectionTtl(requestTimeout)
                 .setPooledConnectionIdleTimeout(requestTimeout)
                 .setEnabledCipherSuites(enabledCipherSuites)
+                .setThreadPoolName(name)
                 .setFollowRedirect(true)
                 .build();
 
@@ -284,7 +288,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
             final AtomicLong outstanding
     ) {
         RequestLog.startTiming(timerName);
-        final RequestLog logCtx = RequestLog.dump();
+        final AtomicReference<RequestLog> logCtx = new AtomicReference<>(RequestLog.dump());
         try {
             return requestBuilder.execute(
                 new AsyncCompletionHandler<Response>() {
@@ -292,8 +296,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
                     public Response onCompleted(Response response) {
                         String druidQueryId = response.getHeader("X-Druid-Query-Id");
                         Status status = Status.fromStatusCode(response.getStatusCode());
-                        logRequest(logCtx, timerName, outstanding, druidQueryId, status);
-
+                        logRequest(logCtx.getAndSet(null), timerName, outstanding, druidQueryId, status);
                         if (hasError(status)) {
                             markError(status, response, druidQueryId, error);
                         } else {
@@ -311,7 +314,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
 
                     @Override
                     public void onThrowable(Throwable t) {
-                        RequestLog.restore(logCtx);
+                        RequestLog.restore(logCtx.getAndSet(null));
                         RequestLog.stopTiming(timerName);
                         if (outstanding.decrementAndGet() == 0) {
                             RequestLog.startTiming(RESPONSE_WORKFLOW_TIMER);
@@ -322,7 +325,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
                     }
                 });
         } catch (RuntimeException t) {
-            RequestLog.restore(logCtx);
+            RequestLog.restore(logCtx.get());
             RequestLog.stopTiming(timerName);
             if (outstanding.decrementAndGet() == 0) {
                 RequestLog.startTiming(RESPONSE_WORKFLOW_TIMER);
