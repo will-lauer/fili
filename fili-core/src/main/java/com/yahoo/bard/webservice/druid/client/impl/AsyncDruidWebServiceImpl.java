@@ -41,8 +41,6 @@ import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.handler.ssl.SslContext;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -236,8 +234,6 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
         this.jsonNodeBuilderStrategy = jsonNodeBuilderStrategy;
     }
 
-
-
     /**
      * Initialize the client config.
      *
@@ -266,7 +262,6 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
 
         return new DefaultAsyncHttpClient(config);
     }
-
 
     /**
      * Serializes the provided query and invokes a request on the druid broker.
