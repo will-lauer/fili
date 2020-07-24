@@ -1291,17 +1291,17 @@ public abstract class AbstractBinderFactory implements BinderFactory {
      * @return A DruidWebService
      */
     protected DruidWebService buildDruidWebService(DruidServiceConfig druidServiceConfig, ObjectMapper mapper) {
-        Supplier<Map<String, String>> supplier = buildDruidWebServiceHeaderSupplier();
+        Supplier<Map<String, String>> headerSupplier = buildDruidWebServiceHeaderSupplier();
         return DRUID_UNCOVERED_INTERVAL_LIMIT > 0
                 ? new AsyncDruidWebServiceImpl(
                     druidServiceConfig,
                     mapper,
-                    supplier,
+                    headerSupplier,
                     new HeaderNestingJsonBuilderStrategy(
                             AsyncDruidWebServiceImpl.DEFAULT_JSON_NODE_BUILDER_STRATEGY
                     )
             )
-                : new AsyncDruidWebServiceImpl(druidServiceConfig, mapper, supplier);
+                : new AsyncDruidWebServiceImpl(druidServiceConfig, mapper, headerSupplier);
     }
 
     /**

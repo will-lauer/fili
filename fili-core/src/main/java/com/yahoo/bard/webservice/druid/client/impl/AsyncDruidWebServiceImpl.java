@@ -41,6 +41,8 @@ import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.handler.ssl.SslContext;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -234,6 +236,8 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
         this.jsonNodeBuilderStrategy = jsonNodeBuilderStrategy;
     }
 
+
+
     /**
      * Initialize the client config.
      *
@@ -241,7 +245,7 @@ public class AsyncDruidWebServiceImpl implements DruidWebService {
      *
      * @return the set up client
      */
-    private static AsyncHttpClient initializeWebClient(int requestTimeout) {
+    protected AsyncHttpClient initializeWebClient(int requestTimeout) {
 
         LOG.debug("Druid request timeout: {}ms", requestTimeout);
         List<String> cipherSuites = SYSTEM_CONFIG.getListProperty(SSL_ENABLED_CIPHER_KEY, null);
